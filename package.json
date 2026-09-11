@@ -1,0 +1,26 @@
+{
+  "name": "landslide-early-warning-monorepo",
+  "version": "1.0.0",
+  "private": true,
+  "description": "AI-Based Early Warning and Landslide Risk Monitoring System (NER)",
+  "packageManager": "pnpm@12.3.4",
+  "scripts": {
+    "dev:web": "pnpm --filter @landslide/web dev",
+    "build:web": "pnpm --filter @landslide/web build",
+    "build": "pnpm -r --filter \"./packages/**\" --filter \"./apps/web\" run build",
+    "type-check": "pnpm -r --filter \"./packages/**\" --filter \"./apps/web\" run type-check",
+    "lint": "pnpm -r --filter \"./packages/**\" --filter \"./apps/web\" run lint",
+    "clean": "pnpm -r exec rimraf node_modules dist .next"
+  },
+  "keywords": [
+    "landslide",
+    "early-warning",
+    "monorepo",
+    "pnpm",
+    "nextjs",
+    "flutter",
+    "fastapi"
+  ],
+  "author": "",
+  "license": "ISC"
+}

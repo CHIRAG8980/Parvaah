@@ -1,0 +1,39 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: landslide-api
+  labels:
+    app: landslide-api
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: landslide-api
+  template:
+    metadata:
+      labels:
+        app: landslide-api
+    spec:
+      containers:
+        - name: api
+          image: landslide-api:latest
+          ports:
+            - containerPort: 8000
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 8000
+            initialDelaySeconds: 5
+            periodSeconds: 10
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: landslide-api-service
+spec:
+  selector:
+    app: landslide-api
+  ports:
+    - protocol: TCP
+      port: 8000
+      targetPort: 8000

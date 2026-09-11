@@ -1,0 +1,19 @@
+{
+  "name": "@landslide/types",
+  "version": "0.1.0",
+  "private": true,
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsc",
+    "type-check": "tsc --noEmit",
+    "lint": "echo \"No linter configured for @landslide/types\""
+  },
+  "devDependencies": {
+    "@landslide/config": "workspace:*",
+    "typescript": "^5.4.5"
+  }
+}
