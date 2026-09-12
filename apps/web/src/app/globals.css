@@ -3,12 +3,295 @@
 @tailwind utilities;
 
 :root {
-  --background: #090d16;
-  --foreground: #f1f5f9;
+  --background: #F4F8FC;
+  --card: #FFFFFF;
+  --border: #DCE6F2;
+  --text-primary: #0F1F3D;
+  --text-secondary: #536B8F;
+  --primary: #1769D2;
+}
+
+* {
+  box-sizing: border-box;
 }
 
 body {
-  color: var(--foreground);
-  background: var(--background);
-  font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+  color: var(--text-primary);
+  background-color: var(--background);
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  overflow-x: hidden;
+}
+
+/* Custom Scrollbar for dashboard panels */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #CBD5E1;
+  border-radius: 9999px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #94A3B8;
+}
+
+/* Custom Leaflet styling */
+.leaflet-container {
+  width: 100%;
+  height: 100%;
+  border-radius: 0 0 12px 12px;
+  font-family: inherit;
+  background: #0B192C;
+}
+
+.leaflet-control-zoom {
+  border: 1px solid #DCE6F2 !important;
+  box-shadow: 0 2px 8px rgba(15, 35, 70, 0.08) !important;
+  border-radius: 8px !important;
+  overflow: hidden;
+}
+
+.leaflet-control-zoom a {
+  background: #FFFFFF !important;
+  color: #0F2346 !important;
+  border-bottom: 1px solid #E2E8F0 !important;
+  font-weight: 600 !important;
+  width: 32px !important;
+  height: 32px !important;
+  line-height: 32px !important;
+  transition: all 0.15s ease;
+}
+
+.leaflet-control-zoom a:hover {
+  background: #F8FAFC !important;
+  color: #1769D2 !important;
+}
+
+.leaflet-popup-content-wrapper {
+  background: #FFFFFF;
+  border-radius: 10px;
+  box-shadow: 0 8px 24px rgba(15, 35, 70, 0.14);
+  padding: 0;
+  border: 1px solid #DCE6F2;
+}
+
+.leaflet-popup-content {
+  margin: 12px 14px;
+  line-height: 1.4;
+  color: #0F1F3D;
+  font-size: 13px;
+}
+
+.leaflet-popup-tip {
+  background: #FFFFFF;
+}
+
+/* Custom Marker Pulse Animations */
+@keyframes pulse-critical {
+  0% {
+    box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7);
+  }
+
+  70% {
+    box-shadow: 0 0 0 12px rgba(239, 68, 68, 0);
+  }
+
+  100% {
+    box-shadow: 0 0 0 0 rgba(239, 68, 68, 0);
+  }
+}
+
+.marker-pulse-critical {
+  animation: pulse-critical 2s infinite cubic-bezier(0.4, 0, 0.6, 1);
+}
+
+@keyframes pulse-high {
+  0% {
+    box-shadow: 0 0 0 0 rgba(249, 115, 22, 0.6);
+  }
+
+  70% {
+    box-shadow: 0 0 0 10px rgba(249, 115, 22, 0);
+  }
+
+  100% {
+    box-shadow: 0 0 0 0 rgba(249, 115, 22, 0);
+  }
+}
+
+.marker-pulse-high {
+  animation: pulse-high 2.2s infinite cubic-bezier(0.4, 0, 0.6, 1);
+}
+
+/* =========================================================================
+   PRODUCTION-GRADE MOTION SYSTEM (Linear / Stripe / Vercel Grade)
+   ========================================================================= */
+
+:root {
+  --ease-premium: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-smooth: cubic-bezier(0.4, 0, 0.2, 1);
+  --duration-micro: 130ms;
+  --duration-standard: 180ms;
+  --duration-panel: 220ms;
+  --duration-structural: 280ms;
+  --duration-page: 240ms;
+}
+
+/* 1. Page entrance transition */
+.motion-page-enter {
+  animation: page-enter var(--duration-page) var(--ease-premium);
+  will-change: opacity;
+}
+
+/* 2. Interactive Buttons */
+.motion-btn {
+  transition: transform var(--duration-micro) var(--ease-premium),
+    background-color var(--duration-micro) var(--ease-smooth),
+    border-color var(--duration-micro) var(--ease-smooth),
+    box-shadow var(--duration-micro) var(--ease-smooth),
+    color var(--duration-micro) var(--ease-smooth),
+    opacity var(--duration-micro) var(--ease-smooth);
+  will-change: transform;
+}
+
+.motion-btn:hover:not(:disabled) {
+  transform: translateY(-1px);
+}
+
+.motion-btn:active:not(:disabled) {
+  transform: scale(0.975);
+}
+
+.motion-btn:disabled {
+  transition: opacity var(--duration-micro) var(--ease-smooth),
+    filter var(--duration-micro) var(--ease-smooth);
+}
+
+/* 3. Cards & Containers */
+.motion-card {
+  transition: transform var(--duration-standard) var(--ease-premium),
+    box-shadow var(--duration-standard) var(--ease-premium),
+    border-color var(--duration-standard) var(--ease-smooth),
+    background-color var(--duration-standard) var(--ease-smooth);
+  will-change: transform, box-shadow;
+}
+
+.motion-card-hover:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 14px rgba(15, 35, 70, 0.08), 0 2px 4px rgba(15, 35, 70, 0.04);
+}
+
+.motion-card-clickable:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 14px rgba(15, 35, 70, 0.08), 0 2px 4px rgba(15, 35, 70, 0.04);
+}
+
+.motion-card-clickable:active {
+  transform: scale(0.99);
+}
+
+/* 4. Dropdowns & Menus */
+.motion-dropdown {
+  animation: dropdown-enter var(--duration-panel) var(--ease-premium) forwards;
+  transform-origin: top;
+  will-change: transform, opacity;
+}
+
+.motion-dropdown-right {
+  transform-origin: top right;
+}
+
+.motion-dropdown-left {
+  transform-origin: top left;
+}
+
+/* 5. Modals & Dialogs */
+.motion-modal-overlay {
+  animation: modal-overlay-enter var(--duration-structural) var(--ease-smooth) forwards;
+}
+
+.motion-modal-content {
+  animation: modal-enter var(--duration-structural) var(--ease-premium) forwards;
+  transform-origin: center;
+  will-change: transform, opacity;
+}
+
+@keyframes modal-overlay-enter {
+  0% {
+    opacity: 0;
+  }
+
+  100% {
+    opacity: 1;
+  }
+}
+
+/* 6. Form Inputs */
+.motion-input {
+  transition: border-color var(--duration-micro) var(--ease-smooth),
+    box-shadow var(--duration-micro) var(--ease-smooth),
+    background-color var(--duration-micro) var(--ease-smooth);
+}
+
+/* 7. Table Rows & List Items */
+.motion-row {
+  transition: background-color var(--duration-micro) var(--ease-smooth),
+    border-color var(--duration-micro) var(--ease-smooth),
+    transform var(--duration-micro) var(--ease-premium);
+}
+
+/* 8. Error Feedback */
+.motion-shake {
+  animation: error-shake 250ms var(--ease-premium);
+}
+
+/* 9. Subtle Beacon Pulse (Professional, not frantic) */
+.motion-beacon {
+  animation: subtle-pulse 2.8s ease-in-out infinite;
+}
+
+/* 10. Icon Rotations */
+.motion-rotate-180 {
+  transition: transform var(--duration-standard) var(--ease-premium);
+}
+
+/* 11. Stagger Utilities */
+.stagger-1 {
+  animation-delay: 30ms;
+}
+
+.stagger-2 {
+  animation-delay: 60ms;
+}
+
+.stagger-3 {
+  animation-delay: 90ms;
+}
+
+.stagger-4 {
+  animation-delay: 120ms;
+}
+
+/* =========================================================================
+   ACCESSIBILITY: Respect prefers-reduced-motion
+   ========================================================================= */
+@media (prefers-reduced-motion: reduce) {
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }

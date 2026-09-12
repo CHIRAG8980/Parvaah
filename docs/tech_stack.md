@@ -40,7 +40,7 @@
 | Component | Technology | Purpose |
 |---|---|---|
 | API framework | FastAPI (Python) or NestJS (Node.js) | REST/GraphQL APIs for dashboard and alert services |
-| Auth & RBAC | Keycloak (OAuth2/OIDC) | Role-based access: district admin, state authority, duty officer, field official |
+| Auth & RBAC | Keycloak (OAuth2/OIDC) | Authentication & access control for Disaster Management Officer (web) |
 | Task queue | Celery / BullMQ | Async jobs (retraining triggers, alert dispatch retries) |
 | API gateway | Kong / Nginx | Rate limiting, routing, TLS termination |
 

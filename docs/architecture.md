@@ -5,7 +5,7 @@
 
 ## Overview
 
-The system has five layers: data ingestion, AI/ML prediction, storage and GIS, application/API, and alerting. The mobile app is view-only (no citizen/field reporting); the web dashboard is the sole control-room interface for monitoring, review, and alert approval.
+The system has five layers: data ingestion, AI/ML prediction, storage and GIS, application/API, and alerting. The mobile app is view-only for Users (mobile app) with no reporting; the web dashboard is the control-room interface for Disaster Management Officers (web) for monitoring, review, and alert approval.
 
 ```
 IMD Rainfall + Community Rain Gauges + Satellite (ISRO/Sentinel) + Historical Records + Road/Infra Data
@@ -23,8 +23,8 @@ IMD Rainfall + Community Rain Gauges + Satellite (ISRO/Sentinel) + Historical Re
                         ---------------------------------------------------
                         |                                                 |
                 Web Dashboard (control room)                    Mobile App (view-only)
-                district admin, state authority,                 citizens, field officials —
-                duty officers — monitoring & alert approval        offline-first risk viewer only
+                Disaster Management Officer (web) —             User (mobile app) —
+                monitoring & alert approval                     offline-first risk viewer only
                         |
                 Alert Dispatch Engine
                 (SMS, IVR, App Push, CAP → Sachet → Radio/TV/Siren fallback)
@@ -80,7 +80,7 @@ IMD Rainfall + Community Rain Gauges + Satellite (ISRO/Sentinel) + Historical Re
 ## 4. Application and API Layer
 
 - **Backend:** FastAPI or NestJS, exposing REST/GraphQL APIs
-- **Auth:** Keycloak (OAuth2), role-based access — district admin, state disaster authority, duty officer, field official (web access only)
+- **Auth:** Keycloak (OAuth2) for Disaster Management Officer (web)
 - **Web dashboard:** React + Next.js, Mapbox GL/Leaflet — risk heatmaps, road connectivity, weather-linked forecast, alert review queue, analytics, audit logs
 - **Mobile app:** Flutter, offline-first, **view-only** — caches risk maps, road status, and forecasts locally; receives push alerts; contains no reporting, photo, or video capture functionality of any kind
 
@@ -91,7 +91,7 @@ IMD Rainfall + Community Rain Gauges + Satellite (ISRO/Sentinel) + Historical Re
 - **Channels:** SMS (DLT-registered), IVR (low-literacy areas), app push (FCM), and non-digital fallback via Sachet (radio, TV, cell broadcast, sirens) for zones with no mobile coverage
 - **Format:** NDMA Common Alerting Protocol (CAP), integrated with the Sachet platform
 - **Languages:** Pre-translated templates for major NER languages
-- **Flow:** Alerts above threshold go to a duty officer for review before dispatch
+- **Flow:** Alerts above threshold go to a Disaster Management Officer for review before dispatch
 - **Escalation SOP (new):** If a critical alert is not actioned within a defined time window (e.g., 30–60 minutes), it auto-escalates to the next authority level (district collector → SDMA → NDMA) and the delay is logged in the audit trail
 
 ---
@@ -121,7 +121,8 @@ IMD + Community Gauges + Satellite + Historical Records + Road Data
    ---------------------------------------------
    |                                           |
 Web Dashboard                            Mobile App
-(admins, duty officers — full control)   (citizens/field officials — view-only)
+Disaster Management Officer (web)        User (mobile app)
+(full control / alert approval)          (view-only risk viewer)
         |
    Alert Dispatch (SMS, IVR, App Push, CAP → Sachet → Radio/TV/Siren)
         |
@@ -132,7 +133,7 @@ Web Dashboard                            Mobile App
 
 ## Key Architectural Decisions (Final)
 
-1. **No citizen/field photo or video reporting** — the mobile app is strictly view-only; all field verification happens through the web dashboard by authorized officials.
+1. **No mobile photo or video reporting** — the mobile app for User (mobile app) is strictly view-only; all monitoring and verification happens through the web dashboard by the Disaster Management Officer (web).
 2. **Hybrid sensing** — satellite data (InSAR/NDVI) is treated as a trend/susceptibility signal, supplemented by community rain gauges and targeted low-cost GNSS for ground-truth validation.
 3. **Fixed zone resolution (~25 sq km, slope-subdivided)** — avoids both overly coarse district-level alerts and computationally unmanageable per-meter grids.
 4. **Timed escalation on alert review** — closes the institutional accountability gap where a valid alert could otherwise go unactioned.

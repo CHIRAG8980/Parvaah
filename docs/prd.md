@@ -13,7 +13,7 @@ AI-Based Early Warning and Landslide Risk Monitoring System (NER)
 
 ## 2. Objective
 
-Predict landslide risk across the North Eastern Region before failure occurs, and deliver timely, actionable, human-reviewed alerts to authorities and communities — without relying on physical sensor installation or mandatory citizen data capture.
+Predict landslide risk across the North Eastern Region before failure occurs, and deliver timely, actionable, human-reviewed alerts to authorities and communities — without relying on physical sensor installation or mandatory mobile user data capture.
 
 ## 3. Background / Problem
 
@@ -23,11 +23,8 @@ NER frequently faces landslides, flash floods, road blockages, and slope failure
 
 | User | Role |
 |---|---|
-| District administration / state disaster management authority | Monitor risk across their district, review and approve alerts |
-| Field officials | Verify field conditions via web dashboard (not mobile reporting) |
-| Citizens | View local risk and road status, receive alerts (view-only, no reporting) |
-| NDMA (national level) | Receive federated alerts via Sachet/CAP |
-| Duty officer | Reviews and approves/rejects high/critical alerts before dispatch |
+| Disaster Management Officer (web) | Monitors landslide risk across districts/states, reviews and approves/rejects alerts before dispatch, oversees road networks, and coordinates emergency response |
+| User (mobile app) | Views local risk scores, road connectivity status, weather-linked forecasts, and receives critical push alerts (view-only, no reporting) |
 
 ## 5. Core Features
 
@@ -35,7 +32,7 @@ NER frequently faces landslides, flash floods, road blockages, and slope failure
 2. **Predictive engine** — risk score and time-to-failure estimate per zone, updated continuously, with explainability
 3. **Mobile app (view-only)** — offline-first risk viewer; no reporting, no photo/video capture of any kind
 4. **Alerting system** — SMS, IVR, app push, and non-digital channels (radio/TV/siren via Sachet), in local languages
-5. **Officer review queue with timed escalation** — high/critical alerts require duty officer confirmation; unactioned alerts auto-escalate after a defined window
+5. **Officer review queue with timed escalation** — high/critical alerts require Disaster Management Officer confirmation; unactioned alerts auto-escalate after a defined window
 6. **Road connectivity view** — shows which roads are open, at-risk, or blocked
 7. **Route rerouting** — suggests safe alternate roads around at-risk zones
 8. **Weather-linked forecast panel** — shows rainfall trend against risk trend
@@ -46,9 +43,9 @@ NER frequently faces landslides, flash floods, road blockages, and slope failure
 
 - System must ingest rainfall (IMD + community gauges), satellite, and terrain data automatically on a schedule
 - System must recalculate zone risk scores continuously as new data arrives
-- System must NOT require or accept citizen/field photo or video uploads (removed by design decision)
+- System must NOT require or accept user/field photo or video uploads (removed by design decision)
 - System must score data quality/confidence per source before use in risk calculation
-- System must route alerts above a defined risk threshold to a duty officer before public dispatch
+- System must route alerts above a defined risk threshold to a Disaster Management Officer before public dispatch
 - System must auto-escalate to the next authority level if a critical alert is not actioned within a defined time window
 - System must support at least the major NER languages for alert templates
 - System must log every prediction and alert with the data and model version used
@@ -68,7 +65,7 @@ NER frequently faces landslides, flash floods, road blockages, and slope failure
 - Physical sensor networks (piezometers, inclinometers) at scale
 - Fully automated alert dispatch without officer review
 - Real-time machine translation (only pre-approved language templates)
-- Any form of citizen/field photo or video reporting via the mobile app
+- Any form of user photo or video reporting via the mobile app
 
 ## 9. Success Metrics
 

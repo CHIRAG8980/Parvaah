@@ -3,7 +3,7 @@
 
 **Audience:** Web development team
 **Platform:** React + Next.js
-**Role of this app:** Control-room tool for district administrations, state disaster authorities, and duty officers. This is where AI predictions are monitored, alerts are reviewed and approved, and the system is governed and audited. Not intended for citizen/public use.
+**Role of this app:** Control-room tool for Disaster Management Officers (web). This is where AI predictions are monitored, alerts are reviewed and approved, and the system is governed and audited. Not intended for mobile app users.
 
 ---
 
@@ -18,7 +18,7 @@
 - Escalation tracking for unactioned alerts
 
 ### Explicitly out of scope (v1)
-- Citizen-facing features (this is an internal authority tool only)
+- Mobile app user features (this is an internal control-room tool for Disaster Management Officers only)
 - Automated alert dispatch without officer approval
 - Real-time machine translation of alert content
 
@@ -54,7 +54,7 @@
   - Auto-generated reasoning summary (explainable factors)
   - Suggested action (evacuation advisory, road closure notice, team pre-positioning)
   - Suggested dispatch channels (SMS, IVR, app push) and affected village/road list
-- Duty officer actions:
+- Disaster Management Officer actions:
   - **Edit** message text (within pre-approved template constraints for multilingual consistency)
   - **Select/deselect** affected villages, roads, or channels
   - **Approve** → triggers dispatch pipeline
@@ -64,14 +64,13 @@
   - Escalated alerts are visually flagged (red banner + timestamp of original alert time) and logged with the delay duration for accountability.
   - Notify the next-level authority automatically (email/SMS/dashboard notification) when escalation triggers.
 
-### 2.5 Role-Based Access Control
-- Roles: District Admin, State Disaster Authority, Duty Officer, System Admin (NDMA-level, read-only federated view).
+### 2.5 User Access & Authentication
+- User: Disaster Management Officer (web).
 - Auth via Keycloak (OAuth2).
-- Permission matrix:
-  - District Admin: view own district, submit district-level notes, cannot approve state-wide alerts
-  - Duty Officer: review/approve/reject alerts within assigned zones
-  - State Authority: full state view, can override/escalate any alert, manage duty officer assignments
-  - NDMA/System Admin: read-only cross-state view, system configuration access
+- Key Capabilities:
+  - Monitor real-time GIS landslide risk heatmap, weather-linked forecasts, and road connectivity
+  - Review, edit, approve, or reject AI-drafted alerts within assigned zones/districts before dispatch
+  - Track alert escalations, audit logs, and model performance analytics
 
 ### 2.6 Audit Log & Traceability
 - Every prediction, alert, approval, rejection, and escalation logged with:
@@ -150,5 +149,5 @@ Risk Map View     Alert Review Queue    Analytics View
 ## 7. Open Items for Dev Team to Confirm
 
 - Exact escalation timeout duration per risk level (default proposed: 30 min for Critical, 60 min for High) — needs sign-off from disaster management stakeholders.
-- Whether State Authority role needs override capability on District-level approved/rejected alerts.
+- Escalation hierarchy and override workflows for Disaster Management Officers on critical alerts.
 - Confirm CAP/Sachet API integration contract (payload format, auth mechanism) with NDMA/C-DOT team before building the dispatch trigger.

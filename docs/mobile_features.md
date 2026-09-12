@@ -3,7 +3,7 @@
 
 **Audience:** Mobile development team
 **Platform:** Flutter (offline-first)
-**Role of this app:** Read-only risk information tool for citizens and field officials. This app does NOT collect field reports, photos, videos, or any user-submitted data. It is strictly a one-way information channel (system → user).
+**Role of this app:** Read-only risk information tool for Users (mobile app). This app does NOT collect field reports, photos, videos, or any user-submitted data. It is strictly a one-way information channel (system → user).
 
 ---
 
@@ -20,7 +20,7 @@
 ### Explicitly out of scope (do not build)
 - Photo/video capture or upload
 - Text or voice-note issue reporting
-- Any citizen-submitted data collection
+- Any user-submitted data collection
 - Real-time chat or two-way communication
 - User accounts requiring heavy KYC (keep auth minimal — phone number + OTP is sufficient)
 

@@ -150,7 +150,7 @@ Time-versioned risk output per zone (append-only, never overwritten — required
 | final_message | TEXT (nullable) | Officer-edited message, if changed |
 | status | ENUM(pending_review, approved, rejected, auto_escalated, dispatched) | Workflow state |
 | created_at | TIMESTAMPTZ | Draft creation time |
-| reviewed_by | UUID (FK → users, nullable) | Duty officer who reviewed |
+| reviewed_by | UUID (FK → users, nullable) | Disaster Management Officer who reviewed |
 | reviewed_at | TIMESTAMPTZ (nullable) | Review timestamp |
 | escalation_deadline | TIMESTAMPTZ | Auto-escalation trigger time |
 | escalated_to | UUID (FK → users, nullable) | Next authority level if escalated |
@@ -161,10 +161,10 @@ Time-versioned risk output per zone (append-only, never overwritten — required
 | Column | Type | Description |
 |---|---|---|
 | user_id | UUID (PK) | Unique user ID |
-| role | ENUM(district_admin, state_authority, duty_officer, field_official) | Role (Keycloak-mapped) |
-| district | VARCHAR | Assigned district |
-| escalation_level | INT | Position in escalation chain |
-| contact_number | VARCHAR | For IVR/SMS notification of pending reviews |
+| role | ENUM(disaster_management_officer, mobile_user) | Role: Disaster Management Officer (web) or User (mobile app) |
+| district | VARCHAR (nullable) | Assigned district |
+| escalation_level | INT (nullable) | Position in escalation chain |
+| contact_number | VARCHAR (nullable) | For IVR/SMS notification of pending reviews / alerts |
 
 ### `community_gauges`
 | Column | Type | Description |
