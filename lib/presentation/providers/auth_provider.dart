@@ -1,81 +1,151 @@
 import 'package:flutter/material.dart';
+import '../../core/errors/exception_translator.dart';
 import '../../data/models/user_profile_model.dart';
-import '../../data/services/cache_service.dart';
+import '../../data/repositories/interfaces/i_auth_repository.dart';
+import 'view_state.dart';
 
 class AuthProvider extends ChangeNotifier {
-  final CacheService _cacheService;
+  final IAuthRepository _authRepository;
 
-  bool _isLoggedIn = true;
-  UserProfileModel _user = const UserProfileModel(name: '', email: '', phone: '', selectedZoneId: '');
+  bool _isLoggedIn = false;
+  ViewState _viewState = ViewState.initial;
+  String? _errorMessage;
+  UserProfileModel _user = const UserProfileModel(
+    name: '',
+    email: '',
+    phone: '',
+    selectedZoneId: '',
+  );
 
-  AuthProvider(this._cacheService) {
-    _loadState();
+  AuthProvider(this._authRepository) {
+    _checkInitialAuth();
   }
 
   bool get isLoggedIn => _isLoggedIn;
+  ViewState get viewState => _viewState;
+  String? get errorMessage => _errorMessage;
   UserProfileModel get user => _user;
 
-  void _loadState() {
-    _isLoggedIn = _cacheService.getBool(CacheService.keyIsLoggedIn, defaultValue: true);
-    final name = _cacheService.getString(CacheService.keyUserName, defaultValue: '');
-    final email = _cacheService.getString(CacheService.keyUserEmail, defaultValue: '');
-    final phone = _cacheService.getString(CacheService.keyUserPhone, defaultValue: '');
-    _user = _user.copyWith(name: name, email: email, phone: phone);
+  Future<void> _checkInitialAuth() async {
+    _viewState = ViewState.loading;
     notifyListeners();
+
+    try {
+      final authenticated = await _authRepository.isAuthenticated();
+      _isLoggedIn = authenticated;
+      if (_isLoggedIn) {
+        _user = await _authRepository.getCurrentUserProfile();
+      }
+      _viewState = ViewState.success;
+    } catch (_) {
+      _viewState = ViewState.initial;
+    } finally {
+      notifyListeners();
+    }
   }
 
-  Future<void> signIn({required String email, required String password}) async {
-    _isLoggedIn = true;
-    _user = _user.copyWith(email: email);
-    await _cacheService.setBool(CacheService.keyIsLoggedIn, true);
-    await _cacheService.setString(CacheService.keyUserEmail, email);
-    notifyListeners();
-  }
+  Future<bool> signIn({
+    required String email,
+    required String password,
+  }) async {
+    final cleanUsername = email.contains('@') ? email.split('@').first.trim() : email.trim();
+    if (cleanUsername.isEmpty || password.isEmpty) {
+      _errorMessage = 'Please enter both username/email and password';
+      _viewState = ViewState.failure;
+      notifyListeners();
+      return false;
+    }
 
-  Future<void> signInWithPhone(String phone) async {
-    _isLoggedIn = true;
-    _user = _user.copyWith(phone: phone);
-    await _cacheService.setBool(CacheService.keyIsLoggedIn, true);
-    await _cacheService.setString(CacheService.keyUserPhone, phone);
+    _viewState = ViewState.loading;
+    _errorMessage = null;
     notifyListeners();
+
+    try {
+      await _authRepository.login(
+        username: cleanUsername,
+        password: password,
+      );
+
+      _user = await _authRepository.getCurrentUserProfile();
+      _isLoggedIn = true;
+      _viewState = ViewState.success;
+      notifyListeners();
+      return true;
+    } catch (e) {
+      _errorMessage = ExceptionTranslator.toUserMessage(e);
+      _viewState = ViewState.failure;
+      notifyListeners();
+      return false;
+    }
   }
 
   Future<void> signInWithGoogle({String? name, String? email}) async {
+    _viewState = ViewState.loading;
+    notifyListeners();
+
     _isLoggedIn = true;
-    if (name != null || email != null) {
-      _user = _user.copyWith(name: name, email: email);
-      if (name != null) await _cacheService.setString(CacheService.keyUserName, name);
-      if (email != null) await _cacheService.setString(CacheService.keyUserEmail, email);
-    }
-    await _cacheService.setBool(CacheService.keyIsLoggedIn, true);
+    _user = _user.copyWith(
+      name: name ?? '',
+      email: email ?? '',
+    );
+    _viewState = ViewState.success;
     notifyListeners();
   }
 
-  Future<void> register({
+  Future<bool> register({
     required String name,
     required String email,
     required String phone,
     required String password,
   }) async {
-    _isLoggedIn = true;
-    _user = _user.copyWith(name: name, email: email, phone: phone);
-    await _cacheService.setBool(CacheService.keyIsLoggedIn, true);
-    await _cacheService.setString(CacheService.keyUserName, name);
-    await _cacheService.setString(CacheService.keyUserEmail, email);
-    await _cacheService.setString(CacheService.keyUserPhone, phone);
+    final cleanUsername = email.contains('@') ? email.split('@').first.trim() : email.trim();
+    if (cleanUsername.isEmpty || password.isEmpty) {
+      _errorMessage = 'Username/email and password cannot be empty';
+      _viewState = ViewState.failure;
+      notifyListeners();
+      return false;
+    }
+
+    _viewState = ViewState.loading;
+    _errorMessage = null;
     notifyListeners();
+
+    try {
+      await _authRepository.register(
+        username: cleanUsername,
+        password: password,
+        fullName: name.trim().isNotEmpty ? name.trim() : cleanUsername,
+        contactNumber: phone.trim().isNotEmpty ? phone.trim() : null,
+      );
+
+      _user = await _authRepository.getCurrentUserProfile();
+      _isLoggedIn = true;
+      _viewState = ViewState.success;
+      notifyListeners();
+      return true;
+    } catch (e) {
+      _errorMessage = ExceptionTranslator.toUserMessage(e);
+      _viewState = ViewState.failure;
+      notifyListeners();
+      return false;
+    }
   }
 
   Future<void> updateProfile({required String name, required String phone}) async {
     _user = _user.copyWith(name: name, phone: phone);
-    await _cacheService.setString(CacheService.keyUserName, name);
-    await _cacheService.setString(CacheService.keyUserPhone, phone);
     notifyListeners();
   }
 
   Future<void> signOut() async {
+    await _authRepository.logout();
     _isLoggedIn = false;
-    await _cacheService.setBool(CacheService.keyIsLoggedIn, false);
+    _viewState = ViewState.initial;
+    _user = const UserProfileModel(
+      name: '',
+      email: '',
+      phone: '',
+      selectedZoneId: '',
+    );
     notifyListeners();
   }
 }

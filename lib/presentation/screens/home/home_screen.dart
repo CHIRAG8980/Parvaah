@@ -36,13 +36,20 @@ class HomeScreen extends StatelessWidget {
 
     final activeZone = locationProvider.selectedZone;
 
-    // Determine initial letter for avatar (default 'D' or user initial)
-    final avatarLetter = auth.user.name.isNotEmpty ? auth.user.name[0].toUpperCase() : 'D';
+    // Determine initial letter for avatar (default 'P' for Parvaah or user initial)
+    final avatarLetter = auth.user.name.isNotEmpty ? auth.user.name[0].toUpperCase() : 'P';
     final roadProvider = context.watch<RoadProvider>();
     final safetyProvider = context.watch<SafetyProvider>();
 
     final primaryAlert = alertProvider.primaryActiveAlert;
     final hasActiveAlert = primaryAlert != null;
+
+    if (alertProvider.allAlerts.isNotEmpty) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        notifProvider.syncFromAlerts(alertProvider.allAlerts);
+      });
+    }
+
     final alertTitle = hasActiveAlert ? primaryAlert.title : 'All Monitored Zones Stable';
     final alertSubtitle = hasActiveAlert
         ? '${primaryAlert.region} • ${primaryAlert.severity.name.toUpperCase()}'
@@ -334,19 +341,20 @@ class HomeScreen extends StatelessWidget {
                                   ),
                                 ),
                                 // Red Notification Dot
-                                Positioned(
-                                  right: 9,
-                                  top: 8,
-                                  child: Container(
-                                    width: 7.5,
-                                    height: 7.5,
-                                    decoration: BoxDecoration(
-                                      color: const Color(0xFFEF4444),
-                                      shape: BoxShape.circle,
-                                      border: Border.all(color: Colors.white, width: 1.2),
+                                if (notifProvider.unreadCount > 0)
+                                  Positioned(
+                                    right: 9,
+                                    top: 8,
+                                    child: Container(
+                                      width: 7.5,
+                                      height: 7.5,
+                                      decoration: BoxDecoration(
+                                        color: const Color(0xFFEF4444),
+                                        shape: BoxShape.circle,
+                                        border: Border.all(color: Colors.white, width: 1.2),
+                                      ),
                                     ),
                                   ),
-                                ),
                               ],
                             ),
                           ),

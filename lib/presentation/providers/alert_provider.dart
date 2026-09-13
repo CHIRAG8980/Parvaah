@@ -1,13 +1,16 @@
 import 'package:flutter/material.dart';
+import '../../core/errors/exception_translator.dart';
 import '../../data/models/alert_model.dart';
-import '../../data/repositories/alert_repository.dart';
+import '../../data/repositories/interfaces/i_alert_repository.dart';
+import 'view_state.dart';
 
 class AlertProvider extends ChangeNotifier {
-  final AlertRepository _repository;
+  final IAlertRepository _repository;
 
   List<AlertModel> _alerts = [];
   AlertSeverity? _selectedSeverity;
-  bool _isLoading = false;
+  ViewState _viewState = ViewState.initial;
+  String? _errorMessage;
 
   AlertProvider(this._repository) {
     loadAlerts();
@@ -18,8 +21,11 @@ class AlertProvider extends ChangeNotifier {
     return _alerts.where((a) => a.severity == _selectedSeverity).toList();
   }
 
+  List<AlertModel> get allAlerts => _alerts;
   AlertSeverity? get selectedSeverity => _selectedSeverity;
-  bool get isLoading => _isLoading;
+  ViewState get viewState => _viewState;
+  bool get isLoading => _viewState == ViewState.loading;
+  String? get errorMessage => _errorMessage;
 
   int get unreadCount => _alerts.where((a) => !a.isRead).length;
 
@@ -31,14 +37,30 @@ class AlertProvider extends ChangeNotifier {
     );
   }
 
-  Future<void> loadAlerts() async {
-    _isLoading = true;
+  Future<void> loadAlerts({
+    String? zoneId,
+    String language = 'en',
+    bool forceRefresh = false,
+  }) async {
+    _viewState = ViewState.loading;
+    _errorMessage = null;
     notifyListeners();
 
     try {
-      _alerts = await _repository.getAlerts();
+      _alerts = await _repository.getAlerts(
+        zoneId: zoneId,
+        language: language,
+        forceRefresh: forceRefresh,
+      );
+      if (_alerts.isEmpty) {
+        _viewState = ViewState.empty;
+      } else {
+        _viewState = ViewState.success;
+      }
+    } catch (e) {
+      _errorMessage = ExceptionTranslator.toUserMessage(e);
+      _viewState = _alerts.isNotEmpty ? ViewState.success : ViewState.failure;
     } finally {
-      _isLoading = false;
       notifyListeners();
     }
   }
@@ -48,21 +70,11 @@ class AlertProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  void markAsRead(String alertId) {
+  Future<void> markAsRead(String alertId) async {
     final index = _alerts.indexWhere((a) => a.id == alertId);
     if (index != -1) {
-      final old = _alerts[index];
-      _alerts[index] = AlertModel(
-        id: old.id,
-        title: old.title,
-        message: old.message,
-        region: old.region,
-        severity: old.severity,
-        timestamp: old.timestamp,
-        isRead: true,
-        actionLabel: old.actionLabel,
-        instructions: old.instructions,
-      );
+      _alerts[index] = _alerts[index].copyWith(isRead: true);
+      await _repository.markAsRead(alertId);
       notifyListeners();
     }
   }

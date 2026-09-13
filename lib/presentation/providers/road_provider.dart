@@ -1,19 +1,24 @@
 import 'package:flutter/material.dart';
+import '../../core/errors/exception_translator.dart';
 import '../../data/models/road_status_model.dart';
-import '../../data/repositories/road_repository.dart';
+import '../../data/repositories/interfaces/i_road_repository.dart';
+import 'view_state.dart';
 
 class RoadProvider extends ChangeNotifier {
-  final RoadRepository _repository;
+  final IRoadRepository _repository;
 
   List<RoadStatusModel> _roads = [];
-  bool _isLoading = false;
+  ViewState _viewState = ViewState.initial;
+  String? _errorMessage;
 
   RoadProvider(this._repository) {
     loadRoads();
   }
 
   List<RoadStatusModel> get roads => _roads;
-  bool get isLoading => _isLoading;
+  ViewState get viewState => _viewState;
+  bool get isLoading => _viewState == ViewState.loading;
+  String? get errorMessage => _errorMessage;
 
   List<RoadStatusModel> get blockedRoads =>
       _roads.where((r) => r.status == RoadCondition.blocked).toList();
@@ -24,14 +29,22 @@ class RoadProvider extends ChangeNotifier {
   List<RoadStatusModel> get openRoads =>
       _roads.where((r) => r.status == RoadCondition.open).toList();
 
-  Future<void> loadRoads() async {
-    _isLoading = true;
+  Future<void> loadRoads({bool forceRefresh = false}) async {
+    _viewState = ViewState.loading;
+    _errorMessage = null;
     notifyListeners();
 
     try {
-      _roads = await _repository.getRoads();
+      _roads = await _repository.getRoads(forceRefresh: forceRefresh);
+      if (_roads.isEmpty) {
+        _viewState = ViewState.empty;
+      } else {
+        _viewState = ViewState.success;
+      }
+    } catch (e) {
+      _errorMessage = ExceptionTranslator.toUserMessage(e);
+      _viewState = _roads.isNotEmpty ? ViewState.success : ViewState.failure;
     } finally {
-      _isLoading = false;
       notifyListeners();
     }
   }

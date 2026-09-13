@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import '../../data/models/zone_risk_model.dart';
-import '../../data/repositories/risk_repository.dart';
+import '../../data/repositories/interfaces/i_risk_repository.dart';
 import '../../data/services/cache_service.dart';
 
 class LocationProvider extends ChangeNotifier {
-  final RiskRepository _riskRepository;
+  final IRiskRepository _riskRepository;
   final CacheService _cacheService;
 
   ZoneRiskModel? _selectedZone;
@@ -18,27 +18,31 @@ class LocationProvider extends ChangeNotifier {
   ZoneRiskModel get selectedZone =>
       _selectedZone ??
       (_availableZones.isNotEmpty ? _availableZones.first : ZoneRiskModel.empty());
+
   List<ZoneRiskModel> get availableZones => _availableZones;
   String get searchQuery => _searchQuery;
 
   List<ZoneRiskModel> get filteredZones {
     if (_searchQuery.trim().isEmpty) return _availableZones;
-    final q = _searchQuery.toLowerCase();
-    return _availableZones.where((z) {
-      return z.zoneName.toLowerCase().contains(q) ||
-          z.district.toLowerCase().contains(q) ||
-          z.state.toLowerCase().contains(q);
+    final query = _searchQuery.toLowerCase();
+    return _availableZones.where((zone) {
+      return zone.zoneName.toLowerCase().contains(query) ||
+          zone.district.toLowerCase().contains(query) ||
+          zone.state.toLowerCase().contains(query);
     }).toList();
   }
 
   Future<void> _init() async {
     _availableZones = await _riskRepository.getAllZones();
     final savedZoneId = _cacheService.getString(CacheService.keySelectedZone);
-    if (savedZoneId.isNotEmpty) {
-      _selectedZone = _availableZones.firstWhere(
-        (z) => z.zoneId == savedZoneId,
-        orElse: () => _availableZones.first,
-      );
+    if (savedZoneId.isNotEmpty && _availableZones.isNotEmpty) {
+      try {
+        _selectedZone = _availableZones.firstWhere(
+          (zone) => zone.zoneId == savedZoneId,
+        );
+      } catch (_) {
+        _selectedZone = _availableZones.first;
+      }
     }
     notifyListeners();
   }

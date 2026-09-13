@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../../core/theme/app_colors.dart';
+import '../../../core/utils/ui_feedback.dart';
 import '../../providers/auth_provider.dart';
+import '../../providers/view_state.dart';
+import '../../widgets/auth/social_auth_buttons.dart';
 import '../../widgets/common/parvaah_logo.dart';
 import '../shell/main_navigation_shell.dart';
 
@@ -19,38 +22,46 @@ class _LoginRegisterScreenState extends State<LoginRegisterScreen> {
   final _formKey = GlobalKey<FormState>();
   final _nameController = TextEditingController();
   final _emailController = TextEditingController();
-  final _phoneController = TextEditingController();
   final _passwordController = TextEditingController();
 
   @override
   void dispose() {
     _nameController.dispose();
     _emailController.dispose();
-    _phoneController.dispose();
     _passwordController.dispose();
     super.dispose();
   }
 
   void _submit() async {
     final auth = context.read<AuthProvider>();
-    if (_isSignUp) {
-      await auth.register(
-        name: _nameController.text.trim().isEmpty ? 'Citizen User' : _nameController.text.trim(),
-        email: _emailController.text.trim(),
-        phone: _phoneController.text.trim(),
-        password: _passwordController.text,
-      );
-    } else {
-      await auth.signIn(
-        email: _emailController.text.trim(),
-        password: _passwordController.text,
-      );
+    final name = _nameController.text.trim();
+    final email = _emailController.text.trim();
+    final password = _passwordController.text;
+
+    if (email.isEmpty || password.isEmpty) {
+      UiFeedback.showErrorSnackBar(context, 'Please enter username/email and password.');
+      return;
+    }
+    if (_isSignUp && name.isEmpty) {
+      UiFeedback.showErrorSnackBar(context, 'Please enter your full name.');
+      return;
     }
 
-    if (mounted) {
+    final success = _isSignUp
+        ? await auth.register(name: name, email: email, phone: '', password: password)
+        : await auth.signIn(email: email, password: password);
+
+    if (!mounted) return;
+
+    if (success) {
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(builder: (_) => const MainNavigationShell()),
+      );
+    } else {
+      UiFeedback.showErrorSnackBar(
+        context,
+        auth.errorMessage ?? 'Authentication failed. Please verify credentials.',
       );
     }
   }
@@ -67,6 +78,9 @@ class _LoginRegisterScreenState extends State<LoginRegisterScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final auth = context.watch<AuthProvider>();
+    final isLoading = auth.viewState.isLoading;
+
     return Scaffold(
       backgroundColor: Colors.white,
       body: SafeArea(
@@ -78,16 +92,8 @@ class _LoginRegisterScreenState extends State<LoginRegisterScreen> {
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 const SizedBox(height: 12),
-
-                // Official Squircle Logo
-                const ParvaahLogo(
-                  size: 80,
-                  borderRadius: 20,
-                  showShadow: true,
-                ),
-                const SizedBox(height: 14),
-
-                // App Brand Name
+                const ParvaahLogo(size: 76, borderRadius: 18, showShadow: true),
+                const SizedBox(height: 12),
                 const Text(
                   'Parvaah',
                   style: TextStyle(
@@ -97,55 +103,40 @@ class _LoginRegisterScreenState extends State<LoginRegisterScreen> {
                     letterSpacing: -0.4,
                   ),
                 ),
-                const SizedBox(height: 8),
-
-                // Welcome Back Heading (matching reference Screen 3)
+                const SizedBox(height: 6),
                 Text(
-                  _isSignUp ? 'Create Account' : 'Welcome Back',
+                  _isSignUp ? 'Create Officer Account' : 'Officer & Citizen Sign In',
                   style: const TextStyle(
-                    fontSize: 24,
+                    fontSize: 22,
                     fontWeight: FontWeight.w800,
                     color: Color(0xFF0F243E),
                     letterSpacing: -0.3,
                   ),
                 ),
                 const SizedBox(height: 4),
-
                 Text(
-                  _isSignUp ? 'Sign up to stay informed and safe.' : 'Sign in to continue',
-                  style: const TextStyle(
-                    fontSize: 13.5,
-                    color: AppColors.textSecondary,
-                  ),
+                  _isSignUp ? 'Register to monitor hazards' : 'Sign in to access real-time early warning',
+                  style: const TextStyle(fontSize: 13, color: AppColors.textSecondary),
                 ),
-
-                const SizedBox(height: 28),
-
-                // Name field if registering
+                const SizedBox(height: 24),
                 if (_isSignUp) ...[
                   TextFormField(
                     controller: _nameController,
-                    decoration: InputDecoration(
+                    decoration: const InputDecoration(
                       hintText: 'Full Name',
-                      prefixIcon: const Icon(Icons.person_outline_rounded, color: AppColors.textSecondary, size: 20),
+                      prefixIcon: Icon(Icons.person_outline_rounded, color: AppColors.textSecondary, size: 20),
                     ),
                   ),
                   const SizedBox(height: 14),
                 ],
-
-                // Email field (matching reference Screen 3)
                 TextFormField(
                   controller: _emailController,
-                  keyboardType: TextInputType.emailAddress,
                   decoration: const InputDecoration(
-                    hintText: 'Email address',
-                    prefixIcon: Icon(Icons.mail_outline_rounded, color: AppColors.textSecondary, size: 20),
+                    hintText: 'Username or Email',
+                    prefixIcon: Icon(Icons.account_circle_outlined, color: AppColors.textSecondary, size: 20),
                   ),
                 ),
-
                 const SizedBox(height: 14),
-
-                // Password field with visibility toggle
                 TextFormField(
                   controller: _passwordController,
                   obscureText: _obscurePassword,
@@ -162,179 +153,44 @@ class _LoginRegisterScreenState extends State<LoginRegisterScreen> {
                     ),
                   ),
                 ),
-
-                const SizedBox(height: 10),
-
-                // Forgot Password? right-aligned in bright blue
-                if (!_isSignUp)
-                  Align(
-                    alignment: Alignment.centerRight,
-                    child: GestureDetector(
-                      onTap: () {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                            content: Text('Password reset link sent to your email address.'),
-                          ),
-                        );
-                      },
-                      child: const Text(
-                        'Forgot Password?',
-                        style: TextStyle(
-                          fontSize: 13,
-                          fontWeight: FontWeight.w600,
-                          color: AppColors.blue,
-                        ),
-                      ),
-                    ),
-                  ),
-
-                const SizedBox(height: 22),
-
-                // Primary Blue Sign In / Create Account Button
+                const SizedBox(height: 20),
                 ElevatedButton(
-                  onPressed: _submit,
+                  onPressed: isLoading ? null : _submit,
                   style: ElevatedButton.styleFrom(
                     backgroundColor: AppColors.blue,
-                    minimumSize: const Size.fromHeight(52),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(14),
-                    ),
-                    elevation: 1.5,
+                    minimumSize: const Size.fromHeight(50),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
                   ),
-                  child: Text(
-                    _isSignUp ? 'Create Account' : 'Sign In',
-                    style: const TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w700,
-                      color: Colors.white,
-                      letterSpacing: -0.2,
-                    ),
-                  ),
-                ),
-
-                const SizedBox(height: 24),
-
-                // "Or continue with" Divider
-                Row(
-                  children: [
-                    const Expanded(child: Divider(color: AppColors.divider)),
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 14),
-                      child: Text(
-                        'Or continue with',
-                        style: TextStyle(
-                          fontSize: 12.5,
-                          color: AppColors.textMuted,
-                          fontWeight: FontWeight.w500,
+                  child: isLoading
+                      ? const SizedBox(
+                          width: 22,
+                          height: 22,
+                          child: CircularProgressIndicator(strokeWidth: 2.5, color: Colors.white),
+                        )
+                      : Text(
+                          _isSignUp ? 'Create Account' : 'Sign In',
+                          style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w700, color: Colors.white),
                         ),
-                      ),
-                    ),
-                    const Expanded(child: Divider(color: AppColors.divider)),
-                  ],
                 ),
-
                 const SizedBox(height: 20),
-
-                // Social Continue with Google
-                OutlinedButton(
-                  onPressed: _submitGoogle,
-                  style: OutlinedButton.styleFrom(
-                    minimumSize: const Size.fromHeight(50),
-                    side: const BorderSide(color: AppColors.border),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(14),
-                    ),
-                  ),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Container(
-                        width: 22,
-                        height: 22,
-                        decoration: const BoxDecoration(
-                          shape: BoxShape.circle,
-                        ),
-                        child: const Center(
-                          child: Text(
-                            'G',
-                            style: TextStyle(
-                              fontSize: 17,
-                              fontWeight: FontWeight.w800,
-                              color: Color(0xFF4285F4),
-                            ),
-                          ),
-                        ),
-                      ),
-                      const SizedBox(width: 10),
-                      const Text(
-                        'Continue with Google',
-                        style: TextStyle(
-                          fontSize: 14,
-                          fontWeight: FontWeight.w600,
-                          color: AppColors.textPrimary,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-
-                const SizedBox(height: 12),
-
-                // Social Continue with Phone
-                OutlinedButton(
-                  onPressed: _submit,
-                  style: OutlinedButton.styleFrom(
-                    minimumSize: const Size.fromHeight(50),
-                    side: const BorderSide(color: AppColors.border),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(14),
-                    ),
-                  ),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: const [
-                      Icon(Icons.phone_rounded, color: AppColors.textPrimary, size: 18),
-                      SizedBox(width: 10),
-                      Text(
-                        'Continue with Phone',
-                        style: TextStyle(
-                          fontSize: 14,
-                          fontWeight: FontWeight.w600,
-                          color: AppColors.textPrimary,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-
-                const SizedBox(height: 26),
-
-                // Don't have an account? Sign Up toggle
+                SocialAuthButtons(onGooglePressed: _submitGoogle, onPhonePressed: _submit),
+                const SizedBox(height: 20),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Text(
                       _isSignUp ? 'Already have an account? ' : "Don't have an account? ",
-                      style: const TextStyle(
-                        fontSize: 13.5,
-                        color: AppColors.textSecondary,
-                      ),
+                      style: const TextStyle(fontSize: 13, color: AppColors.textSecondary),
                     ),
                     GestureDetector(
                       onTap: () => setState(() => _isSignUp = !_isSignUp),
                       child: Text(
                         _isSignUp ? 'Sign In' : 'Sign Up',
-                        style: const TextStyle(
-                          fontSize: 13.5,
-                          fontWeight: FontWeight.w700,
-                          color: AppColors.blue,
-                        ),
+                        style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: AppColors.blue),
                       ),
                     ),
                   ],
                 ),
-
-                const SizedBox(height: 12),
               ],
             ),
           ),
