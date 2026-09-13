@@ -55,7 +55,7 @@ const RoadIcon: React.FC<{ className?: string }> = ({ className = '' }) => (
 const navItems: NavItem[] = [
   { name: 'Dashboard', href: '/', icon: Home },
   { name: 'Risk Map', href: '/risk-map', icon: Map },
-  { name: 'Alerts', href: '/alerts', icon: Bell, badge: 12 },
+  { name: 'Alerts', href: '/alerts', icon: Bell },
   { name: 'Road & Infrastructure', href: '/roads', icon: RoadIcon },
   { name: 'Weather & Forecast', href: '/forecast', icon: CloudRain },
   { name: 'Reports', href: '/reports', icon: FileText },

@@ -31,68 +31,7 @@ interface ZoneDetail {
   totalSensors: number;
 }
 
-const zoneDetails: ZoneDetail[] = [
-  {
-    id: 'NER-ARU-001',
-    name: 'West Kameng - Bhalukpong Ridge',
-    state: 'Arunachal Pradesh',
-    district: 'West Kameng',
-    riskScore: 92,
-    level: 'CRITICAL',
-    insarDeformation: '-24.6 mm/yr',
-    ndviLoss: '-18.4%',
-    soilMoisture: '89.2%',
-    rainfall24h: '178 mm',
-    slope: '38.5°',
-    sensorsOnline: 8,
-    totalSensors: 8,
-  },
-  {
-    id: 'NER-MAN-003',
-    name: 'Ukhrul Central Escarpment',
-    state: 'Manipur',
-    district: 'Ukhrul',
-    riskScore: 88,
-    level: 'CRITICAL',
-    insarDeformation: '-19.2 mm/yr',
-    ndviLoss: '-14.1%',
-    soilMoisture: '84.0%',
-    rainfall24h: '164 mm',
-    slope: '41.2°',
-    sensorsOnline: 6,
-    totalSensors: 6,
-  },
-  {
-    id: 'NER-MEG-002',
-    name: 'East Khasi Hills - Sohra Canyon',
-    state: 'Meghalaya',
-    district: 'East Khasi Hills',
-    riskScore: 76,
-    level: 'HIGH',
-    insarDeformation: '-12.8 mm/yr',
-    ndviLoss: '-9.6%',
-    soilMoisture: '78.5%',
-    rainfall24h: '142 mm',
-    slope: '34.0°',
-    sensorsOnline: 12,
-    totalSensors: 12,
-  },
-  {
-    id: 'NER-ASM-004',
-    name: 'Dima Hasao - Haflong Hill Cut',
-    state: 'Assam',
-    district: 'Dima Hasao',
-    riskScore: 72,
-    level: 'HIGH',
-    insarDeformation: '-11.4 mm/yr',
-    ndviLoss: '-11.2%',
-    soilMoisture: '76.1%',
-    rainfall24h: '138 mm',
-    slope: '32.8°',
-    sensorsOnline: 9,
-    totalSensors: 10,
-  },
-];
+const zoneDetails: ZoneDetail[] = [];
 
 export default function RiskMapPage() {
   const [selectedState, setSelectedState] = useState('All States');
@@ -103,6 +42,11 @@ export default function RiskMapPage() {
     const matchesRisk = selectedRisk === 'All Risks' || zone.level === selectedRisk;
     return matchesState && matchesRisk;
   });
+
+  const criticalZones = zoneDetails.filter((z) => z.level === 'CRITICAL').length;
+  const highZones = zoneDetails.filter((z) => z.level === 'HIGH').length;
+  const sensorsOnline = zoneDetails.reduce((sum, z) => sum + z.sensorsOnline, 0);
+  const sensorsTotal = zoneDetails.reduce((sum, z) => sum + z.totalSensors, 0);
 
   return (
     <DashboardShell>
@@ -120,8 +64,8 @@ export default function RiskMapPage() {
         {/* Live Satellite Status */}
         <div className="flex items-center gap-2">
           <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-[#EAF3FF] border border-[#BFDBFE] text-[#1769D2] text-[12px] font-semibold">
-            <Satellite className="w-3.5 h-3.5 animate-pulse" />
-            <span>Sentinel-1 & NISAR Feeds Active</span>
+            <Satellite className="w-3.5 h-3.5" />
+            <span>Satellite InSAR Feed</span>
           </div>
         </div>
       </div>
@@ -169,15 +113,15 @@ export default function RiskMapPage() {
         <div className="flex items-center gap-4 text-xs font-medium text-[#536B8F]">
           <div className="flex items-center gap-1.5">
             <span className="w-2 h-2 rounded-full bg-[#EF4444]" />
-            <span className="text-[#0F1F3D] font-bold">2</span> Critical Zones
+            <span className="text-[#0F1F3D] font-bold">{criticalZones}</span> Critical Zones
           </div>
           <div className="flex items-center gap-1.5">
             <span className="w-2 h-2 rounded-full bg-[#F97316]" />
-            <span className="text-[#0F1F3D] font-bold">4</span> High Susceptibility
+            <span className="text-[#0F1F3D] font-bold">{highZones}</span> High Susceptibility
           </div>
           <div className="flex items-center gap-1.5">
             <Radio className="w-3.5 h-3.5 text-[#10B981]" />
-            <span className="text-[#0F1F3D] font-bold">35/36</span> IoT Sensors Online
+            <span className="text-[#0F1F3D] font-bold">{sensorsOnline}/{sensorsTotal}</span> IoT Sensors Online
           </div>
         </div>
       </div>

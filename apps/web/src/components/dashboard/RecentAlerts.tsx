@@ -17,43 +17,7 @@ interface AlertItem {
   severity: 'Critical' | 'High' | 'Medium' | 'Info';
 }
 
-const alertsData: AlertItem[] = [
-  {
-    id: 'alert-1',
-    title: 'High landslide risk predicted',
-    location: 'Kameng, Arunachal Pradesh',
-    time: '10:12 AM',
-    severity: 'Critical',
-  },
-  {
-    id: 'alert-2',
-    title: 'Increased soil moisture detected',
-    location: 'East Khasi Hills, Meghalaya',
-    time: '09:48 AM',
-    severity: 'High',
-  },
-  {
-    id: 'alert-3',
-    title: 'Multiple slope failures reported',
-    location: 'Ukhrul, Manipur',
-    time: '09:20 AM',
-    severity: 'Critical',
-  },
-  {
-    id: 'alert-4',
-    title: 'Heavy rainfall expected (24h)',
-    location: 'Dima Hasao, Assam',
-    time: '08:55 AM',
-    severity: 'Medium',
-  },
-  {
-    id: 'alert-5',
-    title: 'Road clearance completed',
-    location: 'NH-2, Dimapur',
-    time: '08:30 AM',
-    severity: 'Info',
-  },
-];
+const alertsData: AlertItem[] = [];
 
 export const RecentAlerts: React.FC = () => {
   return (

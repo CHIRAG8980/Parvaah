@@ -20,50 +20,7 @@ interface DistrictRiskData {
   critical: number;
 }
 
-const rawData: DistrictRiskData[] = [
-  {
-    district: 'Kameng',
-    low: 5,
-    medium: 9,
-    high: 8,
-    critical: 5,
-  },
-  {
-    district: 'East Khasi\nHills',
-    low: 8,
-    medium: 7,
-    high: 9,
-    critical: 4,
-  },
-  {
-    district: 'Dima Hasao',
-    low: 11,
-    medium: 9,
-    high: 7,
-    critical: 6,
-  },
-  {
-    district: 'Ukhrul',
-    low: 6,
-    medium: 8,
-    high: 6,
-    critical: 7,
-  },
-  {
-    district: 'Aizawl',
-    low: 4,
-    medium: 5,
-    high: 5,
-    critical: 2,
-  },
-  {
-    district: 'Kohima',
-    low: 7,
-    medium: 6,
-    high: 4,
-    critical: 3,
-  },
-];
+const rawData: DistrictRiskData[] = [];
 
 export const DistrictRiskChart: React.FC = () => {
   const [isMounted, setIsMounted] = useState(false);
@@ -99,7 +56,7 @@ export const DistrictRiskChart: React.FC = () => {
 
           {showDropdown && (
             <div className="absolute right-0 mt-1.5 w-36 bg-white border border-[#DCE6F2] rounded-xl shadow-xl py-1 z-30 text-xs motion-dropdown motion-dropdown-right">
-              {['All Districts', 'Kameng', 'East Khasi Hills', 'Dima Hasao', 'Ukhrul', 'Aizawl', 'Kohima'].map((d) => (
+              {['All Districts', ...rawData.map((d) => d.district.replace('\n', ' '))].map((d) => (
                 <button
                   key={d}
                   type="button"

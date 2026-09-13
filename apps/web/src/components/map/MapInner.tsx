@@ -32,198 +32,9 @@ interface RiskLocation {
   status: string;
 }
 
-const locations: RiskLocation[] = [
-  {
-    id: 'kameng',
-    name: 'Kameng Sector',
-    state: 'Arunachal Pradesh',
-    lat: 27.2645,
-    lng: 92.4159,
-    level: 'CRITICAL',
-    score: 92,
-    rainfall24h: 178,
-    soilMoisture: 89,
-    slope: 38,
-    status: 'Slope instability detected near NH-13. Immediate patrol dispatched.',
-  },
-  {
-    id: 'ukhrul',
-    name: 'Ukhrul Central',
-    state: 'Manipur',
-    lat: 25.1167,
-    lng: 94.3667,
-    level: 'CRITICAL',
-    score: 88,
-    rainfall24h: 164,
-    soilMoisture: 84,
-    slope: 41,
-    status: 'Multiple debris flows reported. Section barricaded.',
-  },
-  {
-    id: 'east-khasi-hills',
-    name: 'East Khasi Hills',
-    state: 'Meghalaya',
-    lat: 25.5788,
-    lng: 91.8933,
-    level: 'HIGH',
-    score: 76,
-    rainfall24h: 142,
-    soilMoisture: 78,
-    slope: 34,
-    status: 'Excessive pore pressure recorded by sensor cluster S-04.',
-  },
-  {
-    id: 'dima-hasao',
-    name: 'Dima Hasao (Haflong)',
-    state: 'Assam',
-    lat: 25.1762,
-    lng: 93.0234,
-    level: 'HIGH',
-    score: 72,
-    rainfall24h: 138,
-    soilMoisture: 76,
-    slope: 32,
-    status: 'Rail-road corridor monitored. High runoff rate.',
-  },
-  {
-    id: 'churachandpur',
-    name: 'Churachandpur Ridge',
-    state: 'Manipur',
-    lat: 24.3333,
-    lng: 93.6833,
-    level: 'HIGH',
-    score: 68,
-    rainfall24h: 112,
-    soilMoisture: 71,
-    slope: 35,
-    status: 'Moderate surface creep observed on steep road cut.',
-  },
-  {
-    id: 'kohima',
-    name: 'Kohima Bypass',
-    state: 'Nagaland',
-    lat: 25.6701,
-    lng: 94.1077,
-    level: 'MEDIUM',
-    score: 54,
-    rainfall24h: 76,
-    soilMoisture: 58,
-    slope: 29,
-    status: 'Soil saturation moderate. Early warning standby.',
-  },
-  {
-    id: 'aizawl',
-    name: 'Aizawl North Slopes',
-    state: 'Mizoram',
-    lat: 23.7271,
-    lng: 92.7176,
-    level: 'MEDIUM',
-    score: 48,
-    rainfall24h: 68,
-    soilMoisture: 52,
-    slope: 31,
-    status: 'Intermittent seepage detected at retaining wall.',
-  },
-  {
-    id: 'tawang',
-    name: 'Tawang Pass Corridor',
-    state: 'Arunachal Pradesh',
-    lat: 27.5861,
-    lng: 91.8594,
-    level: 'MEDIUM',
-    score: 44,
-    rainfall24h: 52,
-    soilMoisture: 46,
-    slope: 36,
-    status: 'Freeze-thaw fracture checks ongoing.',
-  },
-  {
-    id: 'lower-subansiri',
-    name: 'Lower Subansiri',
-    state: 'Arunachal Pradesh',
-    lat: 27.65,
-    lng: 93.83,
-    level: 'LOW',
-    score: 24,
-    rainfall24h: 22,
-    soilMoisture: 33,
-    slope: 28,
-    status: 'Normal baseline readings across all geophones.',
-  },
-  {
-    id: 'kamrup',
-    name: 'Kamrup Metro',
-    state: 'Assam',
-    lat: 26.1445,
-    lng: 91.7362,
-    level: 'LOW',
-    score: 18,
-    rainfall24h: 16,
-    soilMoisture: 28,
-    slope: 15,
-    status: 'Drainage network clear. River levels steady.',
-  },
-  {
-    id: 'unakoti',
-    name: 'Unakoti Hill Tracts',
-    state: 'Tripura',
-    lat: 24.3,
-    lng: 92.0,
-    level: 'LOW',
-    score: 22,
-    rainfall24h: 28,
-    soilMoisture: 36,
-    slope: 22,
-    status: 'Vegetation canopy stable. Low vulnerability.',
-  },
-];
+const locations: RiskLocation[] = [];
 
-// Major North East India Road Corridors
-const roadCorridors = [
-  // NH-27 Guwahati to Nagaon & Dimapur
-  {
-    name: 'NH-27 / NH-29 Gateway Corridor',
-    status: 'operational',
-    points: [
-      [26.1445, 91.7362],
-      [26.35, 92.68],
-      [25.9, 93.7],
-      [25.6701, 94.1077],
-    ] as [number, number][],
-  },
-  // NH-2 Dimapur to Kohima to Imphal
-  {
-    name: 'NH-2 Dimapur - Imphal Highway',
-    status: 'partially_blocked',
-    points: [
-      [25.9, 93.73],
-      [25.67, 94.1],
-      [25.15, 94.0],
-      [24.81, 93.94],
-    ] as [number, number][],
-  },
-  // NH-6 Shillong - Jowai - Silchar
-  {
-    name: 'NH-6 Meghalaya-Barak Valley Link',
-    status: 'operational',
-    points: [
-      [26.14, 91.74],
-      [25.5788, 91.8933],
-      [25.44, 92.21],
-      [24.83, 92.79],
-    ] as [number, number][],
-  },
-  // NH-13 Trans-Arunachal Highway (Kameng section affected)
-  {
-    name: 'NH-13 Trans-Arunachal Highway',
-    status: 'blocked',
-    points: [
-      [27.0, 92.2],
-      [27.2645, 92.4159],
-      [27.5861, 91.8594],
-    ] as [number, number][],
-  },
-];
+const roadCorridors: { name: string; status: string; points: [number, number][] }[] = [];
 
 export const MapInner: React.FC<MapInnerProps> = ({
   activeLayers,
@@ -502,13 +313,7 @@ export const MapInner: React.FC<MapInnerProps> = ({
 
     if (!activeLayers.weather) return;
 
-    // High rainfall buffer circles representing radar rainfall plumes
-    const rainCenters = [
-      { lat: 25.3, lng: 91.7, radius: 45000, label: 'Cherrapunji Intense Cloudburst (198mm)' },
-      { lat: 27.25, lng: 92.4, radius: 50000, label: 'Kameng Heavy Monsoon Plume (178mm)' },
-      { lat: 25.17, lng: 93.02, radius: 38000, label: 'Barail Range Precipitation (138mm)' },
-      { lat: 25.11, lng: 94.36, radius: 40000, label: 'Manipur Hills Squall Line (164mm)' },
-    ];
+    const rainCenters: { lat: number; lng: number; radius: number; label: string }[] = [];
 
     rainCenters.forEach((zone) => {
       const circle = L.circle([zone.lat, zone.lng], {
@@ -534,41 +339,7 @@ export const MapInner: React.FC<MapInnerProps> = ({
 
     if (!activeLayers.districtBoundary) return;
 
-    // Representative District Polyline Boundaries across NER
-    const districtPolys: [number, number][][] = [
-      // Meghalaya - East Khasi Hills boundary
-      [
-        [25.8, 91.5],
-        [25.85, 92.1],
-        [25.2, 92.2],
-        [25.1, 91.6],
-        [25.8, 91.5],
-      ],
-      // Arunachal Pradesh - West Kameng
-      [
-        [27.6, 92.1],
-        [27.8, 92.6],
-        [27.0, 92.8],
-        [26.9, 92.2],
-        [27.6, 92.1],
-      ],
-      // Assam - Dima Hasao
-      [
-        [25.6, 92.7],
-        [25.7, 93.3],
-        [25.0, 93.4],
-        [24.9, 92.8],
-        [25.6, 92.7],
-      ],
-      // Manipur - Ukhrul
-      [
-        [25.4, 94.1],
-        [25.5, 94.7],
-        [24.8, 94.6],
-        [24.7, 94.2],
-        [25.4, 94.1],
-      ],
-    ];
+    const districtPolys: [number, number][][] = [];
 
     districtPolys.forEach((poly) => {
       const polygon = L.polygon(poly, {

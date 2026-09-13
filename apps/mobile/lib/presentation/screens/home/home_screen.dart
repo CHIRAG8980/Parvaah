@@ -6,8 +6,11 @@ import '../../../data/models/zone_risk_model.dart';
 import '../../providers/auth_provider.dart';
 import '../../providers/risk_provider.dart';
 import '../../providers/alert_provider.dart';
+import '../../providers/road_provider.dart';
+import '../../providers/safety_provider.dart';
 import '../../providers/location_provider.dart';
 import '../../providers/notification_provider.dart';
+import '../../../data/models/road_status_model.dart';
 import '../../widgets/common/parvaah_logo.dart';
 import '../../widgets/home/active_alert_card.dart';
 import '../../widgets/home/quick_action_grid.dart';
@@ -33,11 +36,61 @@ class HomeScreen extends StatelessWidget {
 
     final activeZone = locationProvider.selectedZone;
 
-    // Determine initial letter for avatar (default 'D' as in reference mockup, or user initial)
+    // Determine initial letter for avatar (default 'D' or user initial)
     final avatarLetter = auth.user.name.isNotEmpty ? auth.user.name[0].toUpperCase() : 'D';
+    final roadProvider = context.watch<RoadProvider>();
+    final safetyProvider = context.watch<SafetyProvider>();
+
+    final primaryAlert = alertProvider.primaryActiveAlert;
+    final hasActiveAlert = primaryAlert != null;
+    final alertTitle = hasActiveAlert ? primaryAlert.title : 'All Monitored Zones Stable';
+    final alertSubtitle = hasActiveAlert
+        ? '${primaryAlert.region} • ${primaryAlert.severity.name.toUpperCase()}'
+        : 'No critical hazard alerts detected';
+
+    final nearbyRiskRows = riskProvider.zones.map((zone) {
+      final isCritOrHigh = zone.riskLevel == RiskLevel.critical || zone.riskLevel == RiskLevel.high;
+      final isElevated = zone.riskLevel == RiskLevel.elevated;
+
+      final Color levelColor = isCritOrHigh
+          ? const Color(0xFFDC2626)
+          : (isElevated ? const Color(0xFFD97706) : const Color(0xFF059669));
+      final Color levelBg = isCritOrHigh
+          ? const Color(0xFFFEE2E2)
+          : (isElevated ? const Color(0xFFFEF3C7) : const Color(0xFFDCFCE7));
+
+      IconData icon;
+      Color iconColor;
+      Color iconBg;
+
+      if (isCritOrHigh) {
+        icon = Icons.landslide_rounded;
+        iconColor = const Color(0xFFEA580C);
+        iconBg = const Color(0xFFFFEDD5);
+      } else if (isElevated) {
+        icon = Icons.water_drop_rounded;
+        iconColor = const Color(0xFF2563EB);
+        iconBg = const Color(0xFFDBEAFE);
+      } else {
+        icon = Icons.shield_rounded;
+        iconColor = const Color(0xFF059669);
+        iconBg = const Color(0xFFD1FAE5);
+      }
+
+      return NearbyRiskRowData(
+        title: '${zone.riskLevel.name[0].toUpperCase()}${zone.riskLevel.name.substring(1)} Risk Alert',
+        location: '${zone.zoneName}, ${zone.state}',
+        level: '${(zone.riskScore * 100).toInt()}% Risk',
+        levelColor: levelColor,
+        levelBg: levelBg,
+        icon: icon,
+        iconColor: iconColor,
+        iconBg: iconBg,
+      );
+    }).toList();
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF8FAFC), // Crisp light slate background matching mockup
+      backgroundColor: const Color(0xFFF8FAFC), // Crisp light slate background matching theme
       body: AnnotatedRegion<SystemUiOverlayStyle>(
         value: const SystemUiOverlayStyle(
           statusBarColor: Colors.transparent,
@@ -47,6 +100,8 @@ class HomeScreen extends StatelessWidget {
           onRefresh: () async {
             await riskProvider.loadRisks();
             await alertProvider.loadAlerts();
+            await roadProvider.loadRoads();
+            await safetyProvider.loadArticles();
           },
           color: const Color(0xFF1E88E5),
           child: SingleChildScrollView(
@@ -65,12 +120,17 @@ class HomeScreen extends StatelessWidget {
                     children: [
                       const SizedBox(height: 16),
 
-                      // Urgent Hazard Alert Banner: "High Landslide Risk - 2 nearby areas - View >"
+                      // Urgent Hazard Alert Banner or Normal Status Banner
                       ActiveAlertCard(
-                        title: 'High Landslide Risk',
-                        subtitle: '2 nearby areas',
+                        title: alertTitle,
+                        subtitle: alertSubtitle,
+                        isSafe: !hasActiveAlert,
                         onTap: () {
-                          ZoneDetailSheet.show(context, activeZone);
+                          if (hasActiveAlert && onNavigateTab != null) {
+                            onNavigateTab!(2); // Alerts tab
+                          } else {
+                            ZoneDetailSheet.show(context, activeZone);
+                          }
                         },
                       ),
 
@@ -85,7 +145,7 @@ class HomeScreen extends StatelessWidget {
                           _showWeatherSheet(context, activeZone);
                         },
                         onRoadStatusTap: () {
-                          _showRoadsSheet(context);
+                          _showRoadsSheet(context, roadProvider);
                         },
                         onAlertsTap: () {
                           if (onNavigateTab != null) onNavigateTab!(2); // Alerts tab
@@ -97,8 +157,8 @@ class HomeScreen extends StatelessWidget {
                       // Today's Overview (3 Cards: High Risk, Affected Roads, Safe Routes)
                       OverviewMetrics(
                         highRiskCount: riskProvider.highRiskAreasCount,
-                        affectedRoadsCount: riskProvider.affectedRoadsCount,
-                        safeRoutesCount: riskProvider.safeRoutesCount,
+                        affectedRoadsCount: roadProvider.blockedRoads.length + roadProvider.atRiskRoads.length,
+                        safeRoutesCount: roadProvider.openRoads.length,
                         onViewAll: () {
                           if (onNavigateTab != null) onNavigateTab!(1); // Map tab
                         },
@@ -106,8 +166,9 @@ class HomeScreen extends StatelessWidget {
 
                       const SizedBox(height: 22),
 
-                      // Nearby Risk Status List (Heavy Rainfall, Landslide, Flash Flood, Severe Weather)
+                      // Nearby Risk Status List
                       NearbyRiskList(
+                        items: nearbyRiskRows,
                         onViewAll: () {
                           if (onNavigateTab != null) onNavigateTab!(1); // Map tab
                         },
@@ -118,8 +179,9 @@ class HomeScreen extends StatelessWidget {
 
                       const SizedBox(height: 22),
 
-                      // Safety Tips (Landslide Safety & Heavy Rainfall Cards)
+                      // Safety Tips
                       SafetyCarousel(
+                        articles: safetyProvider.articles,
                         onViewAll: () {
                           if (onNavigateTab != null) onNavigateTab!(3); // Safety tab
                         },
@@ -301,7 +363,7 @@ class HomeScreen extends StatelessWidget {
                             width: 38,
                             height: 38,
                             decoration: BoxDecoration(
-                              color: const Color(0xFF007BFF), // Vibrant Blue Avatar matching mockup
+                              color: const Color(0xFF007BFF), // Vibrant Blue Avatar matching theme
                               shape: BoxShape.circle,
                               boxShadow: [
                                 BoxShadow(
@@ -604,6 +666,29 @@ class HomeScreen extends StatelessWidget {
   }
 
   void _showWeatherSheet(BuildContext context, dynamic zone) {
+    final factors = zone is ZoneRiskModel ? zone.factors : null;
+    final rainfall = factors?.rainfall24hMm ?? 0.0;
+    final moisture = factors?.soilMoisturePct ?? 0.0;
+    final zoneName = zone is ZoneRiskModel && zone.zoneName.isNotEmpty ? zone.zoneName : 'Current Monitored Region';
+
+    String weatherSummary;
+    IconData weatherIcon;
+    Color iconColor;
+
+    if (rainfall > 50) {
+      weatherSummary = 'Heavy Rainfall Alert';
+      weatherIcon = Icons.thunderstorm_rounded;
+      iconColor = const Color(0xFF3B82F6);
+    } else if (rainfall > 15) {
+      weatherSummary = 'Moderate Showers';
+      weatherIcon = Icons.grain_rounded;
+      iconColor = const Color(0xFF0284C7);
+    } else {
+      weatherSummary = 'Normal Atmospheric Conditions';
+      weatherIcon = Icons.cloud_outlined;
+      iconColor = const Color(0xFF10B981);
+    }
+
     showModalBottomSheet(
       context: context,
       backgroundColor: Colors.white,
@@ -640,21 +725,21 @@ class HomeScreen extends StatelessWidget {
                   borderRadius: BorderRadius.circular(16),
                 ),
                 child: Row(
-                  children: const [
-                    Icon(Icons.thunderstorm_rounded, size: 40, color: Color(0xFF3B82F6)),
-                    SizedBox(width: 14),
+                  children: [
+                    Icon(weatherIcon, size: 40, color: iconColor),
+                    const SizedBox(width: 14),
                     Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            '24.5°C • Heavy Monsoon Rain',
-                            style: TextStyle(fontSize: 15, fontWeight: FontWeight.w700),
+                            '$weatherSummary • $zoneName',
+                            style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w700),
                           ),
-                          SizedBox(height: 4),
+                          const SizedBox(height: 4),
                           Text(
-                            'Precipitation: 198 mm (24h cumulative)\nHumidity: 88% • Wind: 18 km/h NW',
-                            style: TextStyle(fontSize: 12.5, color: AppColors.textSecondary),
+                            'Precipitation: ${rainfall.toStringAsFixed(1)} mm (24h cumulative)\nSoil Saturation: ${moisture.toStringAsFixed(0)}% • Live Telemetry Active',
+                            style: const TextStyle(fontSize: 12.5, color: AppColors.textSecondary),
                           ),
                         ],
                       ),
@@ -681,7 +766,9 @@ class HomeScreen extends StatelessWidget {
     );
   }
 
-  void _showRoadsSheet(BuildContext context) {
+  void _showRoadsSheet(BuildContext context, RoadProvider roadProvider) {
+    final roads = roadProvider.roads;
+
     showModalBottomSheet(
       context: context,
       backgroundColor: Colors.white,
@@ -711,11 +798,40 @@ class HomeScreen extends StatelessWidget {
                 style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700),
               ),
               const SizedBox(height: 14),
-              _buildRoadItem('NH-2 Dimapur - Kohima', 'BLOCKED', 'Mudslide near KM 42 (Dzüdza)', const Color(0xFFDC2626)),
-              const Divider(),
-              _buildRoadItem('NH-6 Shillong - Silchar', 'AT RISK', 'Water sheeting Sonapur tunnel', const Color(0xFFD97706)),
-              const Divider(),
-              _buildRoadItem('GS Road (Guwahati-Shillong)', 'OPEN', 'Flow normal, barriers intact', const Color(0xFF059669)),
+              if (roads.isEmpty)
+                Container(
+                  padding: const EdgeInsets.symmetric(vertical: 24),
+                  alignment: Alignment.center,
+                  child: const Text(
+                    'No active road corridor advisories reported.',
+                    style: TextStyle(fontSize: 13, color: AppColors.textSecondary),
+                  ),
+                )
+              else
+                ...roads.map((road) {
+                  Color color;
+                  String statusLabel;
+                  switch (road.status) {
+                    case RoadCondition.blocked:
+                      color = const Color(0xFFDC2626);
+                      statusLabel = 'BLOCKED';
+                      break;
+                    case RoadCondition.atRisk:
+                      color = const Color(0xFFD97706);
+                      statusLabel = 'AT RISK';
+                      break;
+                    case RoadCondition.open:
+                      color = const Color(0xFF059669);
+                      statusLabel = 'OPEN';
+                      break;
+                  }
+                  return Column(
+                    children: [
+                      _buildRoadItem(road.roadName, statusLabel, road.reason.isNotEmpty ? road.reason : road.corridor, color),
+                      const Divider(height: 1),
+                    ],
+                  );
+                }),
               const SizedBox(height: 16),
               SizedBox(
                 width: double.infinity,

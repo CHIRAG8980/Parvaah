@@ -160,3 +160,5 @@ crash.log
 # Large Document Reports (>100MB)
 docs/reports/*.pdf
 
+# Tool state
+.reticle/

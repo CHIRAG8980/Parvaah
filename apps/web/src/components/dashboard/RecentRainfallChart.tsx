@@ -18,15 +18,7 @@ interface RainfallDataPoint {
   forecast?: number;
 }
 
-const rainfallData: RainfallDataPoint[] = [
-  { date: '5 Sep', observed: 65, forecast: 65 },
-  { date: '6 Sep', observed: 60, forecast: 62 },
-  { date: '7 Sep', observed: 55, forecast: 58 },
-  { date: '8 Sep', observed: 75, forecast: 80 },
-  { date: '9 Sep', observed: 105, forecast: 110 },
-  { date: '10 Sep', observed: 138, forecast: 140 },
-  { date: '11 Sep', observed: 154, forecast: 165 },
-];
+const rainfallData: RainfallDataPoint[] = [];
 
 export const RecentRainfallChart: React.FC = () => {
   const [isMounted, setIsMounted] = useState(false);
@@ -59,10 +51,10 @@ export const RecentRainfallChart: React.FC = () => {
       {/* Highlight Callout matching reference image */}
       <div className="absolute top-[68px] right-8 z-10 bg-white/95 backdrop-blur-xs border border-[#DCE6F2] shadow-sm rounded-lg px-2.5 py-1 text-right pointer-events-none transition-transform duration-180 hover:scale-105">
         <div className="text-[14px] font-bold text-[#1769D2] leading-none">
-          154 mm
+          {rainfallData.length > 0 ? `${rainfallData[rainfallData.length - 1].observed ?? 0} mm` : '--'}
         </div>
         <div className="text-[10px] text-[#758CA8] leading-none mt-0.5">
-          11 Sep, 10:00 AM
+          {rainfallData.length > 0 ? rainfallData[rainfallData.length - 1].date : 'No data'}
         </div>
       </div>
 

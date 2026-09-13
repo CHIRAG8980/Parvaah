@@ -23,59 +23,19 @@ class NearbyRiskRowData {
 }
 
 class NearbyRiskList extends StatelessWidget {
+  final List<NearbyRiskRowData> items;
   final VoidCallback? onViewAll;
   final Function(NearbyRiskRowData)? onItemTap;
 
   const NearbyRiskList({
     super.key,
+    this.items = const [],
     this.onViewAll,
     this.onItemTap,
   });
 
   @override
   Widget build(BuildContext context) {
-    const items = [
-      NearbyRiskRowData(
-        title: 'Heavy Rainfall',
-        location: 'Mawsynram',
-        level: 'Moderate',
-        levelColor: Color(0xFFD97706),
-        levelBg: Color(0xFFFEF3C7),
-        icon: Icons.water_drop_rounded,
-        iconColor: Color(0xFF0284C7),
-        iconBg: Color(0xFFE0F2FE),
-      ),
-      NearbyRiskRowData(
-        title: 'Landslide',
-        location: 'Sohra',
-        level: 'High',
-        levelColor: Color(0xFFDC2626),
-        levelBg: Color(0xFFFEE2E2),
-        icon: Icons.terrain_rounded,
-        iconColor: Color(0xFFEF4444),
-        iconBg: Color(0xFFFEE2E2),
-      ),
-      NearbyRiskRowData(
-        title: 'Flash Flood',
-        location: 'Nongpoh',
-        level: 'Safe',
-        levelColor: Color(0xFF16A34A),
-        levelBg: Color(0xFFDCFCE7),
-        icon: Icons.waves_rounded,
-        iconColor: Color(0xFF0284C7),
-        iconBg: Color(0xFFE0F2FE),
-      ),
-      NearbyRiskRowData(
-        title: 'Severe Weather',
-        location: 'Shillong',
-        level: 'Low',
-        levelColor: Color(0xFF0284C7),
-        levelBg: Color(0xFFE0F2FE),
-        icon: Icons.air_rounded,
-        iconColor: Color(0xFF0284C7),
-        iconBg: Color(0xFFE0F2FE),
-      ),
-    ];
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -135,11 +95,36 @@ class NearbyRiskList extends StatelessWidget {
               ),
             ],
           ),
-          child: ListView.separated(
-            shrinkWrap: true,
-            physics: const NeverScrollableScrollPhysics(),
-            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
-            itemCount: items.length,
+          child: items.isEmpty
+              ? Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 16),
+                  child: Center(
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: const [
+                        Icon(
+                          Icons.check_circle_outline_rounded,
+                          color: Color(0xFF10B981),
+                          size: 32,
+                        ),
+                        SizedBox(height: 8),
+                        Text(
+                          'No immediate hazards detected nearby',
+                          style: TextStyle(
+                            fontSize: 13.5,
+                            fontWeight: FontWeight.w600,
+                            color: Color(0xFF64748B),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                )
+              : ListView.separated(
+                  shrinkWrap: true,
+                  physics: const NeverScrollableScrollPhysics(),
+                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
+                  itemCount: items.length,
             separatorBuilder: (context, index) => const Divider(
               color: Color(0xFFF1F5F9),
               height: 1,

@@ -5,7 +5,7 @@ import '../../data/repositories/risk_repository.dart';
 class RiskProvider extends ChangeNotifier {
   final RiskRepository _repository;
 
-  List<ZoneRiskModel> _zones = RiskRepository.defaultNERZones;
+  List<ZoneRiskModel> _zones = [];
   bool _isLoading = false;
   String? _errorMessage;
 
@@ -20,8 +20,8 @@ class RiskProvider extends ChangeNotifier {
   int get highRiskAreasCount =>
       _zones.where((z) => z.riskLevel == RiskLevel.high || z.riskLevel == RiskLevel.critical).length;
 
-  int get affectedRoadsCount => 5;
-  int get safeRoutesCount => 12;
+  int get affectedRoadsCount => 0;
+  int get safeRoutesCount => 0;
 
   Future<void> loadRisks() async {
     _isLoading = true;

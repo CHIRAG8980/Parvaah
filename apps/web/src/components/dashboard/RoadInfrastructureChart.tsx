@@ -16,31 +16,31 @@ interface RoadStatusItem {
 const roadData: RoadStatusItem[] = [
   {
     name: 'Operational',
-    count: 412,
-    percentage: '85.5%',
+    count: 0,
+    percentage: '0%',
     color: '#10B981',
     dotColor: 'bg-[#10B981]',
   },
   {
     name: 'Partially Blocked',
-    count: 38,
-    percentage: '7.9%',
+    count: 0,
+    percentage: '0%',
     color: '#F59E0B',
     dotColor: 'bg-[#F59E0B]',
   },
   {
     name: 'Blocked',
-    count: 32,
-    percentage: '6.6%',
+    count: 0,
+    percentage: '0%',
     color: '#EF4444',
     dotColor: 'bg-[#EF4444]',
   },
 ];
 
 const pieData = [
-  { name: 'Operational', value: 412, color: '#10B981' },
-  { name: 'Partially Blocked', value: 38, color: '#F59E0B' },
-  { name: 'Blocked', value: 32, color: '#EF4444' },
+  { name: 'Operational', value: 0, color: '#10B981' },
+  { name: 'Partially Blocked', value: 0, color: '#F59E0B' },
+  { name: 'Blocked', value: 0, color: '#EF4444' },
 ];
 
 export const RoadInfrastructureChart: React.FC = () => {
@@ -100,7 +100,7 @@ export const RoadInfrastructureChart: React.FC = () => {
           {/* Center text */}
           <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none text-center">
             <span className="text-[24px] font-bold text-[#0F1F3D] leading-none">
-              482
+              {roadData.reduce((sum, item) => sum + item.count, 0) || '0'}
             </span>
             <span className="text-[11px] font-medium text-[#758CA8] mt-0.5">
               Total Roads

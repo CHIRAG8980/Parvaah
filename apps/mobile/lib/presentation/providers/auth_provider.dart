@@ -6,7 +6,7 @@ class AuthProvider extends ChangeNotifier {
   final CacheService _cacheService;
 
   bool _isLoggedIn = true;
-  UserProfileModel _user = UserProfileModel.defaultUser();
+  UserProfileModel _user = const UserProfileModel(name: '', email: '', phone: '', selectedZoneId: '');
 
   AuthProvider(this._cacheService) {
     _loadState();
@@ -17,9 +17,9 @@ class AuthProvider extends ChangeNotifier {
 
   void _loadState() {
     _isLoggedIn = _cacheService.getBool(CacheService.keyIsLoggedIn, defaultValue: true);
-    final name = _cacheService.getString(CacheService.keyUserName, defaultValue: 'Dr. Ananya Sharma');
-    final email = _cacheService.getString(CacheService.keyUserEmail, defaultValue: 'ananya.sharma@parvaah.org');
-    final phone = _cacheService.getString(CacheService.keyUserPhone, defaultValue: '+91 98765 43210');
+    final name = _cacheService.getString(CacheService.keyUserName, defaultValue: '');
+    final email = _cacheService.getString(CacheService.keyUserEmail, defaultValue: '');
+    final phone = _cacheService.getString(CacheService.keyUserPhone, defaultValue: '');
     _user = _user.copyWith(name: name, email: email, phone: phone);
     notifyListeners();
   }
@@ -40,9 +40,13 @@ class AuthProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> signInWithGoogle() async {
+  Future<void> signInWithGoogle({String? name, String? email}) async {
     _isLoggedIn = true;
-    _user = _user.copyWith(name: 'Ananya Sharma', email: 'ananya.sharma@gmail.com');
+    if (name != null || email != null) {
+      _user = _user.copyWith(name: name, email: email);
+      if (name != null) await _cacheService.setString(CacheService.keyUserName, name);
+      if (email != null) await _cacheService.setString(CacheService.keyUserEmail, email);
+    }
     await _cacheService.setBool(CacheService.keyIsLoggedIn, true);
     notifyListeners();
   }

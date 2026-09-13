@@ -29,104 +29,7 @@ interface StationForecast {
   status: string;
 }
 
-const stations: StationForecast[] = [
-  {
-    district: 'Sohra (Cherrapunji)',
-    state: 'Meghalaya',
-    elevation: '1,430 m',
-    currentTemp: '16°C',
-    rainTodayMm: 198,
-    rain72hProjectedMm: 342,
-    saturationIndex: 89,
-    cloudburstRisk: 'VERY HIGH',
-    windSpeed: '28 km/h SW',
-    status: 'Extreme Runoff & Waterlogging',
-  },
-  {
-    district: 'West Kameng (Bhalukpong)',
-    state: 'Arunachal Pradesh',
-    elevation: '2,130 m',
-    currentTemp: '14°C',
-    rainTodayMm: 178,
-    rain72hProjectedMm: 290,
-    saturationIndex: 86,
-    cloudburstRisk: 'VERY HIGH',
-    windSpeed: '18 km/h S',
-    status: 'High Slope Pore Pressure',
-  },
-  {
-    district: 'Ukhrul Central',
-    state: 'Manipur',
-    elevation: '1,660 m',
-    currentTemp: '17°C',
-    rainTodayMm: 164,
-    rain72hProjectedMm: 245,
-    saturationIndex: 84,
-    cloudburstRisk: 'HIGH',
-    windSpeed: '15 km/h E',
-    status: 'Debris Flow Conditions',
-  },
-  {
-    district: 'Dima Hasao (Haflong)',
-    state: 'Assam',
-    elevation: '968 m',
-    currentTemp: '22°C',
-    rainTodayMm: 138,
-    rain72hProjectedMm: 210,
-    saturationIndex: 76,
-    cloudburstRisk: 'HIGH',
-    windSpeed: '12 km/h S',
-    status: 'High Surcharge on Hill Slopes',
-  },
-  {
-    district: 'Shillong Metro',
-    state: 'Meghalaya',
-    elevation: '1,525 m',
-    currentTemp: '18°C',
-    rainTodayMm: 92,
-    rain72hProjectedMm: 148,
-    saturationIndex: 71,
-    cloudburstRisk: 'MODERATE',
-    windSpeed: '14 km/h SW',
-    status: 'Moderate Runoff',
-  },
-  {
-    district: 'Kohima Valley',
-    state: 'Nagaland',
-    elevation: '1,444 m',
-    currentTemp: '19°C',
-    rainTodayMm: 76,
-    rain72hProjectedMm: 115,
-    saturationIndex: 58,
-    cloudburstRisk: 'MODERATE',
-    windSpeed: '10 km/h W',
-    status: 'Normal Drainage Rates',
-  },
-  {
-    district: 'Aizawl Slopes',
-    state: 'Mizoram',
-    elevation: '1,132 m',
-    currentTemp: '20°C',
-    rainTodayMm: 68,
-    rain72hProjectedMm: 98,
-    saturationIndex: 52,
-    cloudburstRisk: 'LOW',
-    windSpeed: '8 km/h S',
-    status: 'Stable Readings',
-  },
-  {
-    district: 'Gangtok - Dikchu',
-    state: 'Sikkim',
-    elevation: '1,650 m',
-    currentTemp: '15°C',
-    rainTodayMm: 88,
-    rain72hProjectedMm: 160,
-    saturationIndex: 74,
-    cloudburstRisk: 'HIGH',
-    windSpeed: '22 km/h NE',
-    status: 'Precautionary Standby',
-  },
-];
+const stations: StationForecast[] = [];
 
 export default function ForecastPage() {
   const [selectedStation, setSelectedStation] = useState('All');
@@ -149,12 +52,8 @@ export default function ForecastPage() {
         </div>
 
         <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-[#EAF3FF] border border-[#BFDBFE] text-[#1769D2] text-xs font-semibold">
-          <span className="relative flex h-2 w-2">
-            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#1769D2] opacity-75" />
-            <span className="relative inline-flex rounded-full h-2 w-2 bg-[#1769D2]" />
-          </span>
           <CloudLightning className="w-3.5 h-3.5 text-[#1769D2]" />
-          <span>Doppler Weather Radar (Cherrapunji & Mohanbari) Online</span>
+          <span>IMD Doppler Weather Radar & Satellite Estimates</span>
         </div>
       </div>
 

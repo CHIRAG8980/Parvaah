@@ -21,53 +21,7 @@ interface DayForecast {
   precipitation: string;
 }
 
-const forecastDays: DayForecast[] = [
-  {
-    day: 'Thu',
-    date: '11 Sep',
-    icon: CloudRain,
-    iconColor: 'text-[#1769D2]',
-    temp: '18° / 24°',
-    condition: 'Heavy Rain',
-    precipitation: '85%',
-  },
-  {
-    day: 'Fri',
-    date: '12 Sep',
-    icon: CloudSun,
-    iconColor: 'text-[#F59E0B]',
-    temp: '17° / 23°',
-    condition: 'Moderate',
-    precipitation: '60%',
-  },
-  {
-    day: 'Sat',
-    date: '13 Sep',
-    icon: CloudDrizzle,
-    iconColor: 'text-[#0284C7]',
-    temp: '18° / 25°',
-    condition: 'Light Rain',
-    precipitation: '40%',
-  },
-  {
-    day: 'Sun',
-    date: '14 Sep',
-    icon: CloudSun,
-    iconColor: 'text-[#F59E0B]',
-    temp: '19° / 26°',
-    condition: 'Partly Cloudy',
-    precipitation: '20%',
-  },
-  {
-    day: 'Mon',
-    date: '15 Sep',
-    icon: Sun,
-    iconColor: 'text-[#EAB308]',
-    temp: '20° / 27°',
-    condition: 'Clear',
-    precipitation: '10%',
-  },
-];
+const forecastDays: DayForecast[] = [];
 
 export const WeatherForecast: React.FC = () => {
   return (

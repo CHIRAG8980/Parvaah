@@ -7,15 +7,17 @@ class LocationProvider extends ChangeNotifier {
   final RiskRepository _riskRepository;
   final CacheService _cacheService;
 
-  ZoneRiskModel _selectedZone = RiskRepository.defaultNERZones.first;
-  List<ZoneRiskModel> _availableZones = RiskRepository.defaultNERZones;
+  ZoneRiskModel? _selectedZone;
+  List<ZoneRiskModel> _availableZones = [];
   String _searchQuery = '';
 
   LocationProvider(this._riskRepository, this._cacheService) {
     _init();
   }
 
-  ZoneRiskModel get selectedZone => _selectedZone;
+  ZoneRiskModel get selectedZone =>
+      _selectedZone ??
+      (_availableZones.isNotEmpty ? _availableZones.first : ZoneRiskModel.empty());
   List<ZoneRiskModel> get availableZones => _availableZones;
   String get searchQuery => _searchQuery;
 

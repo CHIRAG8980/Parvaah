@@ -29,80 +29,7 @@ interface DataSourceItem {
   recordsToday: string;
 }
 
-const dataSources: DataSourceItem[] = [
-  {
-    id: 'SRC-SAT-01',
-    name: 'Sentinel-1 InSAR Synthetic Aperture Radar',
-    provider: 'European Space Agency (ESA) & ISRO Bhuvan Portal',
-    type: 'Satellite Radar',
-    protocol: 'Copernicus Open Access Hub API',
-    frequency: '6 - 12 days pass cycle',
-    latency: '18 mins',
-    lastSync: '10:14 AM Today',
-    status: 'Operational',
-    recordsToday: '14 SAR Interferograms',
-  },
-  {
-    id: 'SRC-SAT-02',
-    name: 'Sentinel-2 & Landsat-9 Optical Multispectral (NDVI)',
-    provider: 'ISRO National Remote Sensing Centre (NRSC)',
-    type: 'Satellite Radar',
-    protocol: 'WMS / Cloud-Optimized GeoTIFF',
-    frequency: 'Daily composite',
-    latency: '45 mins',
-    lastSync: '09:30 AM Today',
-    status: 'Operational',
-    recordsToday: '8 Tile Mosaics',
-  },
-  {
-    id: 'SRC-MET-01',
-    name: 'IMD Doppler Weather Radar (DWR Cherrapunji & Mohanbari)',
-    provider: 'India Meteorological Department (IMD)',
-    type: 'Automatic Weather',
-    protocol: 'Real-time WebSocket & HDF5 stream',
-    frequency: 'Every 10 minutes',
-    latency: '1.8 mins',
-    lastSync: '10:22 AM Today',
-    status: 'Operational',
-    recordsToday: '144 Radar Sweeps',
-  },
-  {
-    id: 'SRC-IOT-01',
-    name: 'Borehole Inclinometer & Soil Pore Pressure Arrays',
-    provider: 'Geological Survey of India (GSI) & IIT Guwahati Field Lab',
-    type: 'IoT Geotechnical',
-    protocol: 'MQTT over 4G/Satellite Uplink',
-    frequency: 'Every 60 seconds',
-    latency: '420 ms',
-    lastSync: '10:24 AM Today (Live)',
-    status: 'Operational',
-    recordsToday: '51,840 Sensor Telemetries',
-  },
-  {
-    id: 'SRC-SEIS-01',
-    name: 'National Center for Seismology (NCS) Micro-Tremor Array',
-    provider: 'Ministry of Earth Sciences (MoES)',
-    type: 'Seismic Network',
-    protocol: 'SEEDLink Real-time Protocol',
-    frequency: 'Continuous 100Hz',
-    latency: '310 ms',
-    lastSync: '10:24 AM Today (Live)',
-    status: 'Operational',
-    recordsToday: '18 Micro-events Recorded',
-  },
-  {
-    id: 'SRC-GIS-01',
-    name: 'Border Roads Organisation (BRO) Patrol Incident Reporter',
-    provider: 'BRO Project Vartak & Swastik Headquarters',
-    type: 'Highway GIS',
-    protocol: 'Secure REST JSON API',
-    frequency: 'On incident trigger',
-    latency: '2.5 mins',
-    lastSync: '08:30 AM Today',
-    status: 'Operational',
-    recordsToday: '32 Highway Status Updates',
-  },
-];
+const dataSources: DataSourceItem[] = [];
 
 export default function DataSourcesPage() {
   const [isRefreshing, setIsRefreshing] = useState(false);
@@ -111,9 +38,18 @@ export default function DataSourcesPage() {
     setIsRefreshing(true);
     setTimeout(() => {
       setIsRefreshing(false);
-      alert('Telemetry sync complete: All 6 remote data pipelines re-verified.');
+      alert('Telemetry sync complete: All remote data pipelines re-verified.');
     }, 800);
   };
+
+  const onlineCount = dataSources.filter((s) => s.status === 'Operational').length;
+  const avgLatency = dataSources.length > 0
+    ? `${Math.round(dataSources.reduce((sum, s) => {
+        const val = parseFloat(s.latency);
+        return sum + (isNaN(val) ? 0 : val);
+      }, 0) / dataSources.length)} ms`
+    : '--';
+  const packetsToday = dataSources.length > 0 ? `${dataSources.length} sources` : '--';
 
   return (
     <DashboardShell>
@@ -146,8 +82,8 @@ export default function DataSourcesPage() {
             <span className="text-xs font-semibold text-[#536B8F]">Pipelines Online</span>
             <CheckCircle2 className="w-4 h-4 text-[#10B981] transition-transform duration-200 group-hover:scale-110" />
           </div>
-          <div className="text-[24px] font-bold text-[#0F1F3D] mt-1">6 / 6</div>
-          <span className="text-[11px] text-[#16A34A] font-medium">100% Ingestion Uptime</span>
+           <div className="text-[24px] font-bold text-[#0F1F3D] mt-1">{onlineCount} / {dataSources.length || '--'}</div>
+          <span className="text-[11px] text-[#16A34A] font-medium">Ingestion Uptime</span>
         </div>
 
         <div className="bg-white rounded-xl border border-[#DCE6F2] p-4 shadow-xs motion-card motion-card-hover group">
@@ -155,7 +91,7 @@ export default function DataSourcesPage() {
             <span className="text-xs font-semibold text-[#536B8F]">Average Latency</span>
             <Zap className="w-4 h-4 text-[#1769D2] transition-transform duration-200 group-hover:scale-110" />
           </div>
-          <div className="text-[24px] font-bold text-[#0F1F3D] mt-1">360 ms</div>
+           <div className="text-[24px] font-bold text-[#0F1F3D] mt-1">{avgLatency}</div>
           <span className="text-[11px] text-[#1769D2] font-medium">Sub-second Geotechnical</span>
         </div>
 
@@ -164,7 +100,7 @@ export default function DataSourcesPage() {
             <span className="text-xs font-semibold text-[#536B8F]">Packets Today</span>
             <Activity className="w-4 h-4 text-[#F59E0B] transition-transform duration-200 group-hover:scale-110" />
           </div>
-          <div className="text-[24px] font-bold text-[#0F1F3D] mt-1">52.4k</div>
+          <div className="text-[24px] font-bold text-[#0F1F3D] mt-1">{packetsToday}</div>
           <span className="text-[11px] text-[#536B8F] font-medium">Telemetry Points</span>
         </div>
 
@@ -173,7 +109,7 @@ export default function DataSourcesPage() {
             <span className="text-xs font-semibold text-[#536B8F]">Satellite Coverage</span>
             <Satellite className="w-4 h-4 text-[#8B5CF6] transition-transform duration-200 group-hover:scale-110" />
           </div>
-          <div className="text-[24px] font-bold text-[#0F1F3D] mt-1">100%</div>
+          <div className="text-[24px] font-bold text-[#0F1F3D] mt-1">{dataSources.length > 0 ? '100%' : '--'}</div>
           <span className="text-[11px] text-[#7C3AED] font-medium">All 8 NER States</span>
         </div>
       </div>
@@ -182,14 +118,10 @@ export default function DataSourcesPage() {
       <div className="bg-white rounded-xl border border-[#DCE6F2] p-5 shadow-xs space-y-4 motion-card">
         <div className="flex items-center justify-between pb-3 border-b border-[#EBF1F8]">
           <h3 className="text-[16px] font-bold text-[#0F1F3D]">
-            Active Data Pipeline Ingestion Status
+            Data Pipeline Ingestion Status
           </h3>
-          <span className="text-xs text-[#10B981] font-bold flex items-center gap-1.5">
-            <span className="relative flex h-2 w-2">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#10B981] opacity-75" />
-              <span className="relative inline-flex rounded-full h-2 w-2 bg-[#10B981]" />
-            </span>
-            Live WebSocket Data Streaming
+          <span className="text-xs text-[#536B8F] font-bold">
+            Protocol: MQTT / WebSocket / REST
           </span>
         </div>
 

@@ -28,74 +28,7 @@ interface HighwayItem {
   detourAdvice: string;
 }
 
-const highways: HighwayItem[] = [
-  {
-    code: 'NH-13',
-    name: 'Trans-Arunachal Highway (Bhalukpong-Bomdila)',
-    states: 'Arunachal Pradesh',
-    status: 'Blocked',
-    affectedKm: 'km 44 - 47',
-    cause: 'Heavy slope rockfall & mud deposits exceeding 250m³',
-    clearanceTeam: 'BRO Project Vartak (Detachment 14)',
-    eta: '6 hours (Est. 4:30 PM)',
-    detourAdvice: 'Reroute via Balipara-Seppa corridor',
-  },
-  {
-    code: 'NH-2',
-    name: 'Dimapur - Kohima - Imphal National Highway',
-    states: 'Nagaland / Manipur',
-    status: 'Partially Blocked',
-    affectedKm: 'km 122 near Phesama',
-    cause: 'Single-lane debris flow; slow alternating vehicular movement',
-    clearanceTeam: 'Nagaland PWD (NH Division) + BRO Taskforce 89',
-    eta: '2 hours (Single lane open)',
-    detourAdvice: 'Light motor vehicles only; heavy trucks halted at Chumukedima',
-  },
-  {
-    code: 'NH-6',
-    name: 'Meghalaya - Barak Valley Strategic Lifeline',
-    states: 'Meghalaya / Assam',
-    status: 'Partially Blocked',
-    affectedKm: 'km 88 near Sonapur Tunnel',
-    cause: 'Slurry overflow across culvert apron',
-    clearanceTeam: 'NHAI Emergency Response Unit 4',
-    eta: '3 hours',
-    detourAdvice: 'Exercise extreme caution; continuous visual spotters deployed',
-  },
-  {
-    code: 'NH-10',
-    name: 'Siliguri - Sevoke - Gangtok Highway',
-    states: 'West Bengal / Sikkim',
-    status: 'Blocked',
-    affectedKm: 'km 29 near 29th Mile',
-    cause: 'Teesta river bank subsidence & roadway fracture',
-    clearanceTeam: 'BRO Project Swastik Heavy Machinery',
-    eta: '18 hours (Major repair required)',
-    detourAdvice: 'All traffic diverted via Lava - Damdim alternate route',
-  },
-  {
-    code: 'NH-27',
-    name: 'East-West Corridor (Guwahati - Nagaon - Jorhat)',
-    states: 'Assam',
-    status: 'Operational',
-    affectedKm: 'km 12 - 280',
-    cause: 'Clear and operational across all 4 lanes',
-    clearanceTeam: 'NHAI Highway Patrol Squad',
-    eta: 'All Clear',
-    detourAdvice: 'Normal transit speed maintained',
-  },
-  {
-    code: 'NH-102B',
-    name: 'Churachandpur - Singngat - Tuivai Link',
-    states: 'Manipur',
-    status: 'Partially Blocked',
-    affectedKm: 'km 34',
-    cause: 'Moderate slope slip on outer embankment',
-    clearanceTeam: 'Manipur PWD Maintenance Squad',
-    eta: '4 hours',
-    detourAdvice: 'One-way pilot car operation',
-  },
-];
+const highways: HighwayItem[] = [];
 
 export default function RoadsPage() {
   const [filterStatus, setFilterStatus] = useState('All');
@@ -125,7 +58,7 @@ export default function RoadsPage() {
 
         <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-[#ECFDF5] border border-[#A7F3D0] text-[#10B981] text-xs font-semibold">
           <ShieldCheck className="w-3.5 h-3.5" />
-          <span>85.5% Arterial Roads Operational</span>
+          <span>{highways.length > 0 ? `${((highways.filter(h => h.status === 'Operational').length / highways.length) * 100).toFixed(1)}% Arterial Roads Operational` : 'No Road Data Available'}</span>
         </div>
       </div>
 
@@ -144,30 +77,33 @@ export default function RoadsPage() {
                 Active BRO & PWD Heavy Clearance Detachments
               </h3>
               <span className="text-xs font-semibold text-[#1769D2]">
-                5 Heavy Taskforces Engaged
+                {highways.filter(h => h.status !== 'Operational').length} Heavy Taskforces Engaged
               </span>
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-4">
-              <div className="bg-[#FEF2F2] border border-[#FECACA] rounded-lg p-3.5 transition-all duration-200 hover:border-[#F87171] hover:shadow-xs">
-                <div className="flex items-center gap-2 text-xs font-bold text-[#DC2626]">
-                  <AlertTriangle className="w-4 h-4" />
-                  <span>NH-13 (Kameng) Critical Blockage</span>
+              {highways.filter(h => h.status === 'Blocked').slice(0, 2).map((h) => (
+                <div key={h.code} className="bg-[#FEF2F2] border border-[#FECACA] rounded-lg p-3.5 transition-all duration-200 hover:border-[#F87171] hover:shadow-xs">
+                  <div className="flex items-center gap-2 text-xs font-bold text-[#DC2626]">
+                    <AlertTriangle className="w-4 h-4" />
+                    <span>{h.code} ({h.states}) Critical Blockage</span>
+                  </div>
+                  <p className="text-[11.5px] text-[#7F1D1D] mt-1.5 leading-snug">
+                    {h.cause}. Est. clearance: {h.eta}.
+                  </p>
                 </div>
-                <p className="text-[11.5px] text-[#7F1D1D] mt-1.5 leading-snug">
-                  BRO Project Vartak excavators removing 250m³ fallen boulders. Projected reopening 4:30 PM.
-                </p>
-              </div>
-
-              <div className="bg-[#FFFBEB] border border-[#FDE68A] rounded-lg p-3.5 transition-all duration-200 hover:border-[#FBBF24] hover:shadow-xs">
-                <div className="flex items-center gap-2 text-xs font-bold text-[#D97706]">
-                  <Truck className="w-4 h-4" />
-                  <span>NH-2 (Phesama) Single Lane Pilot</span>
+              ))}
+              {highways.filter(h => h.status === 'Partially Blocked').slice(0, 2).map((h) => (
+                <div key={h.code} className="bg-[#FFFBEB] border border-[#FDE68A] rounded-lg p-3.5 transition-all duration-200 hover:border-[#FBBF24] hover:shadow-xs">
+                  <div className="flex items-center gap-2 text-xs font-bold text-[#D97706]">
+                    <Truck className="w-4 h-4" />
+                    <span>{h.code} ({h.states}) Partial Blockage</span>
+                  </div>
+                  <p className="text-[11.5px] text-[#78350F] mt-1.5 leading-snug">
+                    {h.cause}. Est. clearance: {h.eta}.
+                  </p>
                 </div>
-                <p className="text-[11.5px] text-[#78350F] mt-1.5 leading-snug">
-                  Taskforce 89 piloting alternating convoy. Roadway surface stabilized with gravel infill.
-                </p>
-              </div>
+              ))}
             </div>
           </div>
 

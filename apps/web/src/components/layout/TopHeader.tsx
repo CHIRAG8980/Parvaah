@@ -59,7 +59,7 @@ export const TopHeader: React.FC<TopHeaderProps> = ({ onMenuClick }) => {
   const [userMenuOpen, setUserMenuOpen] = useState(false);
   const [locationMenuOpen, setLocationMenuOpen] = useState(false);
   const [notificationsOpen, setNotificationsOpen] = useState(false);
-  const [unreadCount, setUnreadCount] = useState(4);
+  const [unreadCount, setUnreadCount] = useState(0);
   const [currentLocation, setCurrentLocation] = useState<LocationOption>(operationalLocations[0]);
   const [isDetectingGps, setIsDetectingGps] = useState(false);
   const [gpsLocked, setGpsLocked] = useState(false);
@@ -70,9 +70,9 @@ export const TopHeader: React.FC<TopHeaderProps> = ({ onMenuClick }) => {
   const [isMounted, setIsMounted] = useState(false);
 
   // Live Weather State
-  const [weatherTemp, setWeatherTemp] = useState<string>('18°C');
-  const [weatherCondition, setWeatherCondition] = useState<string>('Light Rain');
-  const [weatherCode, setWeatherCode] = useState<number>(61);
+  const [weatherTemp, setWeatherTemp] = useState<string>('');
+  const [weatherCondition, setWeatherCondition] = useState<string>('');
+  const [weatherCode, setWeatherCode] = useState<number>(0);
   const [weatherLoading, setWeatherLoading] = useState<boolean>(false);
 
   // High-accuracy GPS detector with Nominatim reverse geocoding
@@ -291,8 +291,7 @@ export const TopHeader: React.FC<TopHeaderProps> = ({ onMenuClick }) => {
                   <MapPin className="w-4 h-4" />
                 )}
                 <span className="absolute -top-0.5 -right-0.5 flex h-2 w-2">
-                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#10B981] opacity-75" />
-                  <span className="relative inline-flex rounded-full h-2 w-2 bg-[#10B981]" />
+                  <span className="relative inline-flex rounded-full h-2 w-2 bg-[#94A3B8]" />
                 </span>
               </div>
               <div className="flex flex-col">
@@ -326,9 +325,8 @@ export const TopHeader: React.FC<TopHeaderProps> = ({ onMenuClick }) => {
                 <span className="text-[10.5px] font-bold text-[#758CA8] uppercase tracking-wider whitespace-nowrap">
                   Location & Telemetry
                 </span>
-                <span className="inline-flex items-center gap-1 text-[10px] font-bold text-[#10B981] whitespace-nowrap">
-                  <span className="w-1.5 h-1.5 rounded-full bg-[#10B981] animate-pulse" />
-                  {gpsLocked ? 'GPS Locked' : 'Live Sync'}
+                <span className="inline-flex items-center gap-1 text-[10px] font-bold text-[#536B8F] whitespace-nowrap">
+                  {gpsLocked ? 'GPS Locked' : 'Manual Selection'}
                 </span>
               </div>
 
@@ -415,11 +413,11 @@ export const TopHeader: React.FC<TopHeaderProps> = ({ onMenuClick }) => {
         {/* 3. Live Date & Time Widget (Real-time ticking clock in IST) */}
         <div className="hidden sm:flex flex-col text-right border-r border-[#E2E8F0] pr-5 leading-tight">
           <span className="text-[12px] text-[#536B8F] font-medium">
-            {isMounted && currentDate ? currentDate : 'Fri, 11 Sep 2026'}
+            {isMounted && currentDate ? currentDate : '--'}
           </span>
           <div className="flex items-center justify-end gap-1.5">
             <span className="text-[13.5px] font-bold text-[#0F1F3D] font-mono tracking-tight">
-              {isMounted && currentTime ? currentTime : '08:00:00 PM'}
+              {isMounted && currentTime ? currentTime : '--:--:-- --'}
             </span>
             <span className="text-[10px] font-bold text-[#1769D2] bg-[#EAF3FF] px-1 rounded">
               IST
@@ -474,89 +472,11 @@ export const TopHeader: React.FC<TopHeaderProps> = ({ onMenuClick }) => {
 
               {/* Notification Items */}
               <div className="divide-y divide-[#F1F5F9] max-h-80 overflow-y-auto">
-                <Link
-                  href="/alerts"
-                  onClick={() => setNotificationsOpen(false)}
-                  className="p-3.5 hover:bg-[#F8FAFC] transition-colors duration-150 flex items-start gap-3 block motion-row"
-                >
-                  <div className="p-1.5 rounded-lg bg-[#FEF2F2] text-[#EF4444] flex-shrink-0 mt-0.5">
-                    <AlertTriangle className="w-4 h-4" />
+                {unreadCount === 0 && (
+                  <div className="p-6 text-center text-xs text-[#758CA8]">
+                    No new notifications
                   </div>
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center justify-between gap-1 mb-0.5">
-                      <span className="font-bold text-[#0F1F3D] text-[12px] truncate">
-                        High Landslide Risk - Bhalukpong
-                      </span>
-                      <span className="text-[10px] text-[#94A3B8] flex-shrink-0">5m ago</span>
-                    </div>
-                    <p className="text-[11.5px] text-[#536B8F] line-clamp-2">
-                      West Kameng: InSAR creep velocity -24.6 mm/yr. Rainfall threshold breached.
-                    </p>
-                  </div>
-                </Link>
-
-                <Link
-                  href="/roads"
-                  onClick={() => setNotificationsOpen(false)}
-                  className="p-3.5 hover:bg-[#F8FAFC] transition-colors duration-150 flex items-start gap-3 block motion-row"
-                >
-                  <div className="p-1.5 rounded-lg bg-[#FFF7ED] text-[#EA580C] flex-shrink-0 mt-0.5">
-                    <Split className="w-4 h-4" />
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center justify-between gap-1 mb-0.5">
-                      <span className="font-bold text-[#0F1F3D] text-[12px] truncate">
-                        Road Blockage - NH-10 Corridor
-                      </span>
-                      <span className="text-[10px] text-[#94A3B8] flex-shrink-0">22m ago</span>
-                    </div>
-                    <p className="text-[11.5px] text-[#536B8F] line-clamp-2">
-                      Teesta Valley Road blocked by rockfall at Mile 28. BRO Detachment deployed.
-                    </p>
-                  </div>
-                </Link>
-
-                <Link
-                  href="/forecast"
-                  onClick={() => setNotificationsOpen(false)}
-                  className="p-3.5 hover:bg-[#F8FAFC] transition-colors duration-150 flex items-start gap-3 block motion-row"
-                >
-                  <div className="p-1.5 rounded-lg bg-[#EFF6FF] text-[#2563EB] flex-shrink-0 mt-0.5">
-                    <CloudRain className="w-4 h-4" />
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center justify-between gap-1 mb-0.5">
-                      <span className="font-bold text-[#0F1F3D] text-[12px] truncate">
-                        Torrential Rainfall Warning
-                      </span>
-                      <span className="text-[10px] text-[#94A3B8] flex-shrink-0">48m ago</span>
-                    </div>
-                    <p className="text-[11.5px] text-[#536B8F] line-clamp-2">
-                      Sohra Station recorded 142mm/24h. S-band Doppler radar active.
-                    </p>
-                  </div>
-                </Link>
-
-                <Link
-                  href="/alerts"
-                  onClick={() => setNotificationsOpen(false)}
-                  className="p-3.5 hover:bg-[#F8FAFC] transition-colors duration-150 flex items-start gap-3 block motion-row"
-                >
-                  <div className="p-1.5 rounded-lg bg-[#ECFDF5] text-[#10B981] flex-shrink-0 mt-0.5">
-                    <CheckCircle2 className="w-4 h-4" />
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center justify-between gap-1 mb-0.5">
-                      <span className="font-bold text-[#0F1F3D] text-[12px] truncate">
-                        CAP Broadcast Dispatched
-                      </span>
-                      <span className="text-[10px] text-[#94A3B8] flex-shrink-0">1h ago</span>
-                    </div>
-                    <p className="text-[11.5px] text-[#536B8F] line-clamp-2">
-                      Common Alerting Protocol broadcast transmitted to SDMA officers in East Khasi Hills.
-                    </p>
-                  </div>
-                </Link>
+                )}
               </div>
 
               {/* Footer Link */}
@@ -585,14 +505,14 @@ export const TopHeader: React.FC<TopHeaderProps> = ({ onMenuClick }) => {
             className="flex items-center gap-2.5 pl-1 cursor-pointer select-none motion-btn"
           >
             <div className="w-9 h-9 rounded-full bg-[#163B70] text-white flex items-center justify-center font-bold text-xs shadow-xs transition-transform duration-150 group-hover:scale-105">
-              AD
+              --
             </div>
             <div className="hidden lg:flex flex-col text-left leading-tight">
               <span className="text-[13.5px] font-semibold text-[#0F1F3D]">
-                Ananya Das
+                --
               </span>
               <span className="text-[11.5px] text-[#536B8F]">
-                Disaster Management Officer
+                --
               </span>
             </div>
             <ChevronDown className={`w-4 h-4 text-[#758CA8] motion-rotate-180 ${userMenuOpen ? 'rotate-180' : ''}`} />
@@ -601,10 +521,10 @@ export const TopHeader: React.FC<TopHeaderProps> = ({ onMenuClick }) => {
           {userMenuOpen && (
             <div className="absolute right-0 mt-2 w-56 bg-white border border-[#DCE6F2] rounded-xl shadow-2xl p-2 z-[1300] text-xs motion-dropdown motion-dropdown-right">
               <div className="px-3 py-2 border-b border-[#F1F5F9]">
-                <p className="font-semibold text-[#0F1F3D]">Ananya Das</p>
-                <p className="text-[11px] text-[#536B8F]">admin@ner.gov.in</p>
+                <p className="font-semibold text-[#0F1F3D]">--</p>
+                <p className="text-[11px] text-[#536B8F]">--</p>
                 <span className="inline-block mt-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-[#EAF3FF] text-[#1769D2]">
-                  Disaster Management Officer
+                  --
                 </span>
               </div>
               <div className="py-1">

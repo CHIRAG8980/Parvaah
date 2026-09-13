@@ -33,12 +33,6 @@ const MapInner = dynamic(
 
 const districtCoords: Record<string, [number, number]> = {
   'All Districts': [25.75, 92.9],
-  'Kameng (Arunachal)': [27.2645, 92.4159],
-  'East Khasi Hills (Meghalaya)': [25.5788, 91.8933],
-  'Dima Hasao (Assam)': [25.1762, 93.0234],
-  'Ukhrul (Manipur)': [25.1167, 94.3667],
-  'Aizawl (Mizoram)': [23.7271, 92.7176],
-  'Kohima (Nagaland)': [25.6701, 94.1077],
 };
 
 export const LiveRiskMap: React.FC = () => {

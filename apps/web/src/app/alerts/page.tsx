@@ -33,126 +33,18 @@ interface AlertItem {
   affectedInfrastructure: string;
 }
 
-const initialAlerts: AlertItem[] = [
-  {
-    id: 'ALT-NER-0941',
-    title: 'High landslide risk predicted – Multiple Slope Cracks',
-    location: 'Kameng Sector, West Kameng',
-    state: 'Arunachal Pradesh',
-    time: '10:12 AM',
-    date: '11 Sep 2025',
-    severity: 'Critical',
-    status: 'Active',
-    triggerReason: 'Rainfall exceeded 178mm in 24h; InSAR surface displacement -24.6mm/yr',
-    rainfall24h: '178 mm',
-    actionRequired: 'Immediate evacuation of downhill settlements & vehicular halt on NH-13',
-    affectedInfrastructure: 'NH-13 Trans-Arunachal Highway (km 42-48)',
-  },
-  {
-    id: 'ALT-NER-0940',
-    title: 'Increased soil moisture & pore water pressure',
-    location: 'Sohra Canyon, East Khasi Hills',
-    state: 'Meghalaya',
-    time: '09:48 AM',
-    date: '11 Sep 2025',
-    severity: 'High',
-    status: 'Active',
-    triggerReason: 'Soil moisture saturation reached 89%; continuous heavy rainfall',
-    rainfall24h: '142 mm',
-    actionRequired: 'District emergency operations center alerted; SDRF units on 15-min standby',
-    affectedInfrastructure: 'Shillong-Sohra Scenic Link (Sector 4)',
-  },
-  {
-    id: 'ALT-NER-0939',
-    title: 'Multiple active debris flows reported on slope cut',
-    location: 'Ukhrul Central Escarpment',
-    state: 'Manipur',
-    time: '09:20 AM',
-    date: '11 Sep 2025',
-    severity: 'Critical',
-    status: 'Active',
-    triggerReason: 'Mudslides triggered by 164mm precipitation; structural retaining wall compromised',
-    rainfall24h: '164 mm',
-    actionRequired: 'Section cordoned off; heavy earth-moving equipment mobilized',
-    affectedInfrastructure: 'State Highway 3 (Ukhrul - Jessami)',
-  },
-  {
-    id: 'ALT-NER-0938',
-    title: 'Heavy rainfall warning & runoff surcharge expected (24h)',
-    location: 'Haflong Hill Cut corridor, Dima Hasao',
-    state: 'Assam',
-    time: '08:55 AM',
-    date: '11 Sep 2025',
-    severity: 'Medium',
-    status: 'Investigating',
-    triggerReason: 'Continuous cloudburst plume over Barail Range with 138mm accumulation',
-    rainfall24h: '138 mm',
-    actionRequired: 'Preemptive ditch clearance; visual patrol on Lumding-Badarpur rail corridor',
-    affectedInfrastructure: 'Hill section railway track & NH-54 link',
-  },
-  {
-    id: 'ALT-NER-0937',
-    title: 'Surface creep detected on highway cut slope',
-    location: 'Churachandpur Ridge',
-    state: 'Manipur',
-    time: '08:42 AM',
-    date: '11 Sep 2025',
-    severity: 'High',
-    status: 'Investigating',
-    triggerReason: 'Inclinometer sensor cluster S-08 recorded 4.2mm lateral displacement',
-    rainfall24h: '112 mm',
-    actionRequired: 'Geotechnical inspection team dispatched from Imphal HQ',
-    affectedInfrastructure: 'Tiddim Road (NH-102B)',
-  },
-  {
-    id: 'ALT-NER-0936',
-    title: 'Road clearance completed – Controlled traffic resumed',
-    location: 'NH-2, Dimapur - Kohima Corridor',
-    state: 'Nagaland',
-    time: '08:30 AM',
-    date: '11 Sep 2025',
-    severity: 'Info',
-    status: 'Resolved',
-    triggerReason: 'Minor rockfall cleared by Border Roads Organisation (BRO) Taskforce 89',
-    rainfall24h: '76 mm',
-    actionRequired: 'All-clear broadcast issued; speed limit restricted to 25 km/h',
-    affectedInfrastructure: 'NH-2 (km 118)',
-  },
-  {
-    id: 'ALT-NER-0935',
-    title: 'Slope retaining gabion wall inspection required',
-    location: 'Aizawl North Slopes',
-    state: 'Mizoram',
-    time: '07:15 AM',
-    date: '11 Sep 2025',
-    severity: 'Medium',
-    status: 'Active',
-    triggerReason: 'Seepage lines visible after 68mm overnight rainfall',
-    rainfall24h: '68 mm',
-    actionRequired: 'PWD engineers requested to verify drainage weep holes',
-    affectedInfrastructure: 'Aizawl Ring Road',
-  },
-  {
-    id: 'ALT-NER-0934',
-    title: 'Precautionary travel advisory issued for high passes',
-    location: 'Tawang Pass Escarpment',
-    state: 'Arunachal Pradesh',
-    time: '06:30 AM',
-    date: '11 Sep 2025',
-    severity: 'Medium',
-    status: 'Active',
-    triggerReason: 'Combined light rainfall and freeze-thaw rock loosening',
-    rainfall24h: '52 mm',
-    actionRequired: 'Border Roads Organisation advisory posted on state travel portal',
-    affectedInfrastructure: 'Balipara-Charduar-Tawang Road',
-  },
-];
+const initialAlerts: AlertItem[] = [];
 
 export default function AlertsPage() {
   const [alerts, setAlerts] = useState<AlertItem[]>(initialAlerts);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedSeverity, setSelectedSeverity] = useState('All');
   const [selectedStatus, setSelectedStatus] = useState('All');
+
+  const criticalCount = alerts.filter((a) => a.severity === 'Critical').length;
+  const highCount = alerts.filter((a) => a.severity === 'High').length;
+  const roadsUnderAdvisory = alerts.filter((a) => a.affectedInfrastructure).length;
+  const resolvedCount = alerts.filter((a) => a.status === 'Resolved').length;
 
   const filteredAlerts = alerts.filter((alert) => {
     const matchesSearch =
@@ -201,7 +93,7 @@ export default function AlertsPage() {
             <span className="text-xs font-semibold text-[#536B8F]">Critical Alerts</span>
             <span className="w-2.5 h-2.5 rounded-full bg-[#EF4444]" />
           </div>
-          <div className="text-[24px] font-bold text-[#0F1F3D] mt-1">2</div>
+           <div className="text-[24px] font-bold text-[#0F1F3D] mt-1">{criticalCount}</div>
           <span className="text-[11px] text-[#DC2626] font-medium">Immediate Evacuation</span>
         </div>
 
@@ -210,7 +102,7 @@ export default function AlertsPage() {
             <span className="text-xs font-semibold text-[#536B8F]">High Risk Alerts</span>
             <span className="w-2.5 h-2.5 rounded-full bg-[#F97316]" />
           </div>
-          <div className="text-[24px] font-bold text-[#0F1F3D] mt-1">2</div>
+          <div className="text-[24px] font-bold text-[#0F1F3D] mt-1">{highCount}</div>
           <span className="text-[11px] text-[#EA580C] font-medium">SDRF Standby</span>
         </div>
 
@@ -219,7 +111,7 @@ export default function AlertsPage() {
             <span className="text-xs font-semibold text-[#536B8F]">Roads Under Advisory</span>
             <Car className="w-4 h-4 text-[#1769D2]" />
           </div>
-          <div className="text-[24px] font-bold text-[#0F1F3D] mt-1">12</div>
+          <div className="text-[24px] font-bold text-[#0F1F3D] mt-1">{roadsUnderAdvisory}</div>
           <span className="text-[11px] text-[#536B8F] font-medium">Corridors Monitored</span>
         </div>
 
@@ -228,8 +120,8 @@ export default function AlertsPage() {
             <span className="text-xs font-semibold text-[#536B8F]">Resolved Today</span>
             <CheckCircle2 className="w-4 h-4 text-[#10B981]" />
           </div>
-          <div className="text-[24px] font-bold text-[#0F1F3D] mt-1">1</div>
-          <span className="text-[11px] text-[#16A34A] font-medium">NH-2 Cleared</span>
+          <div className="text-[24px] font-bold text-[#0F1F3D] mt-1">{resolvedCount}</div>
+          <span className="text-[11px] text-[#16A34A] font-medium">Resolved</span>
         </div>
       </div>
 

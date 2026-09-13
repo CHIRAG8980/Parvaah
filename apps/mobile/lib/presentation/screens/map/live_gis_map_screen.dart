@@ -6,7 +6,9 @@ import 'package:provider/provider.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../providers/location_provider.dart';
 import '../../providers/risk_provider.dart';
+import '../../providers/road_provider.dart';
 import '../../../data/models/zone_risk_model.dart';
+import '../../../data/models/road_status_model.dart';
 import '../../widgets/map/risk_map_bottom_card.dart';
 import '../../widgets/map/zone_detail_sheet.dart';
 
@@ -68,10 +70,55 @@ class _LiveGisMapScreenState extends State<LiveGisMapScreen>
   Widget build(BuildContext context) {
     final locationProvider = context.watch<LocationProvider>();
     final riskProvider = context.watch<RiskProvider>();
+    final roadProvider = context.watch<RoadProvider>();
     final selectedZone = locationProvider.selectedZone;
 
-    final centerPoint = LatLng(selectedZone.latitude, selectedZone.longitude);
+    final centerPoint = LatLng(
+      selectedZone.latitude != 0.0 ? selectedZone.latitude : 25.5788,
+      selectedZone.longitude != 0.0 ? selectedZone.longitude : 91.8933,
+    );
     final userLocation = const LatLng(25.5788, 91.8933); // Shillong
+
+    final roadPolylines = <Polyline>[];
+    final roadBadges = <Marker>[];
+
+    for (final road in roadProvider.roads) {
+      if (road.points.isNotEmpty) {
+        Color strokeColor = const Color(0xFF10B981);
+        switch (road.status) {
+          case RoadCondition.blocked:
+            strokeColor = const Color(0xFFEF4444);
+            break;
+          case RoadCondition.atRisk:
+            strokeColor = const Color(0xFFF59E0B);
+            break;
+          case RoadCondition.open:
+            strokeColor = const Color(0xFF10B981);
+            break;
+        }
+
+        final points = road.points.map((p) => LatLng(p.lat, p.lng)).toList();
+        roadPolylines.add(
+          Polyline(
+            points: points,
+            strokeWidth: 4.5,
+            color: strokeColor,
+          ),
+        );
+
+        if (points.isNotEmpty) {
+          final midPoint = points[points.length ~/ 2];
+          roadBadges.add(
+            Marker(
+              point: midPoint,
+              width: 58,
+              height: 22,
+              child: _RoadLabelBadge(label: road.roadName.split(' ').first),
+            ),
+          );
+        }
+      }
+    }
 
     // Filter zones based on active chip
     final filteredZones = riskProvider.zones.where((z) {
@@ -116,63 +163,17 @@ class _LiveGisMapScreenState extends State<LiveGisMapScreen>
                   userAgentPackageName: 'com.parvaah.safety.mobile',
                 ),
 
-                // Real Arterial Highways Polylines
-                PolylineLayer(
-                  polylines: [
-                    // NH-6 Highway (At Risk / Amber Corridor)
-                    Polyline(
-                      points: const [
-                        LatLng(25.5788, 91.8933),
-                        LatLng(25.48, 92.05),
-                        LatLng(25.38, 92.25),
-                        LatLng(25.10, 92.40),
-                        LatLng(24.82, 92.79),
-                      ],
-                      strokeWidth: 4.5,
-                      color: const Color(0xFFF59E0B),
-                    ),
-                    // NH-2 Highway (Blocked / Crimson Corridor)
-                    Polyline(
-                      points: const [
-                        LatLng(25.90, 93.73),
-                        LatLng(25.67, 94.10),
-                        LatLng(25.15, 94.00),
-                        LatLng(24.81, 93.94),
-                      ],
-                      strokeWidth: 4.5,
-                      color: const Color(0xFFEF4444),
-                    ),
-                    // NH-106 Connecting Arterial (Orange Corridor)
-                    Polyline(
-                      points: const [
-                        LatLng(25.40, 91.75),
-                        LatLng(25.2986, 91.7314), // Sohra
-                        LatLng(25.20, 91.85),
-                        LatLng(25.10, 92.05),
-                      ],
-                      strokeWidth: 4.5,
-                      color: const Color(0xFFF97316),
-                    ),
-                  ],
-                ),
+                // Arterial Highways Polylines (dynamically loaded from RoadProvider)
+                if (roadPolylines.isNotEmpty)
+                  PolylineLayer(
+                    polylines: roadPolylines,
+                  ),
 
-                // Road Badge Markers (NH-6, NH-106)
-                MarkerLayer(
-                  markers: const [
-                    Marker(
-                      point: LatLng(25.54, 91.95),
-                      width: 50,
-                      height: 22,
-                      child: _RoadLabelBadge(label: 'NH-6'),
-                    ),
-                    Marker(
-                      point: LatLng(25.18, 91.90),
-                      width: 58,
-                      height: 22,
-                      child: _RoadLabelBadge(label: 'NH-106'),
-                    ),
-                  ],
-                ),
+                // Road Badge Markers (dynamically positioned at corridor midpoint)
+                if (roadBadges.isNotEmpty)
+                  MarkerLayer(
+                    markers: roadBadges,
+                  ),
 
                 // Interactive Risk Markers & Location Pins
                 MarkerLayer(
@@ -185,17 +186,24 @@ class _LiveGisMapScreenState extends State<LiveGisMapScreen>
                       child: Stack(
                         alignment: Alignment.center,
                         children: [
-                          Container(
-                            width: 52,
-                            height: 52,
-                            decoration: BoxDecoration(
-                              color: const Color(0xFF007BFF).withAlpha(45),
-                              shape: BoxShape.circle,
-                            ),
+                          AnimatedBuilder(
+                            animation: _pulseController,
+                            builder: (context, child) {
+                              return Container(
+                                width: 22 + (_pulseController.value * 28),
+                                height: 22 + (_pulseController.value * 28),
+                                decoration: BoxDecoration(
+                                  shape: BoxShape.circle,
+                                  color: const Color(0xFF007BFF).withAlpha(
+                                    ((1.0 - _pulseController.value) * 110).toInt(),
+                                  ),
+                                ),
+                              );
+                            },
                           ),
                           Container(
-                            width: 22,
-                            height: 22,
+                            width: 18,
+                            height: 18,
                             decoration: BoxDecoration(
                               color: const Color(0xFF007BFF),
                               shape: BoxShape.circle,
@@ -230,83 +238,88 @@ class _LiveGisMapScreenState extends State<LiveGisMapScreen>
                       ),
                     ),
 
-                    // Mawsynram Floating Weather Tooltip Card Marker
-                    Marker(
-                      point: const LatLng(25.34, 91.68),
-                      width: 146,
-                      height: 52,
-                      child: GestureDetector(
-                        onTap: () {
-                          final mawsynramZone = riskProvider.zones.firstWhere(
-                            (z) => z.zoneName.toLowerCase().contains('mawsynram'),
-                            orElse: () => selectedZone,
-                          );
-                          locationProvider.selectZone(mawsynramZone);
-                        },
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                            borderRadius: BorderRadius.circular(16),
-                            border: Border.all(color: const Color(0xFFE2E8F0), width: 1.0),
-                            boxShadow: [
-                              BoxShadow(
-                                color: Colors.black.withAlpha(25),
-                                blurRadius: 10,
-                                offset: const Offset(0, 3),
-                              ),
-                            ],
-                          ),
-                          child: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Container(
-                                width: 28,
-                                height: 28,
-                                decoration: BoxDecoration(
-                                  color: const Color(0xFFE0F2FE),
-                                  borderRadius: BorderRadius.circular(8),
+                    // Active Selected Zone Weather Tooltip Card Marker
+                    if (selectedZone.latitude != 0.0 && selectedZone.longitude != 0.0)
+                      Marker(
+                        point: LatLng(selectedZone.latitude, selectedZone.longitude),
+                        width: 146,
+                        height: 52,
+                        child: GestureDetector(
+                          onTap: () {
+                            ZoneDetailSheet.show(context, selectedZone);
+                          },
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(16),
+                              border: Border.all(color: const Color(0xFFE2E8F0), width: 1.0),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.black.withAlpha(25),
+                                  blurRadius: 10,
+                                  offset: const Offset(0, 3),
                                 ),
-                                child: const Icon(
-                                  Icons.thunderstorm_rounded,
-                                  color: Color(0xFF0284C7),
-                                  size: 18,
+                              ],
+                            ),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Container(
+                                  width: 28,
+                                  height: 28,
+                                  decoration: BoxDecoration(
+                                    color: const Color(0xFFE0F2FE),
+                                    borderRadius: BorderRadius.circular(8),
+                                  ),
+                                  child: Icon(
+                                    selectedZone.factors.rainfall24hMm > 30
+                                        ? Icons.thunderstorm_rounded
+                                        : Icons.grain_rounded,
+                                    color: const Color(0xFF0284C7),
+                                    size: 18,
+                                  ),
                                 ),
-                              ),
-                              const SizedBox(width: 8),
-                              Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: const [
-                                  Text(
-                                    'Mawsynram',
-                                    style: TextStyle(
-                                      fontSize: 11.5,
-                                      fontWeight: FontWeight.w800,
-                                      color: Color(0xFF0F243E),
-                                    ),
+                                const SizedBox(width: 8),
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      Text(
+                                        selectedZone.zoneName,
+                                        maxLines: 1,
+                                        overflow: TextOverflow.ellipsis,
+                                        style: const TextStyle(
+                                          fontSize: 11.5,
+                                          fontWeight: FontWeight.w800,
+                                          color: Color(0xFF0F243E),
+                                        ),
+                                      ),
+                                      Text(
+                                        '${selectedZone.factors.rainfall24hMm.toStringAsFixed(0)}mm Rain',
+                                        maxLines: 1,
+                                        overflow: TextOverflow.ellipsis,
+                                        style: const TextStyle(
+                                          fontSize: 10,
+                                          fontWeight: FontWeight.w500,
+                                          color: Color(0xFF64748B),
+                                        ),
+                                      ),
+                                    ],
                                   ),
-                                  Text(
-                                    'Heavy Rain',
-                                    style: TextStyle(
-                                      fontSize: 10,
-                                      fontWeight: FontWeight.w500,
-                                      color: Color(0xFF64748B),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              const SizedBox(width: 4),
-                              const Icon(
-                                Icons.chevron_right_rounded,
-                                size: 16,
-                                color: Color(0xFF94A3B8),
-                              ),
-                            ],
+                                ),
+                                const SizedBox(width: 4),
+                                const Icon(
+                                  Icons.chevron_right_rounded,
+                                  size: 16,
+                                  color: Color(0xFF94A3B8),
+                                ),
+                              ],
+                            ),
                           ),
                         ),
                       ),
-                    ),
 
                     // Risk Zones Markers
                     ...filteredZones.map((zone) {
@@ -598,7 +611,7 @@ class _LiveGisMapScreenState extends State<LiveGisMapScreen>
                 child: Container(
                   padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 7),
                   decoration: BoxDecoration(
-                    color: const Color(0xFF1E293B).withAlpha(235), // Dark sleek card from mockup
+                    color: const Color(0xFF1E293B).withAlpha(235), // Dark sleek card styling
                     borderRadius: BorderRadius.circular(16),
                     border: Border.all(color: Colors.white.withAlpha(40), width: 1.0),
                     boxShadow: [

@@ -5,7 +5,7 @@ import '../../data/repositories/road_repository.dart';
 class RoadProvider extends ChangeNotifier {
   final RoadRepository _repository;
 
-  List<RoadStatusModel> _roads = RoadRepository.defaultRoads;
+  List<RoadStatusModel> _roads = [];
   bool _isLoading = false;
 
   RoadProvider(this._repository) {

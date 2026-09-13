@@ -12,15 +12,14 @@ import {
   Eye,
   EyeOff,
   ArrowRight,
-  Landmark,
   Loader2,
   AlertCircle,
 } from 'lucide-react';
 
 export default function LoginPage() {
   const router = useRouter();
-  const [email, setEmail] = useState('admin@ner.gov.in');
-  const [password, setPassword] = useState('••••••••');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [rememberMe, setRememberMe] = useState(true);
   const [isLoading, setIsLoading] = useState(false);
@@ -65,16 +64,6 @@ export default function LoginPage() {
       setIsLoading(false);
       router.push('/');
     }, 500);
-  };
-
-  const handleDemoLogin = () => {
-    setEmail('admin@ner.gov.in');
-    setPassword('DisasterControl#2025');
-    setIsLoading(true);
-    setTimeout(() => {
-      setIsLoading(false);
-      router.push('/');
-    }, 350);
   };
 
   return (
@@ -258,7 +247,7 @@ export default function LoginPage() {
                       type="email"
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
-                      placeholder="admin@ner.gov.in"
+                      placeholder="Enter your official email"
                       required
                       className="w-full h-[42px] pl-10 pr-3 text-[13.5px] bg-white border border-[#D7E2EF] rounded-[8px] text-[#0F2346] placeholder:text-[#8497B0] focus:outline-none focus:ring-2 focus:ring-[#1769D2]/25 focus:border-[#1769D2] motion-input"
                     />
@@ -282,7 +271,7 @@ export default function LoginPage() {
                       type={showPassword ? 'text' : 'password'}
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
-                      placeholder="••••••••"
+                      placeholder="Enter your password"
                       required
                       className="w-full h-[42px] pl-10 pr-10 text-[13.5px] bg-white border border-[#D7E2EF] rounded-[8px] text-[#0F2346] placeholder:text-[#8497B0] focus:outline-none focus:ring-2 focus:ring-[#1769D2]/25 focus:border-[#1769D2] motion-input"
                     />
@@ -344,29 +333,6 @@ export default function LoginPage() {
                   )}
                 </button>
               </form>
-
-              {/* Divider */}
-              <div className="relative my-2.5">
-                <div className="absolute inset-0 flex items-center">
-                  <div className="w-full border-t border-[#E2E8F0]" />
-                </div>
-                <div className="relative flex justify-center text-[10.5px] uppercase">
-                  <span className="bg-white/95 px-2.5 text-[#607494] font-semibold tracking-wider">
-                    OR
-                  </span>
-                </div>
-              </div>
-
-              {/* Secondary Demo Action Button */}
-              <button
-                type="button"
-                onClick={handleDemoLogin}
-                disabled={isLoading}
-                className="w-full h-[40px] bg-white hover:bg-[#F4F8FC] border border-[#1769D2] text-[#1769D2] font-semibold text-[13px] rounded-[8px] motion-btn flex items-center justify-center gap-2 cursor-pointer shadow-2xs"
-              >
-                <Landmark className="w-3.5 h-3.5 text-[#1769D2]" />
-                <span>Continue as Demo</span>
-              </button>
 
               {/* Auth Footer */}
               <div className="mt-2.5 pt-2 border-t border-[#F1F5F9] text-center">

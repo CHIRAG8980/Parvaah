@@ -27,74 +27,7 @@ interface Officer {
   avatarInitials: string;
 }
 
-const officers: Officer[] = [
-  {
-    id: 'USR-SDMA-01',
-    name: 'Ananya Das',
-    email: 'admin@ner.gov.in',
-    phone: '+91 94361 28901',
-    role: 'Disaster Management Officer',
-    jurisdiction: 'NER Regional Operations (HQ Shillong)',
-    clearanceLevel: 'Level 4 (Executive)',
-    status: 'Active',
-    avatarInitials: 'AD',
-  },
-  {
-    id: 'USR-DM-04',
-    name: 'Tashi Namgyal, IAS',
-    email: 'dm.westkameng@arunachal.gov.in',
-    phone: '+91 94360 41234',
-    role: 'District Magistrate',
-    jurisdiction: 'West Kameng District, Arunachal Pradesh',
-    clearanceLevel: 'Level 3 (Command)',
-    status: 'On Duty',
-    avatarInitials: 'TN',
-  },
-  {
-    id: 'USR-DM-02',
-    name: 'D. M. Khongwir, MCS',
-    email: 'dc.ekh@meghalaya.gov.in',
-    phone: '+91 94361 99821',
-    role: 'District Magistrate',
-    jurisdiction: 'East Khasi Hills District, Meghalaya',
-    clearanceLevel: 'Level 3 (Command)',
-    status: 'Active',
-    avatarInitials: 'DK',
-  },
-  {
-    id: 'USR-SDRF-08',
-    name: 'Maj. Vikramjit Singh',
-    email: 'sdrf.kameng@disaster.gov.in',
-    phone: '+91 98620 55123',
-    role: 'SDRF Commander',
-    jurisdiction: '1st Battalion SDRF, Bhalukpong Taskforce',
-    clearanceLevel: 'Level 2 (Field Dispatch)',
-    status: 'On Duty',
-    avatarInitials: 'VS',
-  },
-  {
-    id: 'USR-GEO-03',
-    name: 'Dr. Debojit Barman',
-    email: 'debojit.b@gsi.gov.in',
-    phone: '+91 94350 11982',
-    role: 'Geotechnical Lead',
-    jurisdiction: 'GSI North Eastern Regional Centre, Shillong',
-    clearanceLevel: 'Level 3 (Command)',
-    status: 'Active',
-    avatarInitials: 'DB',
-  },
-  {
-    id: 'USR-DM-07',
-    name: 'V. L. Hminga, IAS',
-    email: 'dc.aizawl@mizoram.gov.in',
-    phone: '+91 94361 44520',
-    role: 'District Magistrate',
-    jurisdiction: 'Aizawl District, Mizoram',
-    clearanceLevel: 'Level 3 (Command)',
-    status: 'Standby',
-    avatarInitials: 'VH',
-  },
-];
+const officers: Officer[] = [];
 
 export default function UsersPage() {
   const [searchQuery, setSearchQuery] = useState('');
@@ -108,6 +41,11 @@ export default function UsersPage() {
     const matchesRole = selectedRole === 'All' || o.role === selectedRole;
     return matchesSearch && matchesRole;
   });
+
+  const stateAuthoritiesCount = officers.filter(o => o.clearanceLevel === 'Level 4 (Executive)').length;
+  const districtMagistratesCount = officers.filter(o => o.role === 'District Magistrate').length;
+  const sdrfTeamsCount = officers.filter(o => o.role === 'SDRF Commander').length;
+  const geoLeadsCount = officers.filter(o => o.role === 'Geotechnical Lead').length;
 
   return (
     <DashboardShell>
@@ -139,7 +77,7 @@ export default function UsersPage() {
             <span className="text-xs font-semibold text-[#536B8F]">State Authorities</span>
             <Shield className="w-4 h-4 text-[#1769D2] transition-transform duration-200 group-hover:scale-110" />
           </div>
-          <div className="text-[24px] font-bold text-[#0F1F3D] mt-1">4</div>
+           <div className="text-[24px] font-bold text-[#0F1F3D] mt-1">{stateAuthoritiesCount}</div>
           <span className="text-[11px] text-[#1769D2] font-medium">Executive Tier</span>
         </div>
 
@@ -148,7 +86,7 @@ export default function UsersPage() {
             <span className="text-xs font-semibold text-[#536B8F]">District Magistrates</span>
             <Building className="w-4 h-4 text-[#F59E0B] transition-transform duration-200 group-hover:scale-110" />
           </div>
-          <div className="text-[24px] font-bold text-[#0F1F3D] mt-1">16</div>
+          <div className="text-[24px] font-bold text-[#0F1F3D] mt-1">{districtMagistratesCount}</div>
           <span className="text-[11px] text-[#D97706] font-medium">Incident Command</span>
         </div>
 
@@ -157,7 +95,7 @@ export default function UsersPage() {
             <span className="text-xs font-semibold text-[#536B8F]">QRT / SDRF Teams</span>
             <Users className="w-4 h-4 text-[#EF4444] transition-transform duration-200 group-hover:scale-110" />
           </div>
-          <div className="text-[24px] font-bold text-[#0F1F3D] mt-1">8</div>
+          <div className="text-[24px] font-bold text-[#0F1F3D] mt-1">{sdrfTeamsCount}</div>
           <span className="text-[11px] text-[#DC2626] font-medium">Field Dispatch</span>
         </div>
 
@@ -166,7 +104,7 @@ export default function UsersPage() {
             <span className="text-xs font-semibold text-[#536B8F]">Geotechnical Leads</span>
             <Key className="w-4 h-4 text-[#10B981] transition-transform duration-200 group-hover:scale-110" />
           </div>
-          <div className="text-[24px] font-bold text-[#0F1F3D] mt-1">12</div>
+          <div className="text-[24px] font-bold text-[#0F1F3D] mt-1">{geoLeadsCount}</div>
           <span className="text-[11px] text-[#16A34A] font-medium">Scientific Analysts</span>
         </div>
       </div>

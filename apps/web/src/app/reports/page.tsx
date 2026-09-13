@@ -26,63 +26,7 @@ interface ReportItem {
   description: string;
 }
 
-const reports: ReportItem[] = [
-  {
-    id: 'REP-2025-0911-01',
-    title: 'Daily Situation Report (SITREP) – North East Region Operations',
-    category: 'Daily SITREP',
-    date: '11 Sep 2025',
-    agency: 'State Disaster Management Authority (SDMA) Inter-Agency Cell',
-    fileSize: '4.2 MB',
-    format: 'PDF',
-    status: 'Published',
-    description: 'Consolidated overview of 23 active alerts, 12 impacted highway sectors, rainfall anomalies, and SDRF taskings.',
-  },
-  {
-    id: 'REP-2025-0910-04',
-    title: 'InSAR Satellite Deformation & Slope Instability Audit: Kameng Corridor',
-    category: 'Geotechnical Audit',
-    date: '10 Sep 2025',
-    agency: 'Geological Survey of India (GSI) & ISRO Remote Sensing Wing',
-    fileSize: '12.8 MB',
-    format: 'PDF',
-    status: 'Verified',
-    description: 'Interferometric synthetic aperture radar (Sentinel-1) ground displacement velocity time-series analysis for NH-13.',
-  },
-  {
-    id: 'REP-2025-0909-02',
-    title: 'Strategic Highway Infrastructure Vulnerability & Clearance Registry',
-    category: 'Infrastructure',
-    date: '09 Sep 2025',
-    agency: 'Border Roads Organisation (BRO) Taskforce 89',
-    fileSize: '2.1 MB',
-    format: 'CSV',
-    status: 'Verified',
-    description: 'Blockage and clearance log covering 482 monitored roads, detour routes, and heavy excavator deployment logs.',
-  },
-  {
-    id: 'REP-2025-0908-01',
-    title: 'Monsoon 2025 Rainfall Runoff & Hydrological Saturation Index Bulletin',
-    category: 'Seasonal Assessment',
-    date: '08 Sep 2025',
-    agency: 'India Meteorological Department (IMD) Regional Met Centre Guwahati',
-    fileSize: '6.5 MB',
-    format: 'PDF',
-    status: 'Published',
-    description: 'Cumulative 72-hour rainfall analysis, AWS station telemetry, and cloudburst probability forecasts across 8 states.',
-  },
-  {
-    id: 'REP-2025-0905-03',
-    title: 'GIS Landslide Hazard Zonation Map Vectors (1:10,000 Scale)',
-    category: 'Geotechnical Audit',
-    date: '05 Sep 2025',
-    agency: 'North Eastern Space Applications Centre (NESAC)',
-    fileSize: '34.5 MB',
-    format: 'GeoJSON',
-    status: 'Verified',
-    description: 'High-precision spatial boundary polygons, slope gradient classifications, and lithological susceptibility zones.',
-  },
-];
+const reports: ReportItem[] = [];
 
 export default function ReportsPage() {
   const [selectedCategory, setSelectedCategory] = useState('All');

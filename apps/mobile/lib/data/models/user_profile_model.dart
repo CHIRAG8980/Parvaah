@@ -37,15 +37,4 @@ class UserProfileModel {
     );
   }
 
-  factory UserProfileModel.defaultUser() {
-    return const UserProfileModel(
-      name: 'Dr. Ananya Sharma',
-      email: 'ananya.sharma@parvaah.org',
-      phone: '+91 98765 43210',
-      selectedZoneId: 'NER-MEG-001',
-      selectedLanguage: 'en',
-      notificationsEnabled: true,
-      emergencyContacts: ['1077', '112'],
-    );
-  }
 }

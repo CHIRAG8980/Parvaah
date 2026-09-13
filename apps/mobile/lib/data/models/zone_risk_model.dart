@@ -73,41 +73,47 @@ class ZoneRiskModel {
   factory ZoneRiskModel.fromJson(Map<String, dynamic> json) {
     final score = (json['risk_score'] as num?)?.toDouble() ?? 0.0;
     RiskLevel level;
-    if (score >= 0.85) {
+    final levelStr = (json['risk_level'] as String? ?? '').toUpperCase();
+    if (levelStr == 'CRITICAL' || score >= 0.85) {
       level = RiskLevel.critical;
-    } else if (score >= 0.70) {
+    } else if (levelStr == 'HIGH' || score >= 0.70) {
       level = RiskLevel.high;
-    } else if (score >= 0.50) {
+    } else if (levelStr == 'ELEVATED' || score >= 0.50) {
       level = RiskLevel.elevated;
-    } else if (score >= 0.30) {
+    } else if (levelStr == 'MEDIUM' || score >= 0.30) {
       level = RiskLevel.medium;
     } else {
       level = RiskLevel.low;
     }
 
+    final confStr = (json['confidence'] as String? ?? '').toLowerCase();
+    final confidenceLevel = confStr == 'high'
+        ? ConfidenceLevel.high
+        : (confStr == 'medium' ? ConfidenceLevel.medium : ConfidenceLevel.low);
+
     return ZoneRiskModel(
-      zoneId: json['zone_id'] as String? ?? 'UNKNOWN',
-      zoneName: json['zone_name'] as String? ?? 'Unnamed Zone',
-      state: json['state'] as String? ?? 'North East',
+      zoneId: json['zone_id'] as String? ?? '',
+      zoneName: json['name'] as String? ?? json['zone_name'] as String? ?? '',
+      state: json['state'] as String? ?? '',
       district: json['district'] as String? ?? '',
-      latitude: (json['latitude'] as num?)?.toDouble() ?? 25.5,
-      longitude: (json['longitude'] as num?)?.toDouble() ?? 91.8,
+      latitude: (json['latitude'] as num?)?.toDouble() ?? 0.0,
+      longitude: (json['longitude'] as num?)?.toDouble() ?? 0.0,
       riskScore: score,
       riskLevel: level,
-      confidence: ConfidenceLevel.high,
-      timeToFailure: json['time_to_failure'] as String? ?? 'Monitoring active',
+      confidence: confidenceLevel,
+      timeToFailure: json['time_to_failure_window'] as String? ?? '',
       factors: json['factors'] != null
           ? RiskFactors.fromJson(json['factors'] as Map<String, dynamic>)
           : const RiskFactors(
-              rainfall24hMm: 45.0,
-              rainfall72hCumulativeMm: 95.0,
-              soilMoisturePct: 62.0,
-              slopeDegrees: 34.0,
-              insarDeformationMmYr: -12.4,
-              ndviIndex: 0.45,
+              rainfall24hMm: 0.0,
+              rainfall72hCumulativeMm: 0.0,
+              soilMoisturePct: 0.0,
+              slopeDegrees: 0.0,
+              insarDeformationMmYr: 0.0,
+              ndviIndex: 0.0,
             ),
-      lastUpdated: json['last_updated'] != null
-          ? DateTime.tryParse(json['last_updated'] as String) ?? DateTime.now()
+      lastUpdated: json['created_at'] != null
+          ? DateTime.tryParse(json['created_at'] as String) ?? DateTime.now()
           : DateTime.now(),
       historicalEvents: (json['historical_events'] as List<dynamic>?)
               ?.map((e) => e.toString())
@@ -129,4 +135,29 @@ class ZoneRiskModel {
         'last_updated': lastUpdated.toIso8601String(),
         'historical_events': historicalEvents,
       };
+
+  factory ZoneRiskModel.empty() {
+    return ZoneRiskModel(
+      zoneId: '',
+      zoneName: 'No Zone Selected',
+      state: '',
+      district: '',
+      latitude: 25.5788,
+      longitude: 91.8933,
+      riskScore: 0.0,
+      riskLevel: RiskLevel.low,
+      confidence: ConfidenceLevel.low,
+      timeToFailure: 'N/A',
+      factors: const RiskFactors(
+        rainfall24hMm: 0.0,
+        rainfall72hCumulativeMm: 0.0,
+        soilMoisturePct: 0.0,
+        slopeDegrees: 0.0,
+        insarDeformationMmYr: 0.0,
+        ndviIndex: 0.0,
+      ),
+      lastUpdated: DateTime.now(),
+      historicalEvents: const [],
+    );
+  }
 }

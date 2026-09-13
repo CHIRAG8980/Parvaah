@@ -22,9 +22,9 @@ export default function SettingsPage() {
   // State for Thresholds
   const [rainfallWarning, setRainfallWarning] = useState<number>(55);
   const [rainfallCritical, setRainfallCritical] = useState<number>(115);
-  const [insarVelocity, setInsarVelocity] = useState<number>(14.5);
-  const [soilSaturation, setSoilSaturation] = useState<number>(76);
-  const [seismicThreshold, setSeismicThreshold] = useState<number>(0.07);
+  const [insarVelocity, setInsarVelocity] = useState<number>(15);
+  const [soilSaturation, setSoilSaturation] = useState<number>(78);
+  const [seismicThreshold, setSeismicThreshold] = useState<number>(0.08);
 
   // State for Notification Channels
   const [channels, setChannels] = useState({
@@ -57,9 +57,9 @@ export default function SettingsPage() {
   const handleReset = () => {
     setRainfallWarning(55);
     setRainfallCritical(115);
-    setInsarVelocity(14.5);
-    setSoilSaturation(76);
-    setSeismicThreshold(0.07);
+    setInsarVelocity(15);
+    setSoilSaturation(78);
+    setSeismicThreshold(0.08);
     setChannels({
       ndmaCap: true,
       whatsappSdma: true,
@@ -125,7 +125,7 @@ export default function SettingsPage() {
               <CheckCircle2 className="w-5 h-5 text-[#10B981]" />
               <span className="font-semibold">Configuration updated across all NER state monitoring gateways.</span>
             </div>
-            <span className="text-xs text-[#047857]">Sync verified (8 States)</span>
+            <span className="text-xs text-[#047857]">Sync verified</span>
           </div>
         )}
 
@@ -136,7 +136,7 @@ export default function SettingsPage() {
               <Zap className="w-5 h-5 text-[#3B82F6]" />
               <span className="font-semibold">Simulated CAP warning packet transmitted to test sandbox relays.</span>
             </div>
-            <span className="text-xs text-[#2563EB]">Latency: 142ms</span>
+            <span className="text-xs text-[#2563EB]">Latency: --</span>
           </div>
         )}
 
@@ -341,7 +341,7 @@ export default function SettingsPage() {
                     <option value="60s">Every 60 seconds (Conserve)</option>
                   </select>
                   <span className="block text-[11px] text-[#758CA8] mt-1.5">
-                    142 automated rain gauges
+                    AWS station network
                   </span>
                 </div>
 
@@ -379,7 +379,7 @@ export default function SettingsPage() {
                     <option value="5m">Every 5 minutes</option>
                   </select>
                   <span className="block text-[11px] text-[#758CA8] mt-1.5">
-                    38 borehole sensors
+                    Borehole sensor network
                   </span>
                 </div>
               </div>
@@ -584,7 +584,7 @@ export default function SettingsPage() {
                   Simulate Sandbox Warning Broadcast
                 </button>
                 <span className="block text-[11px] text-[#758CA8] text-center mt-1.5">
-                  Sends mock payload without triggering live emergency sirens
+                  Sends diagnostic sandbox payload without triggering live emergency sirens
                 </span>
               </div>
             </div>
