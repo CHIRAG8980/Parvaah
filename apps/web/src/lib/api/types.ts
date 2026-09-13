@@ -170,5 +170,46 @@ export interface DistrictRiskItem {
   active_alerts: number;
 }
 
+export interface SystemSettings {
+  rainfall_warning: number;
+  rainfall_critical: number;
+  insar_velocity: number;
+  soil_saturation: number;
+  seismic_threshold: number;
+  channels: {
+    ndmaCap: boolean;
+    whatsappSdma: boolean;
+    smsDisasterRelay: boolean;
+    broRadioPush: boolean;
+    sirenCivilDefense: boolean;
+    emailBulletin: boolean;
+  };
+  aws_poll_rate: string;
+  insar_sync_interval: string;
+  inclinometer_heartbeat: string;
+  edge_failover: boolean;
+  updated_at: string;
+}
+
+export interface SystemSettingsUpdateRequest {
+  rainfall_warning?: number;
+  rainfall_critical?: number;
+  insar_velocity?: number;
+  soil_saturation?: number;
+  seismic_threshold?: number;
+  channels?: {
+    ndmaCap: boolean;
+    whatsappSdma: boolean;
+    smsDisasterRelay: boolean;
+    broRadioPush: boolean;
+    sirenCivilDefense: boolean;
+    emailBulletin: boolean;
+  };
+  aws_poll_rate?: string;
+  insar_sync_interval?: string;
+  inclinometer_heartbeat?: string;
+  edge_failover?: boolean;
+}
+
 export * from './auth-types';
 

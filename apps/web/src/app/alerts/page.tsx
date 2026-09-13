@@ -5,6 +5,7 @@ import { DashboardShell } from '../../components/layout/DashboardShell';
 import { AlertsKpiStrip } from './AlertsKpiStrip';
 import { AlertItemCard } from './AlertItemCard';
 import { useAlertQueue } from '../../hooks/useAlerts';
+import { useAuth } from '../../hooks/useAuth';
 import { Search, Radio, CheckCircle2 } from 'lucide-react';
 
 export default function AlertsPage() {
@@ -14,6 +15,7 @@ export default function AlertsPage() {
   const [actionNotice, setActionNotice] = useState<string | null>(null);
 
   const { alerts, isLoading, isError, approve, reject, isApproving, isRejecting } = useAlertQueue();
+  const { user } = useAuth();
 
   const criticalCount = alerts.filter((a) => a.severity === 'Critical').length;
   const highCount = alerts.filter((a) => a.severity === 'High').length;
@@ -32,8 +34,9 @@ export default function AlertsPage() {
   const handleApprove = async (id: string) => {
     try {
       const alert = alerts.find((a) => a.alert_id === id);
+      const officerId = user?.user_id || 'usr-dmo-east-khasi';
       await approve(id, {
-        officer_id: 'usr-officer-01',
+        officer_id: officerId,
         final_message: alert?.draft_message || 'Emergency landslide advisory dispatched.',
         selected_channels: ['sms', 'app_push', 'cap_sachet'],
       });
@@ -46,8 +49,9 @@ export default function AlertsPage() {
 
   const handleReject = async (id: string) => {
     try {
+      const officerId = user?.user_id || 'usr-dmo-east-khasi';
       await reject(id, {
-        officer_id: 'usr-officer-01',
+        officer_id: officerId,
         reason_code: 'false_positive_rain_threshold',
         notes: 'Officer field verification determined no immediate ground movement.',
       });

@@ -70,7 +70,8 @@ htmlcov/
 *.ckpt
 **/models/checkpoints/
 **/saved_models/
-models/
+/models/
+!apps/backend/app/models/
 
 # Datasets & Geodata (Raw, Processed, Maps, GeoTIFF, Rasters)
 *.csv

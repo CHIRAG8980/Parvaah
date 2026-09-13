@@ -8,3 +8,4 @@ export * from './useRoads';
 export * from './useWeather';
 export * from './useDataSources';
 export * from './useDistricts';
+export * from './useSettings';

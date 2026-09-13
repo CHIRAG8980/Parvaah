@@ -43,7 +43,15 @@ def load_real_rainfall_and_risks(db: Session, zone_id_map: dict[str, str]) -> No
         rain_24h = district_rainfall.get(district, 0.0)
         rain_72h = rain_24h * 1.8
 
-        db.add(RainfallReading(
+        zone = db.query(Zone).filter(Zone.zone_id == zid).first()
+        slope = zone.avg_slope_deg if zone else 30.0
+        score, level, conf, min_d, max_d, factors = ml_service.predict_risk(
+            slope_deg=slope,
+            rainfall_24h_mm=rain_24h,
+            rainfall_72h_mm=rain_72h,
+        )
+
+        reading = RainfallReading(
             reading_id=f"rf-imd-{zid.lower()}",
             source_type="imd_gridded_telemetry",
             source_id="IMD-NE-REGIONAL",
@@ -55,17 +63,10 @@ def load_real_rainfall_and_risks(db: Session, zone_id_map: dict[str, str]) -> No
             cumulative_72hr_mm=rain_72h,
             is_forecast=False,
             confidence_flag="high",
-        ))
-
-        zone = db.query(Zone).filter(Zone.zone_id == zid).first()
-        slope = zone.avg_slope_deg if zone else 30.0
-        score, level, conf, min_d, max_d, factors = ml_service.predict_risk(
-            slope_deg=slope,
-            rainfall_24h_mm=rain_24h,
-            rainfall_72h_mm=rain_72h,
         )
+        db.merge(reading)
 
-        db.add(RiskScore(
+        risk_record = RiskScore(
             risk_score_id=f"rs-{zid.lower()}",
             zone_id=zid,
             risk_level=level.value,
@@ -76,6 +77,7 @@ def load_real_rainfall_and_risks(db: Session, zone_id_map: dict[str, str]) -> No
             model_version=ml_service.model_version,
             explainability_json=factors.model_dump_json(),
             computed_at=now,
-        ))
+        )
+        db.merge(risk_record)
 
     db.commit()

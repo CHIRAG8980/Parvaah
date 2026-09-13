@@ -11,6 +11,7 @@ from app.api.v1.predict import router as predict_router
 from app.api.v1.audit import router as audit_router
 from app.api.v1.devices import router as devices_router
 from app.api.v1.auth import router as auth_router
+from app.api.v1.settings import router as settings_router
 
 api_router = APIRouter()
 
@@ -24,6 +25,7 @@ api_router.include_router(predict_router)
 api_router.include_router(audit_router)
 api_router.include_router(devices_router)
 api_router.include_router(auth_router)
+api_router.include_router(settings_router)
 
 # Backwards compatibility alias for /api/v1/risks
 from app.api.v1.zones import list_zones

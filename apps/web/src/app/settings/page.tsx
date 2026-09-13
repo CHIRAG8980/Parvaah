@@ -1,14 +1,17 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { DashboardShell } from '../../components/layout/DashboardShell';
 import { Settings, Save, RotateCcw, CheckCircle2, Zap, AlertTriangle } from 'lucide-react';
 import { SettingsThresholds } from './SettingsThresholds';
 import { SettingsTelemetrySync } from './SettingsTelemetrySync';
 import { SettingsBroadcastChannels, ChannelSettings } from './SettingsBroadcastChannels';
 import { useCheckEscalation } from '../../hooks/useAlerts';
+import { useSettings } from '../../hooks/useSettings';
 
 export default function SettingsPage() {
+  const { settings, isLoading, updateSettings, isUpdating } = useSettings();
+
   const [rainfallWarning, setRainfallWarning] = useState<number>(55);
   const [rainfallCritical, setRainfallCritical] = useState<number>(115);
   const [insarVelocity, setInsarVelocity] = useState<number>(15);
@@ -35,32 +38,83 @@ export default function SettingsPage() {
 
   const { mutate: runEscalationCheck, isPending: isSimulating } = useCheckEscalation();
 
-  const handleSave = () => {
+  useEffect(() => {
+    if (settings) {
+      setRainfallWarning(settings.rainfall_warning);
+      setRainfallCritical(settings.rainfall_critical);
+      setInsarVelocity(settings.insar_velocity);
+      setSoilSaturation(settings.soil_saturation);
+      setSeismicThreshold(settings.seismic_threshold);
+      if (settings.channels) {
+        setChannels(settings.channels);
+      }
+      if (settings.aws_poll_rate) setAwsPollRate(settings.aws_poll_rate);
+      if (settings.insar_sync_interval) setInsarSyncInterval(settings.insar_sync_interval);
+      if (settings.inclinometer_heartbeat) setInclinometerHeartbeat(settings.inclinometer_heartbeat);
+      if (settings.edge_failover !== undefined) setEdgeFailover(settings.edge_failover);
+    }
+  }, [settings]);
+
+  const handleSave = async () => {
     setSaveStatus('saving');
-    setTimeout(() => {
+    try {
+      await updateSettings({
+        rainfall_warning: rainfallWarning,
+        rainfall_critical: rainfallCritical,
+        insar_velocity: insarVelocity,
+        soil_saturation: soilSaturation,
+        seismic_threshold: seismicThreshold,
+        channels,
+        aws_poll_rate: awsPollRate,
+        insar_sync_interval: insarSyncInterval,
+        inclinometer_heartbeat: inclinometerHeartbeat,
+        edge_failover: edgeFailover,
+      });
       setSaveStatus('saved');
-      setTimeout(() => setSaveStatus('idle'), 3000);
-    }, 600);
+      setTimeout(() => setSaveStatus('idle'), 3500);
+    } catch {
+      setSaveStatus('idle');
+    }
   };
 
-  const handleReset = () => {
-    setRainfallWarning(55);
-    setRainfallCritical(115);
-    setInsarVelocity(15);
-    setSoilSaturation(78);
-    setSeismicThreshold(0.08);
-    setChannels({
-      ndmaCap: true,
-      whatsappSdma: true,
-      smsDisasterRelay: true,
-      broRadioPush: true,
-      sirenCivilDefense: false,
-      emailBulletin: true,
-    });
-    setAwsPollRate('30s');
-    setInsarSyncInterval('30m');
-    setInclinometerHeartbeat('1m');
-    setEdgeFailover(true);
+  const handleReset = async () => {
+    const baseline = {
+      rainfall_warning: 55,
+      rainfall_critical: 115,
+      insar_velocity: 15,
+      soil_saturation: 78,
+      seismic_threshold: 0.08,
+      channels: {
+        ndmaCap: true,
+        whatsappSdma: true,
+        smsDisasterRelay: true,
+        broRadioPush: true,
+        sirenCivilDefense: false,
+        emailBulletin: true,
+      },
+      aws_poll_rate: '30s',
+      insar_sync_interval: '30m',
+      inclinometer_heartbeat: '1m',
+      edge_failover: true,
+    };
+    setRainfallWarning(baseline.rainfall_warning);
+    setRainfallCritical(baseline.rainfall_critical);
+    setInsarVelocity(baseline.insar_velocity);
+    setSoilSaturation(baseline.soil_saturation);
+    setSeismicThreshold(baseline.seismic_threshold);
+    setChannels(baseline.channels);
+    setAwsPollRate(baseline.aws_poll_rate);
+    setInsarSyncInterval(baseline.insar_sync_interval);
+    setInclinometerHeartbeat(baseline.inclinometer_heartbeat);
+    setEdgeFailover(baseline.edge_failover);
+
+    try {
+      await updateSettings(baseline);
+      setSaveStatus('saved');
+      setTimeout(() => setSaveStatus('idle'), 3000);
+    } catch {
+      // Keep UI state
+    }
   };
 
   const triggerTestAlert = async () => {
