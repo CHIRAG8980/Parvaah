@@ -1,53 +1,71 @@
-import { useState, useEffect, useCallback } from 'react';
+'use client';
+
+import { useState, useEffect, useCallback, useTransition } from 'react';
 import { apiClient } from '../lib/api/client';
-import { API_CONFIG, getAuthToken, setAuthToken, removeAuthToken } from '../lib/api/config';
-import { UserProfile, TokenResponse, LoginRequest } from '../lib/api/types';
+import {
+  UserProfile,
+  TokenResponse,
+  LoginRequest,
+  PasswordChangeRequest,
+  SessionStatusResponse,
+} from '../lib/api/types';
 import { useApiMutation } from './useApiMutation';
 
 export function useAuth() {
   const [user, setUser] = useState<UserProfile | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
+  const [, startTransition] = useTransition();
 
-  const loadUser = useCallback(async () => {
-    const token = getAuthToken();
-    if (!token) {
-      setUser(null);
-      setIsAuthenticated(false);
-      setIsLoading(false);
-      return;
-    }
-
+  const loadSession = useCallback(async () => {
     try {
-      const profile = await apiClient.get<UserProfile>('/auth/me');
-      setUser(profile);
-      setIsAuthenticated(true);
-      if (typeof window !== 'undefined') {
-        localStorage.setItem(API_CONFIG.storageKeys.userProfile, JSON.stringify(profile));
+      const session = await apiClient.get<SessionStatusResponse>('/auth/session', {
+        skipAuth: true,
+      });
+
+      if (session.authenticated && session.user) {
+        startTransition(() => {
+          setUser(session.user);
+          setIsAuthenticated(true);
+        });
+      } else {
+        startTransition(() => {
+          setUser(null);
+          setIsAuthenticated(false);
+        });
       }
     } catch {
-      removeAuthToken();
-      setUser(null);
-      setIsAuthenticated(false);
+      startTransition(() => {
+        setUser(null);
+        setIsAuthenticated(false);
+      });
     } finally {
       setIsLoading(false);
     }
   }, []);
 
   useEffect(() => {
-    loadUser();
-  }, [loadUser]);
+    loadSession();
+
+    // Proactive background silent refresh every 10 minutes (access token lives 15m)
+    const interval = setInterval(() => {
+      apiClient.post<TokenResponse>('/auth/refresh', {}, { skipAuth: true }).catch(() => {
+        // Ignored; automatic refresh handler in apiClient will deal with expired sessions
+      });
+    }, 10 * 60 * 1000);
+
+    return () => clearInterval(interval);
+  }, [loadSession]);
 
   const loginMutation = useApiMutation<TokenResponse, LoginRequest>(
     async (credentials: LoginRequest) => {
-      const result = await apiClient.post<TokenResponse>('/auth/login', credentials, {
+      // Direct POST to /auth/login; sets HttpOnly access & refresh cookies on browser
+      return apiClient.post<TokenResponse>('/auth/login', credentials, {
         skipAuth: true,
       });
-      setAuthToken(result.access_token);
-      return result;
     },
     {
-      onSuccess: async (data) => {
+      onSuccess: (data) => {
         setIsAuthenticated(true);
         const profile: UserProfile = {
           user_id: data.user_id,
@@ -55,35 +73,53 @@ export function useAuth() {
           full_name: data.full_name,
           role: data.role,
           district: data.district,
+          state: data.state,
           escalation_level: data.escalation_level,
           contact_number: '+919436000000',
+          csrf_token: data.csrf_token,
         };
         setUser(profile);
-        if (typeof window !== 'undefined') {
-          localStorage.setItem(API_CONFIG.storageKeys.userProfile, JSON.stringify(profile));
-        }
       },
     }
   );
 
-  const logout = useCallback(() => {
-    removeAuthToken();
-    if (typeof window !== 'undefined') {
-      localStorage.removeItem(API_CONFIG.storageKeys.userProfile);
+  const logout = useCallback(async () => {
+    try {
+      await apiClient.post('/auth/logout', {});
+    } catch {
+      // Discard errors during logout
+    } finally {
+      setUser(null);
+      setIsAuthenticated(false);
+      if (typeof window !== 'undefined') {
+        window.location.href = '/login';
+      }
     }
-    setUser(null);
-    setIsAuthenticated(false);
   }, []);
+
+  const changePassword = useCallback(async (payload: PasswordChangeRequest) => {
+    return apiClient.post<TokenResponse>('/auth/change-password', payload);
+  }, []);
+
+  // RBAC helpers
+  const role = user?.role?.toLowerCase() || '';
+  const isAdmin = role.includes('admin');
+  const isStateOfficer = isAdmin || role.includes('state') || role.includes('director');
+  const isDistrictOfficer = isAdmin || isStateOfficer || role.includes('district');
 
   return {
     user,
     isLoading,
     isAuthenticated,
+    isAdmin,
+    isStateOfficer,
+    isDistrictOfficer,
     login: loginMutation.mutate,
     isLoggingIn: loginMutation.isPending,
     loginError: loginMutation.error,
     logout,
-    refreshProfile: loadUser,
+    changePassword,
+    refreshSession: loadSession,
   };
 }
 
@@ -99,7 +135,7 @@ export function useOfficers() {
       const data = await apiClient.get<UserProfile[]>('/auth/officers');
       setOfficers(data);
     } catch (err) {
-      setError(err instanceof Error ? err : new Error('Failed to fetch officers'));
+      setError(err instanceof Error ? err : new Error('Failed to fetch emergency officials'));
     } finally {
       setIsLoading(false);
     }
@@ -111,4 +147,3 @@ export function useOfficers() {
 
   return { officers, isLoading, error, refetch: fetchOfficers };
 }
-

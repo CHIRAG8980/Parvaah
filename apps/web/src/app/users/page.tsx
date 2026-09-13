@@ -22,7 +22,7 @@ export default function UsersPage() {
       phone: u.contact_number || '+91 94360 00000',
       role: u.role.replace(/_/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase()),
       jurisdiction: u.district ? `${u.district} District` : 'North East Regional Command',
-      clearanceLevel: u.escalation_level === '2' ? 'Level 4 (Executive)' : 'Level 3 (Command)',
+      clearanceLevel: Number(u.escalation_level) >= 2 ? 'Level 4 (Executive)' : 'Level 3 (Command)',
       status: 'On Duty' as const,
       avatarInitials: u.full_name.split(' ').map((n) => n[0]).join('').slice(0, 2).toUpperCase(),
     }));

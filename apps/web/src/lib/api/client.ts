@@ -1,4 +1,4 @@
-import { API_CONFIG, getAuthToken, removeAuthToken, setAuthToken } from './config';
+import { API_CONFIG, getCsrfToken } from './config';
 import { ApiError } from './errors';
 
 export interface RequestOptions extends Omit<RequestInit, 'body'> {
@@ -10,12 +10,26 @@ export interface RequestOptions extends Omit<RequestInit, 'body'> {
 
 class ApiClient {
   private isRefreshing = false;
-  private refreshPromise: Promise<string | null> | null = null;
+  private refreshPromise: Promise<boolean> | null = null;
 
   private buildUrl(endpoint: string, params?: RequestOptions['params']): string {
     const cleanEndpoint = endpoint.startsWith('/') ? endpoint : `/${endpoint}`;
-    const url = new URL(`${API_CONFIG.baseUrl}${cleanEndpoint}`);
+    
+    // In browser, relative URL works with Next.js rewrites
+    if (typeof window !== 'undefined') {
+      const url = new URL(`${API_CONFIG.baseUrl}${cleanEndpoint}`, window.location.origin);
+      if (params) {
+        Object.entries(params).forEach(([key, value]) => {
+          if (value !== undefined && value !== null) {
+            url.searchParams.append(key, String(value));
+          }
+        });
+      }
+      return url.toString();
+    }
 
+    // Server-side direct request
+    const url = new URL(`${API_CONFIG.baseUrl}${cleanEndpoint}`);
     if (params) {
       Object.entries(params).forEach(([key, value]) => {
         if (value !== undefined && value !== null) {
@@ -23,11 +37,14 @@ class ApiClient {
         }
       });
     }
-
     return url.toString();
   }
 
-  private async attemptTokenRefresh(): Promise<string | null> {
+  /**
+   * Automatic silent token refresh via HttpOnly refresh token cookie.
+   * Concurrent 401s latch to this single in-flight refresh promise.
+   */
+  private async attemptTokenRefresh(): Promise<boolean> {
     if (this.isRefreshing && this.refreshPromise) {
       return this.refreshPromise;
     }
@@ -35,27 +52,22 @@ class ApiClient {
     this.isRefreshing = true;
     this.refreshPromise = (async () => {
       try {
-        const response = await fetch(`${API_CONFIG.baseUrl}/auth/login`, {
+        const refreshUrl = typeof window !== 'undefined'
+          ? `${window.location.origin}${API_CONFIG.baseUrl}/auth/refresh`
+          : `${API_CONFIG.baseUrl}/auth/refresh`;
+
+        const response = await fetch(refreshUrl, {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ username: 'officer_meghalaya' }),
+          headers: {
+            Accept: 'application/json',
+            'Content-Type': 'application/json',
+          },
+          credentials: 'include', // Sends HttpOnly parvaah_refresh_token cookie
         });
 
-        if (!response.ok) {
-          removeAuthToken();
-          return null;
-        }
-
-        const data = (await response.json()) as { access_token?: string };
-        if (data.access_token) {
-          setAuthToken(data.access_token);
-          return data.access_token;
-        }
-
-        return null;
+        return response.ok;
       } catch {
-        removeAuthToken();
-        return null;
+        return false;
       } finally {
         this.isRefreshing = false;
         this.refreshPromise = null;
@@ -88,16 +100,19 @@ class ApiClient {
       headers['Content-Type'] = 'application/json';
     }
 
-    if (!skipAuth) {
-      const token = getAuthToken();
-      if (token) {
-        headers['Authorization'] = `Bearer ${token}`;
+    // Attach double-submit CSRF token for mutating state requests (POST, PUT, DELETE, PATCH)
+    const method = (customConfig.method || 'GET').toUpperCase();
+    if (['POST', 'PUT', 'DELETE', 'PATCH'].includes(method)) {
+      const csrfToken = getCsrfToken();
+      if (csrfToken && !headers['X-CSRF-Token']) {
+        headers['X-CSRF-Token'] = csrfToken;
       }
     }
 
     const fetchConfig: RequestInit = {
       ...customConfig,
       headers,
+      credentials: 'include', // Always send and receive HttpOnly cookies
       signal: controller.signal,
     };
 
@@ -109,14 +124,18 @@ class ApiClient {
       const response = await fetch(url, fetchConfig);
       clearTimeout(timeoutId);
 
-      if (response.status === 401 && !skipAuth) {
-        const refreshedToken = await this.attemptTokenRefresh();
-        if (refreshedToken) {
-          headers['Authorization'] = `Bearer ${refreshedToken}`;
-          const retryResponse = await fetch(url, { ...fetchConfig, headers });
+      // Trigger automatic silent refresh if 401 Unauthorized received on protected route
+      if (response.status === 401 && !skipAuth && !endpoint.includes('/auth/login') && !endpoint.includes('/auth/refresh')) {
+        const refreshSuccess = await this.attemptTokenRefresh();
+        if (refreshSuccess) {
+          // Retry original request with newly rotated cookie session
+          const retryResponse = await fetch(url, fetchConfig);
           if (!retryResponse.ok) {
             const errorData = await retryResponse.json().catch(() => null);
             throw ApiError.fromResponse(retryResponse.status, errorData);
+          }
+          if (retryResponse.status === 204) {
+            return undefined as unknown as T;
           }
           return (await retryResponse.json()) as T;
         }

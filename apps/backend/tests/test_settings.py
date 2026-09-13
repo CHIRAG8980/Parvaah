@@ -1,13 +1,13 @@
 """Tests for system settings GET and PUT endpoints."""
 
 import pytest
-from fastapi.testclient import TestClient
-from app.main import app
-
-client = TestClient(app)
 
 
-def test_get_settings():
+def test_get_settings(client):
+    client.post(
+        "/api/v1/auth/login",
+        json={"username": "admin", "password": "password123"},
+    )
     response = client.get("/api/v1/settings")
     assert response.status_code == 200
     data = response.json()
@@ -17,7 +17,11 @@ def test_get_settings():
     assert isinstance(data["rainfall_warning"], (int, float))
 
 
-def test_update_settings():
+def test_update_settings(client):
+    client.post(
+        "/api/v1/auth/login",
+        json={"username": "admin", "password": "password123"},
+    )
     payload = {
         "rainfall_warning": 62.5,
         "rainfall_critical": 125.0,

@@ -31,12 +31,12 @@ class Settings(BaseModel):
     )
     FALLBACK_SQLITE_URL: str = "sqlite:///./parvaah_dev.db"
 
-    # CORS configuration
+    # CORS configuration (explicit origins required for credentials/cookies)
     CORS_ORIGINS: list[str] = [
         "http://localhost:3000",
         "http://127.0.0.1:3000",
         "http://localhost:8000",
-        "*",
+        "http://127.0.0.1:8000",
     ]
 
     # ML Engine paths relative to workspace root
@@ -54,6 +54,26 @@ class Settings(BaseModel):
     # Escalation policy default timeouts in minutes
     CRITICAL_ESCALATION_MINUTES: int = 30
     HIGH_ESCALATION_MINUTES: int = 60
+
+    # Authentication, Cookie & Session Security
+    JWT_SECRET_KEY: str = Field(
+        default_factory=lambda: os.getenv(
+            "JWT_SECRET_KEY", "parvaah-secure-jwt-secret-key-ner-disaster-mgmt-2026"
+        )
+    )
+    JWT_ALGORITHM: str = "HS256"
+    ACCESS_TOKEN_EXPIRE_MINUTES: int = 15
+    REFRESH_TOKEN_EXPIRE_DAYS: int = 7
+    JWT_ACCESS_TOKEN_EXPIRE_MINUTES: int = 15  # Backwards-compat alias
+
+    COOKIE_SECURE: bool = Field(
+        default_factory=lambda: os.getenv("COOKIE_SECURE", "false").lower() in ("true", "1")
+    )
+    COOKIE_SAMESITE: str = "lax"
+    COOKIE_DOMAIN: str | None = None
+    ACCESS_TOKEN_COOKIE_NAME: str = "parvaah_access_token"
+    REFRESH_TOKEN_COOKIE_NAME: str = "parvaah_refresh_token"
+    CSRF_COOKIE_NAME: str = "parvaah_csrf_token"
 
 
 settings = Settings()

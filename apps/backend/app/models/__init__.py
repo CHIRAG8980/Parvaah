@@ -12,6 +12,7 @@ from app.models.weather import (
 )
 from app.models.audit import AuditLog
 from app.models.user import User, DeviceToken
+from app.models.token import RefreshToken
 from app.models.settings import SystemSettings
 
 __all__ = [
@@ -29,5 +30,6 @@ __all__ = [
     "AuditLog",
     "User",
     "DeviceToken",
+    "RefreshToken",
     "SystemSettings",
 ]

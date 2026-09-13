@@ -9,6 +9,9 @@ from app.models.settings import SystemSettings
 from app.schemas.settings import SystemSettingsResponse, SystemSettingsUpdateRequest, BroadcastChannelsSchema
 from app.services.audit_service import AuditService
 
+from app.api.dependencies import get_current_user, require_roles
+from app.models.user import User
+
 router = APIRouter(prefix="/settings", tags=["System Configuration"])
 
 
@@ -23,7 +26,10 @@ def _get_or_create_settings(db: Session) -> SystemSettings:
 
 
 @router.get("", response_model=SystemSettingsResponse)
-def get_system_settings(db: Session = Depends(get_db)):
+def get_system_settings(
+    _user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
     """Fetch current geotechnical thresholds, polling rates, and broadcast channels."""
     record = _get_or_create_settings(db)
     try:
@@ -49,9 +55,10 @@ def get_system_settings(db: Session = Depends(get_db)):
 @router.put("", response_model=SystemSettingsResponse)
 def update_system_settings(
     request: SystemSettingsUpdateRequest,
+    current_admin: User = Depends(require_roles("admin", "state_officer")),
     db: Session = Depends(get_db),
 ):
-    """Update geotechnical thresholds, polling rates, or broadcast channels with audit recording."""
+    """Update geotechnical thresholds, polling rates, or broadcast channels with audit recording (Admin/State Officer only)."""
     record = _get_or_create_settings(db)
 
     if request.rainfall_warning is not None:

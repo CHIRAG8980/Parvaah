@@ -6,7 +6,6 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.config import settings
 from app.database import init_db, SessionLocal
-from app.seed.seeder import seed_database
 from app.api.router import api_router
 
 
@@ -25,7 +24,8 @@ async def lifespan(app: FastAPI):
     init_db()
     db = SessionLocal()
     try:
-        seed_database(db)
+        from app.ingest.real_data_loader import run_real_ingestion
+        run_real_ingestion(db)
     except Exception as exc:
         logger.warning("GIS station init: %s", exc)
     finally:
@@ -43,6 +43,10 @@ app = FastAPI(
     docs_url="/docs",
     redoc_url="/redoc",
 )
+
+# Apply Security Headers Defense Middleware
+from app.security_middleware import SecurityHeadersMiddleware
+app.add_middleware(SecurityHeadersMiddleware)
 
 # Enable CORS for Web Dashboard and Flutter clients
 app.add_middleware(

@@ -76,15 +76,27 @@ def load_real_zones(db: Session) -> dict[str, str]:
             created_at=now,
         )
         db.add(z)
-        db.add(TerrainFeature(
-            zone_id=zid,
-            slope_deg=cfg["slope"],
-            aspect_deg=180.0,
-            curvature_type="concave",
-            land_use="forest_mountain",
-            lithology="Sandstone/Shale",
-            soil_thickness_m=2.8,
-        ))
+
+    db.flush()
+
+    for raw_key, pts in district_points.items():
+        cfg = district_configs.get(raw_key, {
+            "name": f"{raw_key.replace('_', ' ')} Sector",
+            "district": raw_key.replace("_", " "),
+            "slope": 30.0,
+            "elev": 1000.0,
+        })
+        zid = f"ZONE-{raw_key.replace('_', '-').upper()}"
+        if not db.query(TerrainFeature).filter(TerrainFeature.zone_id == zid).first():
+            db.add(TerrainFeature(
+                zone_id=zid,
+                slope_deg=cfg["slope"],
+                aspect_deg=180.0,
+                curvature_type="concave",
+                land_use="forest_mountain",
+                lithology="Sandstone/Shale",
+                soil_thickness_m=2.8,
+            ))
 
     db.commit()
     return zone_id_map

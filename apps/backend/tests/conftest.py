@@ -23,6 +23,9 @@ test_engine = create_engine(
 TestingSessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=test_engine)
 
 
+from app.models.user import User
+from app.security import hash_password
+
 @pytest.fixture(scope="session", autouse=True)
 def setup_test_db():
     """Create test tables, ingest real data, and configure test operational records."""
@@ -31,6 +34,50 @@ def setup_test_db():
     run_real_ingestion(db)
 
     now = datetime.now(timezone.utc)
+
+    # Provision standard authority accounts for test suite
+    test_officers = [
+        User(
+            user_id="usr-admin-system",
+            username="admin",
+            full_name="National Disaster Control Administrator",
+            role="admin",
+            district="All Districts",
+            state="National Command",
+            contact_number="+91-11-26701700",
+            escalation_level=3,
+            hashed_password=hash_password("password123"),
+            created_at=now,
+        ),
+        User(
+            user_id="usr-director-sdma",
+            username="sdma_director",
+            full_name="Shri P. Lyngdoh, IAS",
+            role="state_officer",
+            district="Statewide HQ",
+            state="Meghalaya",
+            contact_number="+91-364-2501234",
+            escalation_level=2,
+            hashed_password=hash_password("password123"),
+            created_at=now,
+        ),
+        User(
+            user_id="usr-dmo-east-khasi",
+            username="dmo_east_khasi",
+            full_name="Dr. Bahunlang Nongbri",
+            role="district_officer",
+            district="East Khasi Hills",
+            state="Meghalaya",
+            contact_number="+91-364-2224010",
+            escalation_level=1,
+            hashed_password=hash_password("password123"),
+            created_at=now,
+        ),
+    ]
+    for off in test_officers:
+        db.add(off)
+    db.commit()
+
     # Add an active test alert linked to an authentic zone for alert workflow tests
     test_alert = Alert(
         alert_id="ALT-TEST-001",

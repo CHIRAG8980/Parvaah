@@ -2,6 +2,7 @@
 
 from datetime import datetime, timezone
 from sqlalchemy import Column, String, Integer, DateTime
+from sqlalchemy.orm import relationship
 from app.database import Base
 
 
@@ -20,6 +21,7 @@ class User(Base):
         index=True,
     )
     district = Column(String(64), nullable=True, index=True)
+    state = Column(String(64), nullable=True, index=True)
     escalation_level = Column(Integer, nullable=False, default=1)
     contact_number = Column(String(32), nullable=True)
     hashed_password = Column(String(128), nullable=False)
@@ -27,6 +29,13 @@ class User(Base):
         DateTime(timezone=True),
         default=lambda: datetime.now(timezone.utc),
         nullable=False,
+    )
+
+    refresh_tokens = relationship(
+        "RefreshToken",
+        back_populates="user",
+        cascade="all, delete-orphan",
+        lazy="select",
     )
 
 
