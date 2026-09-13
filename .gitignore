@@ -27,7 +27,7 @@ id_rsa
 id_dsa
 secrets/
 
-# Python & ML
+# Python & ML Model Weights & Checkpoints
 __pycache__/
 *.py[cod]
 *$py.class
@@ -56,37 +56,53 @@ wheels/
 .coverage
 htmlcov/
 *.ipynb_checkpoints/
-models/*.pkl
-models/*.pt
-models/*.onnx
-models/*.h5
+*.pkl
+*.pickle
+*.pt
+*.pth
+*.onnx
+*.h5
+*.hdf5
+*.keras
 *.joblib
+*.weights
+*.ckpt
+**/models/checkpoints/
+**/saved_models/
+models/
 
-# Large Geodata, Datasets & Archives
+# Datasets & Geodata (Raw, Processed, Maps, GeoTIFF, Rasters)
 *.csv
+*.tsv
 *.parquet
 *.feather
 *.npy
 *.npz
-*.h5
-*.hdf5
 *.nc
+*.nc4
 *.tif
 *.tiff
 *.geotiff
 *.SAFE/
+*.zip
+*.tar
+*.tar.gz
+*.tgz
 GeoTIFF/
-data/raw/
-data/processed/
-apps/ml-engine/data/raw/
-apps/ml-engine/data/processed/
-apps/ml-engine/models/*/outputs/
-apps/ml-engine/models/*/saved_models/
+**/data/
+**/datasets/
+**/outputs/maps/
+**/outputs/predictions/
+**/outputs/plots/
+**/outputs/explanations/
+**/outputs/metrics/
+**/outputs/reports/
 
-# Exceptions: keep schemas and directory placeholders
-!apps/ml-engine/data/schemas/
-!apps/ml-engine/data/schemas/**
-!apps/ml-engine/**/.gitkeep
+# Exceptions: keep schemas and directory placeholders only
+!**/data/schemas/
+!**/data/schemas/**
+!**/.gitkeep
+
 
 
 # Flutter & Dart
