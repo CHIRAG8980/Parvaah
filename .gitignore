@@ -60,6 +60,34 @@ models/*.pkl
 models/*.pt
 models/*.onnx
 models/*.h5
+*.joblib
+
+# Large Geodata, Datasets & Archives
+*.csv
+*.parquet
+*.feather
+*.npy
+*.npz
+*.h5
+*.hdf5
+*.nc
+*.tif
+*.tiff
+*.geotiff
+*.SAFE/
+GeoTIFF/
+data/raw/
+data/processed/
+apps/ml-engine/data/raw/
+apps/ml-engine/data/processed/
+apps/ml-engine/models/*/outputs/
+apps/ml-engine/models/*/saved_models/
+
+# Exceptions: keep schemas and directory placeholders
+!apps/ml-engine/data/schemas/
+!apps/ml-engine/data/schemas/**
+!apps/ml-engine/**/.gitkeep
+
 
 # Flutter & Dart
 .dart_tool/
@@ -110,3 +138,7 @@ coverage/
 *.tfstate
 *.tfstate.*
 crash.log
+
+# Large Document Reports (>100MB)
+docs/reports/*.pdf
+
