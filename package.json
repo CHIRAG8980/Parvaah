@@ -7,7 +7,7 @@
   "scripts": {
     "dev": "./scripts/dev.sh",
     "dev:all": "./scripts/dev.sh",
-    "dev:backend": "cd services/api && ../../.venv/bin/python -m uvicorn app.main:app --reload --host 0.0.0.0 --port 8000",
+    "dev:backend": "cd apps/backend && ../../.venv/bin/python -m uvicorn app.main:app --reload --host 0.0.0.0 --port 8000",
     "dev:web": "pnpm --filter @landslide/web dev",
     "build:web": "pnpm --filter @landslide/web build",
     "build": "pnpm -r --filter \"./packages/**\" --filter \"./apps/web\" run build",

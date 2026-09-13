@@ -30,17 +30,17 @@ def _get_zone_risk(db: Session, zone_id: str) -> RiskScore | None:
 
 
 def _resolve_factors(zone: Zone, risk: RiskScore | None) -> ExplainabilityFactors:
-    """Resolve SHAP factors from risk record or compute fallback."""
+    """Resolve SHAP factors from risk record or return baseline zeroed factors."""
     if risk and risk.explainability_json:
         return ExplainabilityFactors.model_validate_json(risk.explainability_json)
     return ExplainabilityFactors(
         slope_degrees=zone.avg_slope_deg,
-        rainfall24h_mm=140.0,
-        rainfall72h_cumulative_mm=260.0,
-        insar_deformation_mm_yr=-14.0,
-        ndvi_index=0.42,
-        soil_moisture_pct=80.0,
-        top_factors=["Continuous monsoon plume", "High slope gradient"],
+        rainfall24h_mm=0.0,
+        rainfall72h_cumulative_mm=0.0,
+        insar_deformation_mm_yr=0.0,
+        ndvi_index=0.0,
+        soil_moisture_pct=0.0,
+        top_factors=[],
     )
 
 
@@ -60,7 +60,7 @@ def list_zones(
     results = []
     for z in query.all():
         risk = _get_zone_risk(db, z.zone_id)
-        score = risk.risk_score_numeric if risk else 25.0
+        score = risk.risk_score_numeric if risk else 0.0
         level = RiskLevel(risk.risk_level) if risk else RiskLevel.LOW
         window = "1–3 days" if level == RiskLevel.CRITICAL else ("3–7 days" if level == RiskLevel.HIGH else None)
 
@@ -76,7 +76,7 @@ def list_zones(
                 avg_elevation_m=z.avg_elevation_m,
                 risk_score=score,
                 risk_level=level,
-                confidence=ConfidenceLevel.HIGH if score > 70 else ConfidenceLevel.MEDIUM,
+                confidence=ConfidenceLevel.HIGH if score > 70 else (ConfidenceLevel.MEDIUM if score > 30 else ConfidenceLevel.LOW),
                 time_to_failure_window=window,
                 created_at=z.created_at,
             )
@@ -92,7 +92,7 @@ def get_zone(zone_id: str, db: Session = Depends(get_db)):
         raise HTTPException(status_code=404, detail="Zone not found")
 
     risk = _get_zone_risk(db, zone.zone_id)
-    score = risk.risk_score_numeric if risk else 25.0
+    score = risk.risk_score_numeric if risk else 0.0
     level = RiskLevel(risk.risk_level) if risk else RiskLevel.LOW
     window = "1–3 days" if level == RiskLevel.CRITICAL else ("3–7 days" if level == RiskLevel.HIGH else None)
 
@@ -107,7 +107,7 @@ def get_zone(zone_id: str, db: Session = Depends(get_db)):
         avg_elevation_m=zone.avg_elevation_m,
         risk_score=score,
         risk_level=level,
-        confidence=ConfidenceLevel.HIGH,
+        confidence=ConfidenceLevel.HIGH if score > 70 else (ConfidenceLevel.MEDIUM if score > 30 else ConfidenceLevel.LOW),
         time_to_failure_window=window,
         created_at=zone.created_at,
     )
@@ -121,7 +121,7 @@ def get_zone_detail(zone_id: str, db: Session = Depends(get_db)):
         raise HTTPException(status_code=404, detail="Zone not found")
 
     risk = _get_zone_risk(db, zone.zone_id)
-    score = risk.risk_score_numeric if risk else 25.0
+    score = risk.risk_score_numeric if risk else 0.0
     level = RiskLevel(risk.risk_level) if risk else RiskLevel.LOW
 
     villages = [
@@ -136,16 +136,7 @@ def get_zone_detail(zone_id: str, db: Session = Depends(get_db)):
         for v in zone.infrastructures
     ]
 
-    events = [
-        HistoricalLandslideEvent(
-            event_id=f"hist-{zone.zone_id}-2023",
-            event_date="2023-07-14",
-            landslide_type="Debris Flow",
-            trigger_cause="Heavy Monsoon (210mm/48h)",
-            casualties=0,
-            infrastructure_damage_desc="Highway shoulder washed out, retaining wall rebuilt",
-        )
-    ]
+    events: list[HistoricalLandslideEvent] = []
 
     return ZoneDetailResponse(
         zone_id=zone.zone_id,

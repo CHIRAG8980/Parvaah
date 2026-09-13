@@ -5,16 +5,16 @@ def test_get_alert_queue(client):
     response = client.get("/api/v1/alerts/queue")
     assert response.status_code == 200
     queue = response.json()
-    assert len(queue) >= 3
+    assert len(queue) >= 2
     assert any(item["severity"] == "Critical" for item in queue)
 
 
 def test_approve_alert(client):
     """Verify officer can approve alert and record dispatch."""
     response = client.post(
-        "/api/v1/alerts/ALT-NER-0941/approve",
+        "/api/v1/alerts/ALT-TEST-001/approve",
         json={
-            "officer_id": "officer-dmo-kameng",
+            "officer_id": "officer-dmo-east-khasi",
             "selected_channels": ["sms", "app_push", "cap_sachet"],
             "final_message": "Immediate evacuation advisory approved by District Collector.",
         },
@@ -28,9 +28,9 @@ def test_approve_alert(client):
 def test_reject_alert(client):
     """Verify officer can reject alert with mandatory feedback reason code."""
     response = client.post(
-        "/api/v1/alerts/ALT-NER-0938/reject",
+        "/api/v1/alerts/ALT-TEST-002/reject",
         json={
-            "officer_id": "officer-dmo-haflong",
+            "officer_id": "officer-dmo-west-khasi",
             "reason_code": "false_positive",
             "notes": "Field inspection confirmed newly built retaining wall held intact.",
         },

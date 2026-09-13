@@ -9,30 +9,30 @@ from app.database import init_db, SessionLocal
 from app.seed.seeder import seed_database
 from app.api.router import api_router
 
+
+# Configure structured logging
 logging.basicConfig(
     level=logging.INFO,
-    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+    format="%(asctime)s [%(levelname)s] %(name)s: %(message)s",
 )
 logger = logging.getLogger("parvaah.main")
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    """Initialize database tables and seed baseline data on startup."""
+    """Initialize database tables and real GIS monitoring stations on startup."""
     logger.info("Initializing Parvaah Landslide Early Warning backend...")
     init_db()
-
     db = SessionLocal()
     try:
         seed_database(db)
-        logger.info("Seed data loaded successfully.")
     except Exception as exc:
-        logger.error("Seeder error: %s", exc)
+        logger.warning("GIS station init: %s", exc)
     finally:
         db.close()
-
     yield
     logger.info("Shutting down Parvaah API service.")
+
 
 
 app = FastAPI(

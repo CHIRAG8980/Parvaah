@@ -3,54 +3,27 @@
 import React, { useState } from 'react';
 import { DashboardShell } from '../../components/layout/DashboardShell';
 import { LiveRiskMap } from '../../components/map/LiveRiskMap';
-import {
-  ShieldAlert,
-  Radio,
-  Satellite,
-  Layers,
-  Filter,
-  ArrowUpRight,
-  TrendingDown,
-  Activity,
-  Compass,
-} from 'lucide-react';
-
-interface ZoneDetail {
-  id: string;
-  name: string;
-  state: string;
-  district: string;
-  riskScore: number;
-  level: 'CRITICAL' | 'HIGH' | 'MEDIUM' | 'LOW';
-  insarDeformation: string;
-  ndviLoss: string;
-  soilMoisture: string;
-  rainfall24h: string;
-  slope: string;
-  sensorsOnline: number;
-  totalSensors: number;
-}
-
-const zoneDetails: ZoneDetail[] = [];
+import { ZoneSectorCard } from './ZoneSectorCard';
+import { Satellite, Filter, Radio } from 'lucide-react';
+import { useZones } from '../../hooks/useZones';
 
 export default function RiskMapPage() {
   const [selectedState, setSelectedState] = useState('All States');
   const [selectedRisk, setSelectedRisk] = useState('All Risks');
 
-  const filteredZones = zoneDetails.filter((zone) => {
+  const { zones, isLoading } = useZones();
+
+  const filteredZones = zones.filter((zone) => {
     const matchesState = selectedState === 'All States' || zone.state === selectedState;
-    const matchesRisk = selectedRisk === 'All Risks' || zone.level === selectedRisk;
+    const matchesRisk = selectedRisk === 'All Risks' || zone.risk_level === selectedRisk;
     return matchesState && matchesRisk;
   });
 
-  const criticalZones = zoneDetails.filter((z) => z.level === 'CRITICAL').length;
-  const highZones = zoneDetails.filter((z) => z.level === 'HIGH').length;
-  const sensorsOnline = zoneDetails.reduce((sum, z) => sum + z.sensorsOnline, 0);
-  const sensorsTotal = zoneDetails.reduce((sum, z) => sum + z.totalSensors, 0);
+  const criticalCount = zones.filter((z) => z.risk_level === 'CRITICAL').length;
+  const highCount = zones.filter((z) => z.risk_level === 'HIGH').length;
 
   return (
     <DashboardShell>
-      {/* Header Section */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-3">
         <div>
           <h1 className="text-[22px] sm:text-[26px] font-bold text-[#0F1F3D] tracking-tight leading-tight">
@@ -61,28 +34,25 @@ export default function RiskMapPage() {
           </p>
         </div>
 
-        {/* Live Satellite Status */}
         <div className="flex items-center gap-2">
           <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-[#EAF3FF] border border-[#BFDBFE] text-[#1769D2] text-[12px] font-semibold">
             <Satellite className="w-3.5 h-3.5" />
-            <span>Satellite InSAR Feed</span>
+            <span>Satellite InSAR Feed Active</span>
           </div>
         </div>
       </div>
 
-      {/* Filter and Telemetry Strip */}
-      <div className="bg-white rounded-xl border border-[#DCE6F2] p-4 flex flex-wrap items-center justify-between gap-4 shadow-xs motion-card">
+      <div className="bg-white rounded-xl border border-[#DCE6F2] p-4 flex flex-wrap items-center justify-between gap-4 shadow-xs">
         <div className="flex items-center gap-3 flex-wrap">
           <div className="flex items-center gap-2 text-xs font-semibold text-[#536B8F]">
             <Filter className="w-3.5 h-3.5 text-[#1769D2]" />
             <span>Filters:</span>
           </div>
 
-          {/* State Filter */}
           <select
             value={selectedState}
             onChange={(e) => setSelectedState(e.target.value)}
-            className="text-xs font-medium bg-[#F8FAFC] border border-[#DCE6F2] rounded-lg px-3 py-1.5 text-[#0F1F3D] focus:outline-none focus:ring-2 focus:ring-[#1769D2]/20 motion-input cursor-pointer"
+            className="text-xs font-medium bg-[#F8FAFC] border border-[#DCE6F2] rounded-lg px-3 py-1.5 text-[#0F1F3D] cursor-pointer"
           >
             <option value="All States">All North East States</option>
             <option value="Arunachal Pradesh">Arunachal Pradesh</option>
@@ -95,11 +65,10 @@ export default function RiskMapPage() {
             <option value="Tripura">Tripura</option>
           </select>
 
-          {/* Risk Level Filter */}
           <select
             value={selectedRisk}
             onChange={(e) => setSelectedRisk(e.target.value)}
-            className="text-xs font-medium bg-[#F8FAFC] border border-[#DCE6F2] rounded-lg px-3 py-1.5 text-[#0F1F3D] focus:outline-none focus:ring-2 focus:ring-[#1769D2]/20 motion-input cursor-pointer"
+            className="text-xs font-medium bg-[#F8FAFC] border border-[#DCE6F2] rounded-lg px-3 py-1.5 text-[#0F1F3D] cursor-pointer"
           >
             <option value="All Risks">All Risk Levels</option>
             <option value="CRITICAL">Critical (81 - 100)</option>
@@ -109,108 +78,47 @@ export default function RiskMapPage() {
           </select>
         </div>
 
-        {/* Quick Telemetry Indicators */}
         <div className="flex items-center gap-4 text-xs font-medium text-[#536B8F]">
           <div className="flex items-center gap-1.5">
             <span className="w-2 h-2 rounded-full bg-[#EF4444]" />
-            <span className="text-[#0F1F3D] font-bold">{criticalZones}</span> Critical Zones
+            <span className="text-[#0F1F3D] font-bold">{criticalCount}</span> Critical Zones
           </div>
           <div className="flex items-center gap-1.5">
             <span className="w-2 h-2 rounded-full bg-[#F97316]" />
-            <span className="text-[#0F1F3D] font-bold">{highZones}</span> High Susceptibility
+            <span className="text-[#0F1F3D] font-bold">{highCount}</span> High Susceptibility
           </div>
           <div className="flex items-center gap-1.5">
             <Radio className="w-3.5 h-3.5 text-[#10B981]" />
-            <span className="text-[#0F1F3D] font-bold">{sensorsOnline}/{sensorsTotal}</span> IoT Sensors Online
+            <span className="text-[#0F1F3D] font-bold">{zones.length}</span> Active GIS Polygons
           </div>
         </div>
       </div>
 
-      {/* Main Large Map Area */}
       <div className="w-full">
         <LiveRiskMap />
       </div>
 
-      {/* District Slope Telemetry Details */}
       <div className="space-y-3">
         <div className="flex items-center justify-between">
           <h2 className="text-[17px] font-bold text-[#0F1F3D]">
             Monitored High-Vulnerability Sectors
           </h2>
           <span className="text-xs text-[#536B8F] font-medium">
-            Showing {filteredZones.length} of {zoneDetails.length} Priority Sectors
+            Showing {filteredZones.length} of {zones.length} Priority Sectors
           </span>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4">
-          {filteredZones.map((zone) => {
-            const isCritical = zone.level === 'CRITICAL';
-            return (
-              <div
-                key={zone.id}
-                className="bg-white rounded-xl border border-[#DCE6F2] p-5 shadow-xs hover:border-[#1769D2]/50 motion-card motion-card-hover flex flex-col justify-between group"
-              >
-                <div>
-                  <div className="flex items-start justify-between gap-2 mb-2">
-                    <span className="text-[11px] font-mono font-semibold text-[#536B8F] bg-[#F1F5F9] px-2 py-0.5 rounded">
-                      {zone.id}
-                    </span>
-                    <span
-                      className={`text-[10px] font-bold uppercase px-2.5 py-0.5 rounded-full transition-transform duration-150 group-hover:scale-[1.03] ${
-                        isCritical
-                          ? 'bg-[#FEF2F2] text-[#DC2626] border border-[#FECACA]'
-                          : 'bg-[#FFF7ED] text-[#EA580C] border border-[#FED7AA]'
-                      }`}
-                    >
-                      {zone.level} ({zone.riskScore})
-                    </span>
-                  </div>
-
-                  <h3 className="text-[14.5px] font-bold text-[#0F1F3D] leading-tight group-hover:text-[#1769D2] transition-colors duration-150">
-                    {zone.name}
-                  </h3>
-                  <p className="text-[12px] text-[#536B8F] mt-0.5">
-                    {zone.district}, {zone.state}
-                  </p>
-
-                  {/* Telemetry Metrics Grid */}
-                  <div className="grid grid-cols-2 gap-2 mt-4 pt-3 border-t border-[#F1F5F9] text-xs">
-                    <div className="bg-[#F8FAFC] p-2 rounded-lg transition-colors duration-150 group-hover:bg-[#F1F5F9]/60">
-                      <span className="text-[10.5px] text-[#64748B] block">InSAR Velocity</span>
-                      <span className="font-bold text-[#DC2626]">{zone.insarDeformation}</span>
-                    </div>
-                    <div className="bg-[#F8FAFC] p-2 rounded-lg transition-colors duration-150 group-hover:bg-[#F1F5F9]/60">
-                      <span className="text-[10.5px] text-[#64748B] block">Soil Moisture</span>
-                      <span className="font-bold text-[#0F1F3D]">{zone.soilMoisture}</span>
-                    </div>
-                    <div className="bg-[#F8FAFC] p-2 rounded-lg transition-colors duration-150 group-hover:bg-[#F1F5F9]/60">
-                      <span className="text-[10.5px] text-[#64748B] block">24h Rainfall</span>
-                      <span className="font-bold text-[#1769D2]">{zone.rainfall24h}</span>
-                    </div>
-                    <div className="bg-[#F8FAFC] p-2 rounded-lg transition-colors duration-150 group-hover:bg-[#F1F5F9]/60">
-                      <span className="text-[10.5px] text-[#64748B] block">Slope Angle</span>
-                      <span className="font-bold text-[#0F1F3D]">{zone.slope}</span>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="mt-4 pt-3 border-t border-[#F1F5F9] flex items-center justify-between text-xs">
-                  <div className="flex items-center gap-1.5 text-[#10B981] font-semibold text-[11.5px]">
-                    <Activity className="w-3.5 h-3.5" />
-                    <span>{zone.sensorsOnline}/{zone.totalSensors} Sensors OK</span>
-                  </div>
-                  <button
-                    type="button"
-                    className="text-[#1769D2] font-semibold hover:underline flex items-center gap-0.5 text-[11.5px] motion-btn cursor-pointer"
-                  >
-                    <span>View Telemetry</span>
-                    <ArrowUpRight className="w-3 h-3 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform duration-150 ease-premium" />
-                  </button>
-                </div>
-              </div>
-            );
-          })}
-        </div>
+        {isLoading ? (
+          <div className="py-12 text-center text-xs text-slate-400 bg-white rounded-xl border border-[#DCE6F2]">
+            Loading monitored sectors...
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4">
+            {filteredZones.map((zone) => (
+              <ZoneSectorCard key={zone.zone_id} zone={zone} />
+            ))}
+          </div>
+        )}
       </div>
     </DashboardShell>
   );

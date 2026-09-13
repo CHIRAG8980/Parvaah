@@ -11,11 +11,12 @@ router = APIRouter(prefix="/weather", tags=["Weather & Forecasting"])
 
 @router.get("/forecast", response_model=WeatherForecastResponse)
 def get_weather_forecast(
-    zone_id: str = Query("NER-MEG-001", description="Zone ID for weather timeline"),
+    zone_id: str | None = Query(None, description="Zone ID for weather timeline"),
     db: Session = Depends(get_db),
 ):
     """Retrieve 14-day rainfall trend vs. risk timeline comparing IMD and community gauges."""
     return WeatherService.get_forecast(db, zone_id=zone_id)
+
 
 
 @router.post("/readings")

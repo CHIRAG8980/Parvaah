@@ -24,3 +24,7 @@ api_router.include_router(predict_router)
 api_router.include_router(audit_router)
 api_router.include_router(devices_router)
 api_router.include_router(auth_router)
+
+# Backwards compatibility alias for /api/v1/risks
+from app.api.v1.zones import list_zones
+api_router.add_api_route("/risks", list_zones, methods=["GET"], tags=["Risks"])

@@ -8,6 +8,7 @@ class RiskFactors {
   final double slopeDegrees;
   final double insarDeformationMmYr;
   final double ndviIndex;
+  final List<String> topFactors;
 
   const RiskFactors({
     required this.rainfall24hMm,
@@ -16,26 +17,36 @@ class RiskFactors {
     required this.slopeDegrees,
     required this.insarDeformationMmYr,
     required this.ndviIndex,
+    this.topFactors = const [],
   });
 
   factory RiskFactors.fromJson(Map<String, dynamic> json) {
+    final rawTop = json['top_factors'];
+    final topList = rawTop is List ? rawTop.map((e) => e.toString()).toList() : <String>[];
+
     return RiskFactors(
-      rainfall24hMm: (json['rainfall_24h_mm'] as num?)?.toDouble() ?? 0.0,
-      rainfall72hCumulativeMm: (json['rainfall_72h_mm'] as num?)?.toDouble() ?? 0.0,
-      soilMoisturePct: (json['soil_moisture_pct'] as num?)?.toDouble() ?? 0.0,
-      slopeDegrees: (json['slope_degrees'] as num?)?.toDouble() ?? 0.0,
-      insarDeformationMmYr: (json['insar_deformation_mm_yr'] as num?)?.toDouble() ?? 0.0,
+      rainfall24hMm: (json['rainfall24h_mm'] ?? json['rainfall_24h_mm'] as num?)?.toDouble() ?? 0.0,
+      rainfall72hCumulativeMm:
+          (json['rainfall72h_cumulative_mm'] ?? json['rainfall_72h_mm'] as num?)?.toDouble() ?? 0.0,
+      soilMoisturePct:
+          (json['soil_moisture_pct'] ?? json['soil_moisture'] as num?)?.toDouble() ?? 0.0,
+      slopeDegrees:
+          (json['slope_degrees'] ?? json['avg_slope_deg'] as num?)?.toDouble() ?? 0.0,
+      insarDeformationMmYr:
+          (json['insar_deformation_mm_yr'] ?? json['insar_deformation'] as num?)?.toDouble() ?? 0.0,
       ndviIndex: (json['ndvi_index'] as num?)?.toDouble() ?? 0.5,
+      topFactors: topList,
     );
   }
 
   Map<String, dynamic> toJson() => {
-        'rainfall_24h_mm': rainfall24hMm,
-        'rainfall_72h_mm': rainfall72hCumulativeMm,
+        'rainfall24h_mm': rainfall24hMm,
+        'rainfall72h_cumulative_mm': rainfall72hCumulativeMm,
         'soil_moisture_pct': soilMoisturePct,
         'slope_degrees': slopeDegrees,
         'insar_deformation_mm_yr': insarDeformationMmYr,
         'ndvi_index': ndviIndex,
+        'top_factors': topFactors,
       };
 }
 
@@ -46,7 +57,7 @@ class ZoneRiskModel {
   final String district;
   final double latitude;
   final double longitude;
-  final double riskScore; // 0.0 to 1.0
+  final double riskScore; // Normalized 0.0 to 1.0
   final RiskLevel riskLevel;
   final ConfidenceLevel confidence;
   final String timeToFailure;
@@ -71,22 +82,26 @@ class ZoneRiskModel {
   });
 
   factory ZoneRiskModel.fromJson(Map<String, dynamic> json) {
-    final score = (json['risk_score'] as num?)?.toDouble() ?? 0.0;
-    RiskLevel level;
+    final rawScore = (json['risk_score'] as num?)?.toDouble() ??
+        (json['risk_score_numeric'] as num?)?.toDouble() ??
+        0.0;
+    final score = rawScore > 1.0 ? (rawScore / 100.0).clamp(0.0, 1.0) : rawScore;
+
     final levelStr = (json['risk_level'] as String? ?? '').toUpperCase();
+    RiskLevel level;
     if (levelStr == 'CRITICAL' || score >= 0.85) {
       level = RiskLevel.critical;
     } else if (levelStr == 'HIGH' || score >= 0.70) {
       level = RiskLevel.high;
-    } else if (levelStr == 'ELEVATED' || score >= 0.50) {
+    } else if (levelStr == 'ELEVATED') {
       level = RiskLevel.elevated;
-    } else if (levelStr == 'MEDIUM' || score >= 0.30) {
+    } else if (levelStr == 'MEDIUM' || levelStr == 'MODERATE' || score >= 0.30) {
       level = RiskLevel.medium;
     } else {
       level = RiskLevel.low;
     }
 
-    final confStr = (json['confidence'] as String? ?? '').toLowerCase();
+    final confStr = (json['confidence'] as String? ?? json['confidence_level'] as String? ?? '').toLowerCase();
     final confidenceLevel = confStr == 'high'
         ? ConfidenceLevel.high
         : (confStr == 'medium' ? ConfidenceLevel.medium : ConfidenceLevel.low);
@@ -101,7 +116,7 @@ class ZoneRiskModel {
       riskScore: score,
       riskLevel: level,
       confidence: confidenceLevel,
-      timeToFailure: json['time_to_failure_window'] as String? ?? '',
+      timeToFailure: json['time_to_failure_window'] as String? ?? 'Within 7 days',
       factors: json['factors'] != null
           ? RiskFactors.fromJson(json['factors'] as Map<String, dynamic>)
           : const RiskFactors(
@@ -114,25 +129,30 @@ class ZoneRiskModel {
             ),
       lastUpdated: json['created_at'] != null
           ? DateTime.tryParse(json['created_at'] as String) ?? DateTime.now()
-          : DateTime.now(),
+          : (json['computed_at'] != null
+              ? DateTime.tryParse(json['computed_at'] as String) ?? DateTime.now()
+              : DateTime.now()),
       historicalEvents: (json['historical_events'] as List<dynamic>?)
               ?.map((e) => e.toString())
               .toList() ??
-          [],
+          const [],
     );
   }
 
   Map<String, dynamic> toJson() => {
         'zone_id': zoneId,
         'zone_name': zoneName,
+        'name': zoneName,
         'state': state,
         'district': district,
         'latitude': latitude,
         'longitude': longitude,
-        'risk_score': riskScore,
-        'time_to_failure': timeToFailure,
+        'risk_score': riskScore * 100.0,
+        'risk_level': riskLevel.name.toUpperCase(),
+        'confidence': confidence.name,
+        'time_to_failure_window': timeToFailure,
         'factors': factors.toJson(),
-        'last_updated': lastUpdated.toIso8601String(),
+        'created_at': lastUpdated.toIso8601String(),
         'historical_events': historicalEvents,
       };
 
@@ -142,12 +162,12 @@ class ZoneRiskModel {
       zoneName: 'No Zone Selected',
       state: '',
       district: '',
-      latitude: 25.5788,
-      longitude: 91.8933,
+      latitude: 0.0,
+      longitude: 0.0,
       riskScore: 0.0,
       riskLevel: RiskLevel.low,
       confidence: ConfidenceLevel.low,
-      timeToFailure: 'N/A',
+      timeToFailure: 'Stable',
       factors: const RiskFactors(
         rainfall24hMm: 0.0,
         rainfall72hCumulativeMm: 0.0,

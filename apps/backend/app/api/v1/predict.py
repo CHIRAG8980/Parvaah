@@ -29,8 +29,8 @@ def predict_zone_risk(zone_id: str, db: Session = Depends(get_db)):
         .order_by(RainfallReading.timestamp.desc())
         .first()
     )
-    rain_24h = reading.cumulative_24hr_mm if reading else 120.0
-    rain_72h = reading.cumulative_72hr_mm if reading else 240.0
+    rain_24h = reading.cumulative_24hr_mm if reading else 0.0
+    rain_72h = reading.cumulative_72hr_mm if reading else 0.0
 
     score, level, conf, min_d, max_d, factors = ml_service.predict_risk(
         slope_deg=zone.avg_slope_deg,

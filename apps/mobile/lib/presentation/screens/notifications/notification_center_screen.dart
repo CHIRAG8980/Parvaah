@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../../core/theme/app_colors.dart';
-import '../../providers/notification_provider.dart';
-import '../../../data/models/notification_item_model.dart';
 import '../../../core/utils/date_formatter.dart';
+import '../../../data/models/notification_item_model.dart';
+import '../../providers/alert_provider.dart';
+import '../../providers/notification_provider.dart';
+import '../../widgets/common/state_empty_view.dart';
 
 class NotificationCenterScreen extends StatelessWidget {
   const NotificationCenterScreen({super.key});
@@ -11,6 +13,13 @@ class NotificationCenterScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final notifProvider = context.watch<NotificationProvider>();
+    final alertProvider = context.watch<AlertProvider>();
+
+    if (alertProvider.allAlerts.isNotEmpty) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        notifProvider.syncFromAlerts(alertProvider.allAlerts);
+      });
+    }
 
     return Scaffold(
       backgroundColor: AppColors.background,
@@ -25,23 +34,10 @@ class NotificationCenterScreen extends StatelessWidget {
         ],
       ),
       body: notifProvider.notifications.isEmpty
-          ? Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: const [
-                  Icon(Icons.notifications_off_outlined, size: 54, color: AppColors.textMuted),
-                  SizedBox(height: 12),
-                  Text(
-                    'No Notifications',
-                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
-                  ),
-                  SizedBox(height: 4),
-                  Text(
-                    'You are fully up to date with safety alerts.',
-                    style: TextStyle(fontSize: 13, color: AppColors.textSecondary),
-                  ),
-                ],
-              ),
+          ? const StateEmptyView(
+              icon: Icons.notifications_off_outlined,
+              title: 'No Notifications',
+              message: 'You are fully up to date with Northeast safety bulletins.',
             )
           : ListView(
               padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 12),
@@ -124,7 +120,7 @@ class NotificationCenterScreen extends StatelessWidget {
         margin: const EdgeInsets.only(bottom: 10),
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          color: item.isRead ? AppColors.surface : AppColors.surface,
+          color: AppColors.surface,
           borderRadius: BorderRadius.circular(16),
           border: Border.all(
             color: item.isRead ? AppColors.borderSubtle : AppColors.blue.withAlpha(80),

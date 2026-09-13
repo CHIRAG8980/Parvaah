@@ -10,6 +10,18 @@ class LoginRequest(BaseModel):
     password: str
 
 
+class RegisterRequest(BaseModel):
+    """Credentials and details for officer/citizen user registration."""
+
+    username: str
+    password: str = "Gov@Secure2026"
+    full_name: str
+    role: str = "citizen"
+
+    district: str | None = None
+    contact_number: str | None = None
+
+
 class TokenResponse(BaseModel):
     """JWT / Bearer token payload for web dashboard."""
 

@@ -11,8 +11,9 @@ import {
   Tooltip,
   ResponsiveContainer,
 } from 'recharts';
+import { useDistricts } from '../../hooks/useDistricts';
 
-interface DistrictRiskData {
+interface ChartRow {
   district: string;
   low: number;
   medium: number;
@@ -20,25 +21,37 @@ interface DistrictRiskData {
   critical: number;
 }
 
-const rawData: DistrictRiskData[] = [];
-
 export const DistrictRiskChart: React.FC = () => {
   const [isMounted, setIsMounted] = useState(false);
   const [selectedDistrict, setSelectedDistrict] = useState('All Districts');
   const [showDropdown, setShowDropdown] = useState(false);
+  const { data: districtsData, isLoading } = useDistricts();
 
   useEffect(() => {
     setIsMounted(true);
   }, []);
 
-  const chartData =
+  const chartData: ChartRow[] = (districtsData || []).map((d) => {
+    const isCritical = d.risk_level === 'CRITICAL';
+    const isHigh = d.risk_level === 'HIGH';
+    const isMedium = d.risk_level === 'MEDIUM';
+
+    return {
+      district: d.district,
+      critical: isCritical ? Math.round(d.risk_score) : 0,
+      high: isHigh ? Math.round(d.risk_score) : 0,
+      medium: isMedium ? Math.round(d.risk_score) : 0,
+      low: !isCritical && !isHigh && !isMedium ? Math.round(d.risk_score) : 0,
+    };
+  });
+
+  const filteredData =
     selectedDistrict === 'All Districts'
-      ? rawData
-      : rawData.filter((d) => d.district.replace('\n', ' ').includes(selectedDistrict));
+      ? chartData
+      : chartData.filter((d) => d.district === selectedDistrict);
 
   return (
     <div className="bg-white rounded-xl border border-[#DCE6F2] shadow-xs flex flex-col p-5 h-full motion-card">
-      {/* Header with Dropdown */}
       <div className="flex items-center justify-between pb-3.5 border-b border-[#EBF1F8]">
         <h3 className="text-[16px] font-bold text-[#0F1F3D]">
           Risk Distribution by District
@@ -55,20 +68,32 @@ export const DistrictRiskChart: React.FC = () => {
           </button>
 
           {showDropdown && (
-            <div className="absolute right-0 mt-1.5 w-36 bg-white border border-[#DCE6F2] rounded-xl shadow-xl py-1 z-30 text-xs motion-dropdown motion-dropdown-right">
-              {['All Districts', ...rawData.map((d) => d.district.replace('\n', ' '))].map((d) => (
+            <div className="absolute right-0 mt-1.5 w-44 bg-white border border-[#DCE6F2] rounded-xl shadow-xl py-1 z-30 text-xs motion-dropdown motion-dropdown-right max-h-56 overflow-y-auto">
+              <button
+                type="button"
+                onClick={() => {
+                  setSelectedDistrict('All Districts');
+                  setShowDropdown(false);
+                }}
+                className={`w-full px-3 py-1.5 text-left transition-colors duration-150 ${
+                  selectedDistrict === 'All Districts' ? 'text-[#1769D2] font-semibold bg-[#EAF3FF]' : 'text-[#0F1F3D] hover:bg-[#F4F8FC]'
+                }`}
+              >
+                All Districts
+              </button>
+              {chartData.map((d) => (
                 <button
-                  key={d}
+                  key={d.district}
                   type="button"
                   onClick={() => {
-                    setSelectedDistrict(d);
+                    setSelectedDistrict(d.district);
                     setShowDropdown(false);
                   }}
                   className={`w-full px-3 py-1.5 text-left transition-colors duration-150 ${
-                    selectedDistrict === d ? 'text-[#1769D2] font-semibold bg-[#EAF3FF]' : 'text-[#0F1F3D] hover:bg-[#F4F8FC]'
+                    selectedDistrict === d.district ? 'text-[#1769D2] font-semibold bg-[#EAF3FF]' : 'text-[#0F1F3D] hover:bg-[#F4F8FC]'
                   }`}
                 >
-                  {d}
+                  {d.district}
                 </button>
               ))}
             </div>
@@ -76,26 +101,25 @@ export const DistrictRiskChart: React.FC = () => {
         </div>
       </div>
 
-      {/* Chart Area */}
       <div className="w-full h-[220px] pt-4">
-        {isMounted ? (
+        {isMounted && !isLoading ? (
           <ResponsiveContainer width="100%" height="100%">
             <BarChart
-              data={chartData}
+              data={filteredData}
               margin={{ top: 10, right: 10, left: -20, bottom: 20 }}
-              barSize={28}
+              barSize={24}
             >
               <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#E2E8F0" />
               <XAxis
                 dataKey="district"
-                tick={{ fontSize: 11, fill: '#536B8F' }}
+                tick={{ fontSize: 10.5, fill: '#536B8F' }}
                 interval={0}
                 axisLine={{ stroke: '#CBD5E1' }}
                 tickLine={false}
               />
               <YAxis
-                domain={[0, 40]}
-                ticks={[0, 10, 20, 30, 40]}
+                domain={[0, 100]}
+                ticks={[0, 25, 50, 75, 100]}
                 tick={{ fontSize: 11, fill: '#536B8F' }}
                 axisLine={false}
                 tickLine={false}
@@ -109,11 +133,10 @@ export const DistrictRiskChart: React.FC = () => {
                   fontSize: '12px',
                 }}
               />
-              {/* Stacked Bars with Semantic Risk Colors */}
-              <Bar dataKey="low" stackId="risk" fill="#10B981" radius={[0, 0, 0, 0]} name="Low Risk" animationDuration={400} animationEasing="ease-out" />
-              <Bar dataKey="medium" stackId="risk" fill="#F59E0B" name="Medium Risk" animationDuration={400} animationEasing="ease-out" />
-              <Bar dataKey="high" stackId="risk" fill="#F97316" name="High Risk" animationDuration={400} animationEasing="ease-out" />
-              <Bar dataKey="critical" stackId="risk" fill="#EF4444" radius={[3, 3, 0, 0]} name="Critical Risk" animationDuration={400} animationEasing="ease-out" />
+              <Bar dataKey="low" stackId="risk" fill="#10B981" name="Low Hazard" animationDuration={400} />
+              <Bar dataKey="medium" stackId="risk" fill="#F59E0B" name="Moderate Hazard" animationDuration={400} />
+              <Bar dataKey="high" stackId="risk" fill="#F97316" name="High Hazard" animationDuration={400} />
+              <Bar dataKey="critical" stackId="risk" fill="#EF4444" radius={[3, 3, 0, 0]} name="Critical Hazard" animationDuration={400} />
             </BarChart>
           </ResponsiveContainer>
         ) : (

@@ -39,40 +39,62 @@ class RoadService:
 
     @staticmethod
     def calculate_reroute(db: Session, origin: str, destination: str) -> RerouteResponse:
-        """Calculate advisory safe alternate route avoiding blocked landslide corridors."""
-        blocked_segment = (
-            db.query(RoadSegment)
-            .filter(RoadSegment.status == RoadStatus.BLOCKED.value)
-            .first()
-        )
+        """Calculate advisory safe alternate route querying real road segment statuses."""
+        origin_norm = origin.strip()
+        dest_norm = destination.strip()
 
-        origin_norm = origin.strip().title()
-        dest_norm = destination.strip().title()
+        roads = db.query(RoadSegment).all()
 
-        if blocked_segment and ("Kameng" in origin_norm or "Kameng" in dest_norm or "Bhalukpong" in dest_norm):
+        matching_blocked = [
+            r for r in roads
+            if r.status == RoadStatus.BLOCKED.value
+            and (
+                origin_norm.lower() in r.name.lower()
+                or dest_norm.lower() in r.name.lower()
+                or origin_norm.lower() in r.start_point.lower()
+                or dest_norm.lower() in r.end_point.lower()
+            )
+        ]
+        matching_at_risk = [
+            r for r in roads
+            if r.status == RoadStatus.AT_RISK.value
+            and (
+                origin_norm.lower() in r.name.lower()
+                or dest_norm.lower() in r.name.lower()
+                or origin_norm.lower() in r.start_point.lower()
+                or dest_norm.lower() in r.end_point.lower()
+            )
+        ]
+        open_roads = [r for r in roads if r.status == RoadStatus.OPEN.value]
+
+        if matching_blocked:
+            blocked_r = matching_blocked[0]
+            alt = open_roads[0] if open_roads else None
             return RerouteResponse(
                 origin=origin,
                 destination=destination,
                 direct_route_status=RoadStatus.BLOCKED,
-                alternate_route_available=True,
-                suggested_route_name="Via Orang - Kalaktang Alternate Highway (AH-1)",
-                advisory_notes="NH-13 is blocked near km 42 due to active slope collapse. Use AH-1 detour with low risk slope stability.",
-                estimated_distance_km=142.0,
-                estimated_duration_mins=195,
-                safe_corridor_waypoints=["Orang Bypass", "Rowta Junction", "Kalaktang Ridge", "Rupa Safe Valley"],
+                alternate_route_available=alt is not None,
+                suggested_route_name=f"Detour via {alt.name}" if alt else "No verified alternate corridor available",
+                advisory_notes=f"{blocked_r.name} is currently blocked: {blocked_r.blockage_reason or 'Active hazard'}.",
+                estimated_distance_km=0.0,
+                estimated_duration_mins=0,
+                safe_corridor_waypoints=[origin_norm, alt.name, dest_norm] if alt else [origin_norm, dest_norm],
             )
 
-        if blocked_segment and ("Sohra" in origin_norm or "Sohra" in dest_norm or "Cherrapunji" in dest_norm):
+        if matching_at_risk:
+            risk_r = matching_at_risk[0]
+            alt = open_roads[0] if open_roads else None
             return RerouteResponse(
                 origin=origin,
                 destination=destination,
                 direct_route_status=RoadStatus.AT_RISK,
-                alternate_route_available=True,
-                suggested_route_name="Via Mawkdok - Tyngyr Upper Plateau Route",
-                advisory_notes="Lower canyon link has critical soil moisture and mudflow risk. Divert heavy vehicles via Upper Plateau.",
-                estimated_distance_km=68.0,
-                estimated_duration_mins=110,
-                safe_corridor_waypoints=["Shillong Peak Link", "Mawkdok Ridge", "Laitryngew Bypass", "Sohra Central"],
+                alternate_route_available=alt is not None,
+                suggested_route_name=f"Cautionary bypass via {alt.name}" if alt else f"Direct {risk_r.name} (Proceed with high caution)",
+                advisory_notes=f"{risk_r.name} has elevated hazard status: {risk_r.blockage_reason or 'Slope instability'}.",
+                estimated_distance_km=0.0,
+                estimated_duration_mins=0,
+                safe_corridor_waypoints=[origin_norm, alt.name, dest_norm] if alt else [origin_norm, dest_norm],
             )
 
         return RerouteResponse(
@@ -80,9 +102,9 @@ class RoadService:
             destination=destination,
             direct_route_status=RoadStatus.OPEN,
             alternate_route_available=False,
-            suggested_route_name="Direct Standard Route",
-            advisory_notes="Corridor currently clear with normal traction. Proceed with standard caution during continuous monsoon showers.",
-            estimated_distance_km=85.0,
-            estimated_duration_mins=95,
-            safe_corridor_waypoints=[origin_norm, "En-route Corridor", dest_norm],
+            suggested_route_name="Direct Corridor Route",
+            advisory_notes="No active road blockages recorded along corridor.",
+            estimated_distance_km=0.0,
+            estimated_duration_mins=0,
+            safe_corridor_waypoints=[origin_norm, dest_norm],
         )

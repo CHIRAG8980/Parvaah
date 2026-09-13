@@ -78,7 +78,7 @@ echo -e "${CLR_BOLD}${CLR_GREEN}================================================
 
 # Start Backend
 (
-  cd "$ROOT_DIR/services/api"
+  cd "$ROOT_DIR/apps/backend"
   PYTHONUNBUFFERED=1 "$PYTHON_BIN" -m uvicorn app.main:app --reload --host 0.0.0.0 --port 8000 2>&1 | prefix_backend
 ) &
 BACKEND_PID=$!

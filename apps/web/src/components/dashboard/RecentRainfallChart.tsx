@@ -11,31 +11,31 @@ import {
   Tooltip,
   ResponsiveContainer,
 } from 'recharts';
-
-interface RainfallDataPoint {
-  date: string;
-  observed?: number;
-  forecast?: number;
-}
-
-const rainfallData: RainfallDataPoint[] = [];
+import { useWeather } from '../../hooks/useWeather';
 
 export const RecentRainfallChart: React.FC = () => {
   const [isMounted, setIsMounted] = useState(false);
+  const { data, isLoading } = useWeather();
 
   useEffect(() => {
     setIsMounted(true);
   }, []);
 
+  const chartData = (data?.hourly_trend || []).map((point) => ({
+    time: point.hour_label,
+    observed: !point.is_projected ? point.rainfall_mm : undefined,
+    forecast: point.is_projected ? point.rainfall_mm : undefined,
+  }));
+
+  const latestReading = data?.rainfall_24h_mm ?? 0;
+
   return (
     <div className="bg-white rounded-xl border border-[#DCE6F2] shadow-xs flex flex-col p-5 h-full relative motion-card">
-      {/* Header & Legend */}
       <div className="flex items-center justify-between pb-3.5 border-b border-[#EBF1F8]">
         <h3 className="text-[16px] font-bold text-[#0F1F3D]">
           Recent Rainfall (mm)
         </h3>
 
-        {/* Legend */}
         <div className="flex items-center gap-4 text-xs font-medium">
           <div className="flex items-center gap-1.5">
             <span className="w-3.5 h-0.5 bg-[#1769D2] rounded" />
@@ -48,22 +48,20 @@ export const RecentRainfallChart: React.FC = () => {
         </div>
       </div>
 
-      {/* Highlight Callout matching reference image */}
       <div className="absolute top-[68px] right-8 z-10 bg-white/95 backdrop-blur-xs border border-[#DCE6F2] shadow-sm rounded-lg px-2.5 py-1 text-right pointer-events-none transition-transform duration-180 hover:scale-105">
         <div className="text-[14px] font-bold text-[#1769D2] leading-none">
-          {rainfallData.length > 0 ? `${rainfallData[rainfallData.length - 1].observed ?? 0} mm` : '--'}
+          {latestReading.toFixed(0)} mm
         </div>
         <div className="text-[10px] text-[#758CA8] leading-none mt-0.5">
-          {rainfallData.length > 0 ? rainfallData[rainfallData.length - 1].date : 'No data'}
+          24h Cumulative
         </div>
       </div>
 
-      {/* Chart Area */}
       <div className="w-full h-[220px] pt-4">
-        {isMounted ? (
+        {isMounted && !isLoading ? (
           <ResponsiveContainer width="100%" height="100%">
             <AreaChart
-              data={rainfallData}
+              data={chartData}
               margin={{ top: 20, right: 15, left: -20, bottom: 20 }}
             >
               <defs>
@@ -74,14 +72,14 @@ export const RecentRainfallChart: React.FC = () => {
               </defs>
               <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#E2E8F0" />
               <XAxis
-                dataKey="date"
-                tick={{ fontSize: 11, fill: '#536B8F' }}
+                dataKey="time"
+                tick={{ fontSize: 10.5, fill: '#536B8F' }}
                 axisLine={{ stroke: '#CBD5E1' }}
                 tickLine={false}
               />
               <YAxis
-                domain={[0, 200]}
-                ticks={[0, 50, 100, 150, 200]}
+                domain={[0, 150]}
+                ticks={[0, 30, 60, 90, 120, 150]}
                 tick={{ fontSize: 11, fill: '#536B8F' }}
                 axisLine={false}
                 tickLine={false}
@@ -94,7 +92,7 @@ export const RecentRainfallChart: React.FC = () => {
                   boxShadow: '0 4px 12px rgba(15, 35, 70, 0.08)',
                   fontSize: '12px',
                 }}
-                formatter={(value: any) => [`${value} mm`, 'Rainfall']}
+                formatter={(value: unknown) => [`${Number(value || 0).toFixed(1)} mm`, 'Precipitation']}
               />
               <Area
                 type="monotone"
@@ -105,7 +103,6 @@ export const RecentRainfallChart: React.FC = () => {
                 fill="url(#rainfallGradient)"
                 name="Observed"
                 animationDuration={400}
-                animationEasing="ease-out"
               />
               <Line
                 type="monotone"
@@ -116,13 +113,12 @@ export const RecentRainfallChart: React.FC = () => {
                 dot={false}
                 name="Forecast"
                 animationDuration={400}
-                animationEasing="ease-out"
               />
             </AreaChart>
           </ResponsiveContainer>
         ) : (
           <div className="w-full h-full flex items-center justify-center text-xs text-[#8497B0]">
-            Loading rainfall trend...
+            Loading rainfall telemetry...
           </div>
         )}
       </div>

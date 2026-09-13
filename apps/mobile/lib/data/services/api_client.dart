@@ -1,69 +1,39 @@
-import 'dart:convert';
-import 'package:http/http.dart' as http;
-import '../../core/constants/api_constants.dart';
+import '../../core/network/api_response.dart';
+import '../../core/network/http_network_client.dart';
 
-class ApiResponse {
-  final bool isSuccess;
-  final dynamic data;
-  final String? errorMessage;
-  final int statusCode;
-
-  ApiResponse({
-    required this.isSuccess,
-    this.data,
-    this.errorMessage,
-    this.statusCode = 200,
-  });
-}
+export '../../core/network/api_response.dart';
 
 class ApiClient {
-  final http.Client _client;
-  final String baseUrl;
+  final HttpNetworkClient _networkClient;
 
-  ApiClient({http.Client? client, this.baseUrl = ApiConstants.baseUrl})
-      : _client = client ?? http.Client();
+  ApiClient({HttpNetworkClient? networkClient})
+      : _networkClient = networkClient ?? HttpNetworkClient();
 
-  Future<ApiResponse> get(String endpoint) async {
-    try {
-      final uri = Uri.parse('$baseUrl$endpoint');
-      final res = await _client.get(uri).timeout(ApiConstants.timeout);
-      if (res.statusCode >= 200 && res.statusCode < 300) {
-        final decoded = jsonDecode(res.body);
-        return ApiResponse(isSuccess: true, data: decoded, statusCode: res.statusCode);
-      } else {
-        return ApiResponse(
-          isSuccess: false,
-          errorMessage: 'Server error: ${res.statusCode}',
-          statusCode: res.statusCode,
-        );
-      }
-    } catch (e) {
-      return ApiResponse(isSuccess: false, errorMessage: e.toString(), statusCode: 500);
-    }
+  HttpNetworkClient get networkClient => _networkClient;
+
+  Future<ApiResponse<dynamic>> get(
+    String endpoint, {
+    Map<String, String>? headers,
+    Map<String, dynamic>? queryParameters,
+  }) {
+    return _networkClient.get(
+      endpoint,
+      headers: headers,
+      queryParameters: queryParameters,
+    );
   }
 
-  Future<ApiResponse> post(String endpoint, Map<String, dynamic> body) async {
-    try {
-      final uri = Uri.parse('$baseUrl$endpoint');
-      final res = await _client
-          .post(
-            uri,
-            headers: {'Content-Type': 'application/json'},
-            body: jsonEncode(body),
-          )
-          .timeout(ApiConstants.timeout);
-      if (res.statusCode >= 200 && res.statusCode < 300) {
-        final decoded = jsonDecode(res.body);
-        return ApiResponse(isSuccess: true, data: decoded, statusCode: res.statusCode);
-      } else {
-        return ApiResponse(
-          isSuccess: false,
-          errorMessage: 'Server error: ${res.statusCode}',
-          statusCode: res.statusCode,
-        );
-      }
-    } catch (e) {
-      return ApiResponse(isSuccess: false, errorMessage: e.toString(), statusCode: 500);
-    }
+  Future<ApiResponse<dynamic>> post(
+    String endpoint,
+    Map<String, dynamic>? body, {
+    Map<String, String>? headers,
+    Map<String, dynamic>? queryParameters,
+  }) {
+    return _networkClient.post(
+      endpoint,
+      body: body,
+      headers: headers,
+      queryParameters: queryParameters,
+    );
   }
 }

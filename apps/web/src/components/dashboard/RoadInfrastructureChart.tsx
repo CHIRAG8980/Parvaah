@@ -4,55 +4,54 @@ import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { ArrowRight } from 'lucide-react';
 import { PieChart, Pie, Cell, ResponsiveContainer } from 'recharts';
-
-interface RoadStatusItem {
-  name: string;
-  count: number;
-  percentage: string;
-  color: string;
-  dotColor: string;
-}
-
-const roadData: RoadStatusItem[] = [
-  {
-    name: 'Operational',
-    count: 0,
-    percentage: '0%',
-    color: '#10B981',
-    dotColor: 'bg-[#10B981]',
-  },
-  {
-    name: 'Partially Blocked',
-    count: 0,
-    percentage: '0%',
-    color: '#F59E0B',
-    dotColor: 'bg-[#F59E0B]',
-  },
-  {
-    name: 'Blocked',
-    count: 0,
-    percentage: '0%',
-    color: '#EF4444',
-    dotColor: 'bg-[#EF4444]',
-  },
-];
-
-const pieData = [
-  { name: 'Operational', value: 0, color: '#10B981' },
-  { name: 'Partially Blocked', value: 0, color: '#F59E0B' },
-  { name: 'Blocked', value: 0, color: '#EF4444' },
-];
+import { useRoads } from '../../hooks/useRoads';
 
 export const RoadInfrastructureChart: React.FC = () => {
   const [isMounted, setIsMounted] = useState(false);
+  const { roads, isLoading } = useRoads();
 
   useEffect(() => {
     setIsMounted(true);
   }, []);
 
+  const totalRoads = roads.length;
+  const operationalCount = roads.filter((r) => r.status === 'operational').length;
+  const atRiskCount = roads.filter((r) => r.status === 'at_risk').length;
+  const blockedCount = roads.filter((r) => r.status === 'blocked').length;
+
+  const operationalPct = totalRoads > 0 ? Math.round((operationalCount / totalRoads) * 100) : 0;
+  const atRiskPct = totalRoads > 0 ? Math.round((atRiskCount / totalRoads) * 100) : 0;
+  const blockedPct = totalRoads > 0 ? Math.round((blockedCount / totalRoads) * 100) : 0;
+
+  const pieData = [
+    { name: 'Operational', value: operationalCount, color: '#10B981' },
+    { name: 'Partially Blocked', value: atRiskCount, color: '#F59E0B' },
+    { name: 'Blocked', value: blockedCount, color: '#EF4444' },
+  ];
+
+  const roadData = [
+    {
+      name: 'Operational',
+      count: operationalCount,
+      percentage: `${operationalPct}%`,
+      dotColor: 'bg-[#10B981]',
+    },
+    {
+      name: 'Partially Blocked',
+      count: atRiskCount,
+      percentage: `${atRiskPct}%`,
+      dotColor: 'bg-[#F59E0B]',
+    },
+    {
+      name: 'Blocked',
+      count: blockedCount,
+      percentage: `${blockedPct}%`,
+      dotColor: 'bg-[#EF4444]',
+    },
+  ];
+
   return (
     <div className="bg-white rounded-xl border border-[#DCE6F2] shadow-xs flex flex-col p-5 h-full motion-card">
-      {/* Header */}
       <div className="flex items-center justify-between pb-3.5 border-b border-[#EBF1F8]">
         <h3 className="text-[16px] font-bold text-[#0F1F3D]">
           Road & Infrastructure Status
@@ -66,11 +65,9 @@ export const RoadInfrastructureChart: React.FC = () => {
         </Link>
       </div>
 
-      {/* Chart & Legend Grid */}
       <div className="flex flex-col sm:flex-row items-center justify-between gap-4 pt-4 flex-1">
-        {/* Donut Chart with Center Metric */}
         <div className="relative w-[150px] h-[150px] flex-shrink-0 flex items-center justify-center">
-          {isMounted ? (
+          {isMounted && !isLoading ? (
             <ResponsiveContainer width="100%" height="100%">
               <PieChart>
                 <Pie
@@ -85,7 +82,6 @@ export const RoadInfrastructureChart: React.FC = () => {
                   startAngle={90}
                   endAngle={-270}
                   animationDuration={400}
-                  animationEasing="ease-out"
                 >
                   {pieData.map((entry, index) => (
                     <Cell key={`cell-${index}`} fill={entry.color} />
@@ -94,21 +90,19 @@ export const RoadInfrastructureChart: React.FC = () => {
               </PieChart>
             </ResponsiveContainer>
           ) : (
-            <div className="w-[136px] h-[136px] rounded-full border-8 border-slate-200" />
+            <div className="w-[136px] h-[136px] rounded-full border-8 border-slate-200 animate-pulse" />
           )}
 
-          {/* Center text */}
           <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none text-center">
             <span className="text-[24px] font-bold text-[#0F1F3D] leading-none">
-              {roadData.reduce((sum, item) => sum + item.count, 0) || '0'}
+              {totalRoads}
             </span>
             <span className="text-[11px] font-medium text-[#758CA8] mt-0.5">
-              Total Roads
+              Total Corridors
             </span>
           </div>
         </div>
 
-        {/* Legend List on Right matching reference image */}
         <div className="flex flex-col gap-2 flex-1 w-full pl-2">
           {roadData.map((item) => (
             <div
@@ -117,12 +111,8 @@ export const RoadInfrastructureChart: React.FC = () => {
             >
               <div className="flex items-center gap-2">
                 <span className={`w-2.5 h-2.5 rounded-full ${item.dotColor} flex-shrink-0`} />
-                <span className="font-semibold text-[#0F1F3D]">
-                  {item.count}
-                </span>
-                <span className="text-[#536B8F] font-normal">
-                  {item.name}
-                </span>
+                <span className="font-semibold text-[#0F1F3D]">{item.count}</span>
+                <span className="text-[#536B8F] font-normal">{item.name}</span>
               </div>
               <span className="font-semibold text-[#536B8F] text-[12px]">
                 {item.percentage}

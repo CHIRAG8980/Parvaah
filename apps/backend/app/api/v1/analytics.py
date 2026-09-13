@@ -33,7 +33,7 @@ def get_kpi_summary(db: Session = Depends(get_db)):
         .join(RiskScore, Zone.zone_id == RiskScore.zone_id)
         .filter(RiskScore.risk_level.in_(["HIGH", "CRITICAL"]))
         .scalar()
-        or 4
+        or 0
     )
     roads_affected_count = (
         db.query(RoadSegment)
@@ -41,41 +41,41 @@ def get_kpi_summary(db: Session = Depends(get_db)):
         .count()
     )
     avg_rainfall = (
-        db.query(func.avg(RainfallReading.cumulative_24hr_mm)).scalar() or 154.0
+        db.query(func.avg(RainfallReading.cumulative_24hr_mm)).scalar() or 0.0
     )
 
     metrics = [
         KpiMetricItem(
             id="active-alerts",
             label="Active Alerts",
-            value=str(max(active_alerts_count, 4)),
-            trend="↑ 2",
-            trend_type="increase-danger",
-            comparison="vs. last 24h",
+            value=str(active_alerts_count),
+            trend="Active",
+            trend_type="increase-danger" if active_alerts_count > 0 else "neutral",
+            comparison="Monitored real-time",
         ),
         KpiMetricItem(
             id="high-risk-districts",
             label="High Risk Districts",
             value=str(high_risk_districts_count),
-            trend="↑ 1",
-            trend_type="increase-danger",
-            comparison="vs. last 24h",
+            trend="High/Critical",
+            trend_type="increase-danger" if high_risk_districts_count > 0 else "neutral",
+            comparison="Monitored real-time",
         ),
         KpiMetricItem(
             id="roads-affected",
             label="Roads Affected",
-            value=str(max(roads_affected_count, 3)),
-            trend="↑ 1",
-            trend_type="increase-danger",
-            comparison="vs. last 24h",
+            value=str(roads_affected_count),
+            trend="Disrupted",
+            trend_type="increase-danger" if roads_affected_count > 0 else "neutral",
+            comparison="Monitored real-time",
         ),
         KpiMetricItem(
             id="avg-rainfall",
             label="Avg. Rainfall (24h)",
-            value=f"{avg_rainfall:.0f} mm",
-            trend="↑ 18%",
-            trend_type="increase-danger",
-            comparison="vs. previous day",
+            value=f"{avg_rainfall:.1f} mm",
+            trend="Monsoon Gauge",
+            trend_type="increase-danger" if avg_rainfall > 50 else "neutral",
+            comparison="Monitored real-time",
         ),
     ]
 
@@ -87,17 +87,50 @@ def get_kpi_summary(db: Session = Depends(get_db)):
 
 @router.get("/districts", response_model=list[DistrictRiskItem])
 def get_district_risk_breakdown(db: Session = Depends(get_db)):
-    """Retrieve district-level aggregated hazard indices."""
-    districts = [
-        DistrictRiskItem(district="West Kameng", state="Arunachal Pradesh", risk_level="CRITICAL", risk_score=92.0, zones_monitored=6, active_alerts=2),
-        DistrictRiskItem(district="East Khasi Hills", state="Meghalaya", risk_level="HIGH", risk_score=78.5, zones_monitored=8, active_alerts=1),
-        DistrictRiskItem(district="Ukhrul", state="Manipur", risk_level="CRITICAL", risk_score=88.0, zones_monitored=5, active_alerts=1),
-        DistrictRiskItem(district="Dima Hasao", state="Assam", risk_level="HIGH", risk_score=72.0, zones_monitored=7, active_alerts=1),
-        DistrictRiskItem(district="Gangtok", state="Sikkim", risk_level="MEDIUM", risk_score=54.0, zones_monitored=4, active_alerts=0),
-        DistrictRiskItem(district="Aizawl", state="Mizoram", risk_level="MEDIUM", risk_score=48.0, zones_monitored=5, active_alerts=0),
-        DistrictRiskItem(district="Kohima", state="Nagaland", risk_level="MEDIUM", risk_score=52.0, zones_monitored=6, active_alerts=0),
-    ]
-    return districts
+    """Retrieve district-level aggregated hazard indices from database."""
+    districts_data = (
+        db.query(
+            Zone.district,
+            Zone.state,
+            func.count(Zone.zone_id).label("zones_monitored"),
+            func.avg(RiskScore.risk_score_numeric).label("avg_risk"),
+        )
+        .outerjoin(RiskScore, Zone.zone_id == RiskScore.zone_id)
+        .group_by(Zone.district, Zone.state)
+        .all()
+    )
+
+    results = []
+    for row in districts_data:
+        score = round(float(row.avg_risk or 0.0), 1)
+        if score >= 80.0:
+            level = "CRITICAL"
+        elif score >= 65.0:
+            level = "HIGH"
+        elif score >= 40.0:
+            level = "MEDIUM"
+        else:
+            level = "LOW"
+
+        alerts_count = (
+            db.query(Alert)
+            .join(Zone, Alert.zone_id == Zone.zone_id)
+            .filter(Zone.district == row.district)
+            .filter(Alert.status.in_(["pending_review", "approved", "auto_escalated"]))
+            .count()
+        )
+
+        results.append(
+            DistrictRiskItem(
+                district=row.district,
+                state=row.state,
+                risk_level=level,
+                risk_score=score,
+                zones_monitored=row.zones_monitored,
+                active_alerts=alerts_count,
+            )
+        )
+    return results
 
 
 @router.get("/performance", response_model=ModelPerformanceResponse)

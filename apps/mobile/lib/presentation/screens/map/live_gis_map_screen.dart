@@ -77,7 +77,6 @@ class _LiveGisMapScreenState extends State<LiveGisMapScreen>
       selectedZone.latitude != 0.0 ? selectedZone.latitude : 25.5788,
       selectedZone.longitude != 0.0 ? selectedZone.longitude : 91.8933,
     );
-    final userLocation = const LatLng(25.5788, 91.8933); // Shillong
 
     final roadPolylines = <Polyline>[];
     final roadBadges = <Marker>[];
@@ -178,9 +177,9 @@ class _LiveGisMapScreenState extends State<LiveGisMapScreen>
                 // Interactive Risk Markers & Location Pins
                 MarkerLayer(
                   markers: [
-                    // Current User Location Marker (Pulsing blue ripple at Shillong)
+                    // Active Monitored Zone Pin Marker
                     Marker(
-                      point: userLocation,
+                      point: centerPoint,
                       width: 54,
                       height: 54,
                       child: Stack(
@@ -217,24 +216,6 @@ class _LiveGisMapScreenState extends State<LiveGisMapScreen>
                             ),
                           ),
                         ],
-                      ),
-                    ),
-
-                    // City Name Label: Shillong
-                    const Marker(
-                      point: LatLng(25.5788, 91.82),
-                      width: 70,
-                      height: 20,
-                      child: Text(
-                        'Shillong',
-                        style: TextStyle(
-                          fontSize: 13,
-                          fontWeight: FontWeight.w700,
-                          color: Color(0xFF0F243E),
-                          shadows: [
-                            Shadow(color: Colors.white, blurRadius: 4),
-                          ],
-                        ),
                       ),
                     ),
 
@@ -544,7 +525,7 @@ class _LiveGisMapScreenState extends State<LiveGisMapScreen>
               top: 195,
               child: GestureDetector(
                 onTap: () {
-                  _mapController.move(userLocation, 10.5);
+                  _mapController.move(centerPoint, 10.5);
                 },
                 child: Container(
                   width: 44,
