@@ -2,26 +2,31 @@ import 'package:flutter/material.dart';
 import '../../../data/models/safety_article_model.dart';
 
 class SafetyCarousel extends StatelessWidget {
-  final Function(SafetyArticleModel) onArticleTap;
+  final Function(SafetyArticleModel)? onArticleTap;
   final VoidCallback? onViewAll;
+  final List<SafetyArticleModel> articles;
 
   const SafetyCarousel({
     super.key,
-    required this.onArticleTap,
+    this.onArticleTap,
     this.onViewAll,
+    this.articles = const [],
   });
 
   @override
   Widget build(BuildContext context) {
-    final articles = SafetyArticleModel.defaultArticles;
-    final landslideArticle = articles.firstWhere(
-      (a) => a.id == 'safety_landslide',
-      orElse: () => articles[0],
-    );
-    final rainfallArticle = articles.firstWhere(
-      (a) => a.id == 'safety_rainfall',
-      orElse: () => articles.length > 1 ? articles[1] : articles[0],
-    );
+    final landslideArticle = articles.isNotEmpty
+        ? articles.firstWhere(
+            (a) => a.id.contains('landslide'),
+            orElse: () => articles[0],
+          )
+        : null;
+    final rainfallArticle = articles.length > 1
+        ? articles.firstWhere(
+            (a) => a.id.contains('rain'),
+            orElse: () => articles[1],
+          )
+        : (articles.isNotEmpty ? articles[0] : null);
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -80,7 +85,13 @@ class SafetyCarousel extends StatelessWidget {
                 bgColors: const [Color(0xFFEFF6FF), Color(0xFFDBEAFE)],
                 borderColor: const Color(0xFFBFDBFE),
                 contourColor: const Color(0xFF3B82F6),
-                onTap: () => onArticleTap(landslideArticle),
+                onTap: () {
+                  if (landslideArticle != null) {
+                    onArticleTap?.call(landslideArticle);
+                  } else {
+                    onViewAll?.call();
+                  }
+                },
               ),
             ),
             const SizedBox(width: 12),
@@ -95,7 +106,13 @@ class SafetyCarousel extends StatelessWidget {
                 bgColors: const [Color(0xFFFFFBEB), Color(0xFFFEF3C7)],
                 borderColor: const Color(0xFFFDE68A),
                 contourColor: const Color(0xFFF59E0B),
-                onTap: () => onArticleTap(rainfallArticle),
+                onTap: () {
+                  if (rainfallArticle != null) {
+                    onArticleTap?.call(rainfallArticle);
+                  } else {
+                    onViewAll?.call();
+                  }
+                },
               ),
             ),
           ],

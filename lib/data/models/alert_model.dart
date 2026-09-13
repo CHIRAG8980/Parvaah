@@ -37,14 +37,16 @@ class AlertModel {
     }
 
     return AlertModel(
-      id: json['id'] as String? ?? '',
+      id: json['alert_id'] as String? ?? json['id'] as String? ?? '',
       title: json['title'] as String? ?? '',
       message: json['message'] as String? ?? '',
-      region: json['region'] as String? ?? 'Nearby Region',
+      region: json['zone_name'] as String? ?? json['region'] as String? ?? '',
       severity: sev,
-      timestamp: json['timestamp'] != null
-          ? DateTime.tryParse(json['timestamp'] as String) ?? DateTime.now()
-          : DateTime.now(),
+      timestamp: json['dispatched_at'] != null
+          ? DateTime.tryParse(json['dispatched_at'] as String) ?? DateTime.now()
+          : (json['timestamp'] != null
+              ? DateTime.tryParse(json['timestamp'] as String) ?? DateTime.now()
+              : DateTime.now()),
       isRead: json['is_read'] as bool? ?? false,
       actionLabel: json['action_label'] as String? ?? 'View Details',
       instructions: json['instructions'] as String?,

@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import '../../data/models/safety_article_model.dart';
 
 class SafetyProvider extends ChangeNotifier {
-  final List<SafetyArticleModel> _articles = SafetyArticleModel.defaultArticles;
+  final List<SafetyArticleModel> _articles = [];
   String _selectedCategory = 'All';
 
   List<SafetyArticleModel> get articles {
@@ -22,6 +22,11 @@ class SafetyProvider extends ChangeNotifier {
 
   void selectCategory(String category) {
     _selectedCategory = category;
+    notifyListeners();
+  }
+
+  Future<void> loadArticles() async {
+    // Static / cached safety articles reload hook
     notifyListeners();
   }
 

@@ -18,9 +18,9 @@ class _LoginRegisterScreenState extends State<LoginRegisterScreen> {
 
   final _formKey = GlobalKey<FormState>();
   final _nameController = TextEditingController();
-  final _emailController = TextEditingController(text: 'ananya.sharma@parvaah.org');
-  final _phoneController = TextEditingController(text: '+91 98765 43210');
-  final _passwordController = TextEditingController(text: 'password123');
+  final _emailController = TextEditingController();
+  final _phoneController = TextEditingController();
+  final _passwordController = TextEditingController();
 
   @override
   void dispose() {

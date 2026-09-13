@@ -4,12 +4,14 @@ class ActiveAlertCard extends StatelessWidget {
   final String title;
   final String subtitle;
   final VoidCallback onTap;
+  final bool isSafe;
 
   const ActiveAlertCard({
     super.key,
-    this.title = 'High Landslide Risk',
-    this.subtitle = '2 nearby areas',
+    required this.title,
+    required this.subtitle,
     required this.onTap,
+    this.isSafe = false,
   });
 
   @override
@@ -19,20 +21,27 @@ class ActiveAlertCard extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
         decoration: BoxDecoration(
-          gradient: const LinearGradient(
+          gradient: LinearGradient(
             begin: Alignment.centerLeft,
             end: Alignment.centerRight,
-            colors: [
-              Color(0xFFF87171), // Vibrant coral red
-              Color(0xFFEF4444),
-              Color(0xFFDC2626),
-              Color(0xFFB91C1C), // Deep crimson
-            ],
+            colors: isSafe
+                ? const [
+                    Color(0xFF34D399),
+                    Color(0xFF10B981),
+                    Color(0xFF059669),
+                    Color(0xFF047857),
+                  ]
+                : const [
+                    Color(0xFFF87171), // Vibrant coral red
+                    Color(0xFFEF4444),
+                    Color(0xFFDC2626),
+                    Color(0xFFB91C1C), // Deep crimson
+                  ],
           ),
           borderRadius: BorderRadius.circular(18),
           boxShadow: [
             BoxShadow(
-              color: const Color(0xFFDC2626).withAlpha(80),
+              color: (isSafe ? const Color(0xFF059669) : const Color(0xFFDC2626)).withAlpha(80),
               blurRadius: 16,
               offset: const Offset(0, 6),
             ),
@@ -49,9 +58,9 @@ class ActiveAlertCard extends StatelessWidget {
                 borderRadius: BorderRadius.circular(12),
                 border: Border.all(color: Colors.white.withAlpha(60), width: 1.2),
               ),
-              child: const Center(
+              child: Center(
                 child: Icon(
-                  Icons.warning_rounded,
+                  isSafe ? Icons.verified_user_rounded : Icons.warning_rounded,
                   color: Colors.white,
                   size: 26,
                 ),
@@ -103,19 +112,19 @@ class ActiveAlertCard extends StatelessWidget {
               ),
               child: Row(
                 mainAxisSize: MainAxisSize.min,
-                children: const [
+                children: [
                   Text(
                     'View',
                     style: TextStyle(
-                      color: Color(0xFFB91C1C),
+                      color: isSafe ? const Color(0xFF047857) : const Color(0xFFB91C1C),
                       fontSize: 13,
                       fontWeight: FontWeight.w800,
                     ),
                   ),
-                  SizedBox(width: 2),
+                  const SizedBox(width: 2),
                   Icon(
                     Icons.chevron_right_rounded,
-                    color: Color(0xFFB91C1C),
+                    color: isSafe ? const Color(0xFF047857) : const Color(0xFFB91C1C),
                     size: 17,
                   ),
                 ],

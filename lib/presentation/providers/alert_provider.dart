@@ -5,7 +5,7 @@ import '../../data/repositories/alert_repository.dart';
 class AlertProvider extends ChangeNotifier {
   final AlertRepository _repository;
 
-  List<AlertModel> _alerts = AlertRepository.defaultAlerts;
+  List<AlertModel> _alerts = [];
   AlertSeverity? _selectedSeverity;
   bool _isLoading = false;
 
