@@ -1,0 +1,79 @@
+"""Main application entrypoint and lifespan management for Parvaah API."""
+
+import logging
+from contextlib import asynccontextmanager
+from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
+from app.config import settings
+from app.database import init_db, SessionLocal
+from app.seed.seeder import seed_database
+from app.api.router import api_router
+
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+)
+logger = logging.getLogger("parvaah.main")
+
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    """Initialize database tables and seed baseline data on startup."""
+    logger.info("Initializing Parvaah Landslide Early Warning backend...")
+    init_db()
+
+    db = SessionLocal()
+    try:
+        seed_database(db)
+        logger.info("Seed data loaded successfully.")
+    except Exception as exc:
+        logger.error("Seeder error: %s", exc)
+    finally:
+        db.close()
+
+    yield
+    logger.info("Shutting down Parvaah API service.")
+
+
+app = FastAPI(
+    title=settings.PROJECT_NAME,
+    description="REST API for North Eastern Region (NER) Landslide Risk Monitoring and Early Warning",
+    version=settings.VERSION,
+    lifespan=lifespan,
+    docs_url="/docs",
+    redoc_url="/redoc",
+)
+
+# Enable CORS for Web Dashboard and Flutter clients
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=settings.CORS_ORIGINS,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+
+@app.get("/health", tags=["Health"])
+def health_check():
+    """Health check endpoint to verify backend service status."""
+    return {
+        "status": "ok",
+        "service": "parvaah-landslide-early-warning-api",
+        "region": "NER India",
+        "version": settings.VERSION,
+    }
+
+
+@app.get("/", tags=["Health"])
+def root_endpoint():
+    """Service landing endpoint with API documentation pointer."""
+    return {
+        "name": settings.PROJECT_NAME,
+        "version": settings.VERSION,
+        "docs_url": "/docs",
+        "api_v1_prefix": settings.API_V1_STR,
+    }
+
+
+app.include_router(api_router, prefix=settings.API_V1_STR)
