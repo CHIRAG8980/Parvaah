@@ -163,3 +163,7 @@ docs/reports/*.pdf
 
 # Tool state
 .reticle/
+.playwright-mcp/
+*.db
+*.sqlite
+*.sqlite3

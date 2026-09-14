@@ -1,6 +1,11 @@
 import { useApiQuery } from './useApiQuery';
 import { apiClient } from '../lib/api/client';
-import { ZoneSummaryResponse, ZoneDetailResponse } from '../lib/api/types';
+import {
+  ZoneSummaryResponse,
+  ZoneDetailResponse,
+  UnifiedRiskPredictionResponse,
+  LandslideHeatmapResponse,
+} from '../lib/api/types';
 
 export function useZones(filters?: { district?: string; state?: string }) {
   const district = filters?.district && filters.district !== 'All' ? filters.district : undefined;
@@ -33,3 +38,39 @@ export function useZoneDetail(zoneId?: string) {
     { enabled: Boolean(zoneId) }
   );
 }
+
+export function useLandslideHeatmap(district?: string) {
+  const cleanDistrict = district && district !== 'All' && district !== 'All Districts' ? district : undefined;
+  return useApiQuery<LandslideHeatmapResponse>(
+    async (signal) => {
+      const params: Record<string, string> = {};
+      if (cleanDistrict) params.district = cleanDistrict;
+      return apiClient.get<LandslideHeatmapResponse>('/zones/heatmap', { params, signal });
+    },
+    [cleanDistrict],
+    { refetchIntervalMs: 60000 }
+  );
+}
+
+export function useZonePrediction(zoneId?: string) {
+  return useApiQuery<UnifiedRiskPredictionResponse>(
+    async (signal) => {
+      if (!zoneId) throw new Error('Zone ID is required');
+      return apiClient.get<UnifiedRiskPredictionResponse>(`/predict/zone/${zoneId}`, { signal });
+    },
+    [zoneId],
+    { enabled: Boolean(zoneId), refetchIntervalMs: 60000 }
+  );
+}
+
+export function useModelVersion() {
+  return useApiQuery<Record<string, unknown>>(
+    async (signal) => {
+      return apiClient.get<Record<string, unknown>>('/predict/model/version', { signal });
+    },
+    [],
+    { refetchIntervalMs: 120000 }
+  );
+}
+
+

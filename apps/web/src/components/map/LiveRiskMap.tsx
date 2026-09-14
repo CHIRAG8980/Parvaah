@@ -9,6 +9,8 @@ import { MapFloatingControls } from './MapFloatingControls';
 import { MapLayerChecklist, ActiveMapLayers } from './MapLayerChecklist';
 import { MapLegendCard } from './MapLegendCard';
 import { useZones } from '../../hooks/useZones';
+import { useAuth } from '../../hooks/useAuth';
+import { ZoneSummaryResponse } from '../../lib/api/types';
 
 const MapInner = dynamic(() => import('./MapInner').then((mod) => mod.MapInner), {
   ssr: false,
@@ -22,8 +24,22 @@ const MapInner = dynamic(() => import('./MapInner').then((mod) => mod.MapInner),
   ),
 });
 
-export const LiveRiskMap: React.FC = () => {
+interface LiveRiskMapProps {
+  filteredZones?: ZoneSummaryResponse[];
+  selectedState?: string;
+  selectedRisk?: string;
+  selectedDistrict?: string;
+  onSelectDistrict?: (district: string) => void;
+}
+
+export const LiveRiskMap: React.FC<LiveRiskMapProps> = ({
+  filteredZones,
+  selectedDistrict: controlledDistrict,
+  onSelectDistrict: controlledOnSelectDistrict,
+}) => {
   const [mounted, setMounted] = useState(false);
+  const { assignedDistrict, isScopedToDistrict } = useAuth();
+
   const [activeLayers, setActiveLayers] = useState<ActiveMapLayers>({
     landslideRisk: true,
     weather: true,
@@ -33,12 +49,21 @@ export const LiveRiskMap: React.FC = () => {
 
   const [mapMode, setMapMode] = useState<'satellite' | 'terrain' | 'streets'>('satellite');
   const [selectedTimeRange, setSelectedTimeRange] = useState('Last 24 hours');
-  const [selectedDistrict, setSelectedDistrict] = useState('All Districts');
+  const [internalDistrict, setInternalDistrict] = useState('All Districts');
+
+  // If officer is district-scoped (DMO), lock selectedDistrict to their assigned district
+  const selectedDistrict = isScopedToDistrict && assignedDistrict
+    ? assignedDistrict
+    : controlledDistrict !== undefined
+      ? controlledDistrict
+      : internalDistrict;
+
   const [isFullscreen, setIsFullscreen] = useState(false);
 
   const baseMapRef = useRef<L.Map | null>(null);
-  const { zones } = useZones();
-  const availableDistricts = Array.from(new Set(zones.map((z) => z.district)));
+  const { zones: allZones } = useZones();
+  const zonesToDisplay = filteredZones || allZones;
+  const availableDistricts = Array.from(new Set(allZones.map((z) => z.district)));
 
   useEffect(() => {
     setMounted(true);
@@ -53,16 +78,34 @@ export const LiveRiskMap: React.FC = () => {
   };
 
   const handleSelectDistrict = (district: string) => {
-    setSelectedDistrict(district);
+    if (controlledOnSelectDistrict) {
+      controlledOnSelectDistrict(district);
+    } else {
+      setInternalDistrict(district);
+    }
     if (district === 'All Districts') {
       baseMapRef.current?.setView([25.75, 92.9], 7);
       return;
     }
-    const targetZone = zones.find((z) => z.district === district);
+    const targetZone = allZones.find((z) => z.district.toLowerCase() === district.toLowerCase());
     if (targetZone && baseMapRef.current) {
       baseMapRef.current.setView([targetZone.latitude, targetZone.longitude], 10);
     }
   };
+
+  // Keep map viewport in sync if selectedDistrict changes (or when DMO assignedDistrict loads)
+  useEffect(() => {
+    if (!baseMapRef.current || !allZones.length) return;
+
+    if (selectedDistrict === 'All Districts') {
+      baseMapRef.current.setView([25.75, 92.9], 7);
+    } else {
+      const targetZone = allZones.find((z) => z.district.toLowerCase() === selectedDistrict.toLowerCase());
+      if (targetZone) {
+        baseMapRef.current.setView([targetZone.latitude, targetZone.longitude], 10);
+      }
+    }
+  }, [selectedDistrict, allZones]);
 
   const handleZoomIn = () => baseMapRef.current?.zoomIn();
   const handleZoomOut = () => baseMapRef.current?.zoomOut();
@@ -85,6 +128,7 @@ export const LiveRiskMap: React.FC = () => {
         onSelectTimeRange={setSelectedTimeRange}
         onToggleFullscreen={toggleFullscreen}
         availableDistricts={availableDistricts}
+        isDistrictLocked={isScopedToDistrict}
       />
       <div className={`relative z-0 w-full overflow-hidden ${inFullscreen ? 'flex-1 h-full min-h-0' : 'rounded-b-xl'}`}>
         <MapInner
@@ -95,6 +139,8 @@ export const LiveRiskMap: React.FC = () => {
             baseMapRef.current = map;
           }}
           isFullscreen={inFullscreen}
+          filteredZones={zonesToDisplay}
+          selectedDistrict={selectedDistrict}
         />
         <MapFloatingControls
           onZoomIn={handleZoomIn}

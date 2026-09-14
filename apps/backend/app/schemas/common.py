@@ -10,6 +10,7 @@ class RiskLevel(str, Enum):
     MEDIUM = "MEDIUM"
     HIGH = "HIGH"
     CRITICAL = "CRITICAL"
+    OUT_OF_COVERAGE = "OUT_OF_COVERAGE"
 
 
 class AlertSeverity(str, Enum):
@@ -45,3 +46,4 @@ class ConfidenceLevel(str, Enum):
     LOW = "low"
     MEDIUM = "medium"
     HIGH = "high"
+    OUT_OF_COVERAGE = "out_of_coverage"

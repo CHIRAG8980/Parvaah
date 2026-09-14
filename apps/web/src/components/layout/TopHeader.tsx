@@ -7,45 +7,78 @@ import { HeaderWeather } from './HeaderWeather';
 import { HeaderClock } from './HeaderClock';
 import { HeaderNotifications } from './HeaderNotifications';
 import { HeaderUserProfile } from './HeaderUserProfile';
+import { useAuth } from '../../hooks/useAuth';
+import { useZones } from '../../hooks/useZones';
 
 interface TopHeaderProps {
   onMenuClick?: () => void;
 }
 
 export const TopHeader: React.FC<TopHeaderProps> = () => {
-  const [currentLocation, setCurrentLocation] = useState<LocationOption>(OPERATIONAL_LOCATIONS[0]);
+  const { assignedDistrict } = useAuth();
+  const { zones } = useZones();
+  const [currentLocation, setCurrentLocation] = useState<LocationOption>(() => {
+    return OPERATIONAL_LOCATIONS[0];
+  });
   const [isDetectingGps, setIsDetectingGps] = useState(false);
   const [gpsLocked, setGpsLocked] = useState(false);
+
+  // Sync to assigned district location on mount/auth if not explicitly locked to GPS
+  useEffect(() => {
+    if (!gpsLocked && assignedDistrict) {
+      const match = OPERATIONAL_LOCATIONS.find(
+        (loc) => loc.city.toLowerCase().includes(assignedDistrict.toLowerCase()) ||
+                 assignedDistrict.toLowerCase().includes(loc.city.toLowerCase())
+      );
+      if (match) {
+        setCurrentLocation(match);
+      } else {
+        const matchingZone = zones.find(
+          (z) => z.district.toLowerCase() === assignedDistrict.toLowerCase()
+        );
+        setCurrentLocation({
+          city: matchingZone ? matchingZone.district : assignedDistrict,
+          state: matchingZone ? matchingZone.state : 'Meghalaya',
+          code: 'DMO JURISDICTION',
+          lat: matchingZone ? matchingZone.latitude : 25.5788,
+          lon: matchingZone ? matchingZone.longitude : 91.8933,
+        });
+      }
+    }
+  }, [assignedDistrict, gpsLocked, zones]);
 
   const detectGpsLocation = useCallback(() => {
     if (typeof window === 'undefined' || !navigator.geolocation) return;
 
     setIsDetectingGps(true);
     navigator.geolocation.getCurrentPosition(
-      async (pos) => {
+      (pos) => {
         const { latitude, longitude } = pos.coords;
-        try {
-          const res = await fetch(
-            `https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}&zoom=14`,
-            { headers: { Accept: 'application/json' } }
-          );
-          if (!res.ok) throw new Error('Geocoding error');
-          const data = await res.json();
-          const addr = data.address || {};
-          const city = addr.city || addr.town || addr.village || addr.state_district || 'Field Hub';
-          const state = addr.state || 'NER India';
 
-          const gpsLoc: LocationOption = {
-            city,
-            state,
-            code: 'LIVE GPS',
+        // Match closest official monitored Indian district jurisdiction
+        let closestZone = zones[0];
+        let minDistanceSq = Number.MAX_VALUE;
+
+        for (const zone of zones) {
+          const dLat = zone.latitude - latitude;
+          const dLon = zone.longitude - longitude;
+          const distSq = dLat * dLat + dLon * dLon;
+          if (distSq < minDistanceSq) {
+            minDistanceSq = distSq;
+            closestZone = zone;
+          }
+        }
+
+        if (closestZone) {
+          setCurrentLocation({
+            city: closestZone.district,
+            state: closestZone.state,
+            code: 'OFFICIAL JURISDICTION',
             lat: latitude,
             lon: longitude,
             isGps: true,
-          };
-          setCurrentLocation(gpsLoc);
-          setGpsLocked(true);
-        } catch {
+          });
+        } else {
           setCurrentLocation({
             city: `Lat ${latitude.toFixed(2)}°`,
             state: `Lon ${longitude.toFixed(2)}°`,
@@ -54,17 +87,16 @@ export const TopHeader: React.FC<TopHeaderProps> = () => {
             lon: longitude,
             isGps: true,
           });
-          setGpsLocked(true);
-        } finally {
-          setIsDetectingGps(false);
         }
+        setGpsLocked(true);
+        setIsDetectingGps(false);
       },
       () => {
         setIsDetectingGps(false);
       },
       { timeout: 8000 }
     );
-  }, []);
+  }, [zones]);
 
   return (
     <header className="sticky top-0 z-[1200] h-[64px] bg-white border-b border-[#DCE6F2] px-4 sm:px-6 flex items-center justify-between gap-4 lg:gap-6">

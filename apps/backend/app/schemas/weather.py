@@ -14,18 +14,46 @@ class DailyForecastPoint(BaseModel):
     is_forecast: bool
 
 
+class DayForecastItem(BaseModel):
+    """Single day forecast projection."""
+
+    day_label: str
+    date_str: str
+    projected_rainfall_mm: float
+    predicted_risk_level: str
+    weather_condition: str
+    temp_c: float
+
+
+class HourlyPrecipitationItem(BaseModel):
+    """Hourly rainfall observation or prediction."""
+
+    hour_label: str
+    rainfall_mm: float
+    is_projected: bool
+
+
 class WeatherForecastResponse(BaseModel):
     """Weather and rainfall trend panel response."""
 
     zone_id: str
     zone_name: str
-    current_24h_rainfall_mm: float
-    cumulative_72h_rainfall_mm: float
+    district: str = ""
+    state: str = "Meghalaya"
+    rainfall_24h_mm: float = 0.0
+    cumulative_72h_mm: float = 0.0
+    current_24h_rainfall_mm: float = 0.0
+    cumulative_72h_rainfall_mm: float = 0.0
     rainfall_trend: str = Field(
         ..., description="e.g. rising, peak, receding"
     )
-    community_gauges_count: int
-    timeline: list[DailyForecastPoint]
+    community_gauges_count: int = 0
+    active_community_gauges_count: int = 0
+    imd_radar_station: str = "Cherrapunji Doppler Radar"
+    last_updated: str = ""
+    timeline: list[DailyForecastPoint] = Field(default_factory=list)
+    forecast_days: list[DayForecastItem] = Field(default_factory=list)
+    hourly_trend: list[HourlyPrecipitationItem] = Field(default_factory=list)
 
 
 class IngestRainfallRequest(BaseModel):

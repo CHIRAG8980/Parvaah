@@ -79,10 +79,12 @@ export const RoadClearanceOverview: React.FC<RoadClearanceOverviewProps> = ({ ro
         <span>Corridor radar refresh interval: 30s.</span>
         <button
           type="button"
-          onClick={() => alert('Exporting live road condition bulletin to SDMA dispatch network')}
+          onClick={() => {
+            window.open('http://localhost:8000/api/v1/roads/export', '_blank');
+          }}
           className="text-[#1769D2] font-semibold hover:underline inline-flex items-center gap-1 cursor-pointer"
         >
-          <span>Export Traffic Advisory PDF</span>
+          <span>Export Corridor Advisory CSV</span>
           <span>→</span>
         </button>
       </div>

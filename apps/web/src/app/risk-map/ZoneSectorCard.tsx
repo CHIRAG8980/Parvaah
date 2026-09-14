@@ -1,6 +1,7 @@
 'use client';
 
 import React from 'react';
+import Link from 'next/link';
 import { Activity, ArrowUpRight } from 'lucide-react';
 import { ZoneSummaryResponse } from '../../lib/api/types';
 
@@ -25,7 +26,7 @@ export const ZoneSectorCard: React.FC<ZoneSectorCardProps> = ({ zone }) => {
                 : 'bg-[#FFF7ED] text-[#EA580C] border border-[#FED7AA]'
             }`}
           >
-            {zone.risk_level} ({Math.round(zone.risk_score)})
+            {zone.risk_level} ({zone.risk_score !== null && zone.risk_score !== undefined ? Math.round(zone.risk_score) : 'N/A'})
           </span>
         </div>
 
@@ -50,8 +51,8 @@ export const ZoneSectorCard: React.FC<ZoneSectorCardProps> = ({ zone }) => {
             <span className="font-bold text-[#10B981]">{zone.confidence}</span>
           </div>
           <div className="bg-[#F8FAFC] p-2 rounded-lg">
-            <span className="text-[10.5px] text-[#64748B] block">Failure Window</span>
-            <span className="font-bold text-[#DC2626]">{zone.time_to_failure_window || 'Normal'}</span>
+            <span className="text-[10.5px] text-[#64748B] block">Pre-Event Profile</span>
+            <span className="font-bold text-[#DC2626]">{zone.historical_condition_window || zone.time_to_failure_window || 'Baseline Regime'}</span>
           </div>
         </div>
       </div>
@@ -61,14 +62,13 @@ export const ZoneSectorCard: React.FC<ZoneSectorCardProps> = ({ zone }) => {
           <Activity className="w-3.5 h-3.5" />
           <span>Telemetry Verified</span>
         </div>
-        <button
-          type="button"
-          onClick={() => alert(`Opening telemetry feed for ${zone.name}`)}
+        <Link
+          href="/data-sources"
           className="text-[#1769D2] font-semibold hover:underline flex items-center gap-0.5 text-[11.5px] cursor-pointer"
         >
           <span>View Telemetry</span>
           <ArrowUpRight className="w-3 h-3" />
-        </button>
+        </Link>
       </div>
     </div>
   );

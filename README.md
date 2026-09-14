@@ -28,19 +28,38 @@ The platform continuously synthesizes **Geological Survey of India (GSI)** groun
 
 ```mermaid
 flowchart TD
-    subgraph DataSources["🛰️ Authentic Geospatial & Telemetry Feeds"]
-        GSI["GSI Ground Truth (1,330+ Landslides)"]
-        IMD["IMD Gridded Daily Rainfall Telemetry"]
-        METEO["Open-Meteo 14-Day Precipitation Radar"]
-        S1["Sentinel-1 InSAR Displacement Rates"]
-        IOT["IoT Inclinometers & Pore Pressure Sensors"]
+    subgraph DataSources["🛰️ Authentic Indian Primary & Joint Mission Feeds"]
+        CARTODEM["ISRO CartoDEM 30m Stereo DEM (Slope, Elevation, Aspect, Curvature)"]
+        BHUVAN["ISRO Bhuvan 1:50k (LULC, Geomorphology, Lineaments)"]
+        IMD["IMD 0.25° Gridded Daily Rainfall (24h, 72h, 7d/14d/30d Antecedent)"]
+        GSI["GSI Bhukosh Historical Ground Truth (951 Validated Landslides)"]
+        NISAR["ISRO-NASA NISAR S-band Level-2 GUNW InSAR (80m LOS Displacement)"]
+        EOS04["ISRO Bhoonidhi EOS-04 Level-4 SAR Soil Moisture (500m)"]
     end
 
-    subgraph Backend["⚙️ Backend & AI/ML Serving (FastAPI + PostGIS)"]
-        INGEST["Ingestion & Quality Scoring Engine"]
-        FUSION["ML Fusion Model (XGBoost + SHAP Explainability)"]
+    subgraph MLEnsemble["🧠 Sovereign Indian AI/ML Ensemble Suite"]
+        M1["Model 1: Static Susceptibility\n(RandomForest 10 Bands)"]
+        M2["Model 2: Dynamic Hazard\n(XGBoost IMD Multi-Scale Trigger)"]
+        M3["Model 3: Pre-Event Condition Similarity\n(RandomForest Hydrological Pattern Match)"]
+        M4["Model 4: Multi-Modal Fusion Risk Engine\n(19-Feature XGBoost + RobustScaler)"]
+
+        CARTODEM --> M1
+        BHUVAN --> M1
+        IMD --> M2
+        IMD --> M3
+
+        M1 --> M4
+        M2 --> M4
+        M3 --> M4
+        NISAR -.->|"Optional / Coverage & Quality Dependent"| M4
+        EOS04 -.->|"Optional / Coverage & Quality Dependent"| M4
+    end
+
+    subgraph Backend["⚙️ Backend & Ingestion Layer (FastAPI + SQLite/PostGIS)"]
         API["REST API & RBAC Security Layer (Port 8000)"]
-        DB[("PostgreSQL + PostGIS + TimescaleDB")]
+        AUDIT["Immutable Audit Trail & Dispatch Engine"]
+        M4 --> API
+        API --> AUDIT
     end
 
     subgraph Presentation["🖥️ Client Applications"]
@@ -54,13 +73,9 @@ flowchart TD
         RELAY["Police & BRO Highway Emergency Relays"]
     end
 
-    DataSources --> INGEST
-    INGEST --> DB
-    DB --> FUSION
-    FUSION --> API
     API --> WEB
     API --> MOB
-    WEB --> EmergencyDispatch
+    AUDIT --> EmergencyDispatch
 ```
 
 ---

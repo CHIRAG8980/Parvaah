@@ -7,6 +7,7 @@ from sqlalchemy.orm import sessionmaker
 from sqlalchemy.pool import StaticPool
 from datetime import datetime, timezone, timedelta
 from app.database import Base, get_db
+import app.models
 from app.ingest.real_data_loader import run_real_ingestion
 from app.models.alert import Alert
 from app.models.road import RoadSegment

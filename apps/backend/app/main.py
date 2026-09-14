@@ -19,7 +19,9 @@ logger = logging.getLogger("parvaah.main")
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    """Initialize database tables and real GIS monitoring stations on startup."""
+    """Initialize database tables, seed GIS data, and start prediction scheduler."""
+    import asyncio
+
     logger.info("Initializing Parvaah Landslide Early Warning backend...")
     init_db()
     db = SessionLocal()
@@ -30,8 +32,24 @@ async def lifespan(app: FastAPI):
         logger.warning("GIS station init: %s", exc)
     finally:
         db.close()
+
+    # Start continuous prediction scheduler as background asyncio task.
+    # The first prediction cycle runs immediately (after a short delay so DB
+    # commit from seed ingestion settles), then every 30 minutes thereafter.
+    from app.services.scheduler import run_prediction_scheduler
+    scheduler_task = asyncio.create_task(run_prediction_scheduler())
+    logger.info("Continuous prediction scheduler started (interval: 30 min).")
+
     yield
+
+    # Cancel scheduler gracefully on shutdown
+    scheduler_task.cancel()
+    try:
+        await scheduler_task
+    except asyncio.CancelledError:
+        pass
     logger.info("Shutting down Parvaah API service.")
+
 
 
 

@@ -6,6 +6,7 @@ import {
   UserProfile,
   TokenResponse,
   LoginRequest,
+  RegisterDMORequest,
   PasswordChangeRequest,
   SessionStatusResponse,
 } from '../lib/api/types';
@@ -24,21 +25,15 @@ export function useAuth() {
       });
 
       if (session.authenticated && session.user) {
-        startTransition(() => {
-          setUser(session.user);
-          setIsAuthenticated(true);
-        });
+        setUser(session.user);
+        setIsAuthenticated(true);
       } else {
-        startTransition(() => {
-          setUser(null);
-          setIsAuthenticated(false);
-        });
-      }
-    } catch {
-      startTransition(() => {
         setUser(null);
         setIsAuthenticated(false);
-      });
+      }
+    } catch {
+      setUser(null);
+      setIsAuthenticated(false);
     } finally {
       setIsLoading(false);
     }
@@ -61,6 +56,31 @@ export function useAuth() {
     async (credentials: LoginRequest) => {
       // Direct POST to /auth/login; sets HttpOnly access & refresh cookies on browser
       return apiClient.post<TokenResponse>('/auth/login', credentials, {
+        skipAuth: true,
+      });
+    },
+    {
+      onSuccess: (data) => {
+        setIsAuthenticated(true);
+        const profile: UserProfile = {
+          user_id: data.user_id,
+          username: data.username,
+          full_name: data.full_name,
+          role: data.role,
+          district: data.district,
+          state: data.state,
+          escalation_level: data.escalation_level,
+          contact_number: '+919436000000',
+          csrf_token: data.csrf_token,
+        };
+        setUser(profile);
+      },
+    }
+  );
+
+  const registerMutation = useApiMutation<TokenResponse, RegisterDMORequest>(
+    async (details: RegisterDMORequest) => {
+      return apiClient.post<TokenResponse>('/auth/register', details, {
         skipAuth: true,
       });
     },
@@ -106,6 +126,9 @@ export function useAuth() {
   const isAdmin = role.includes('admin');
   const isStateOfficer = isAdmin || role.includes('state') || role.includes('director');
   const isDistrictOfficer = isAdmin || isStateOfficer || role.includes('district');
+  const assignedDistrict = user?.district || null;
+  // A DMO is scoped to their specific assigned jurisdiction if they are not an admin/state officer and have a district assigned
+  const isScopedToDistrict = !isAdmin && !role.includes('state') && !role.includes('director') && Boolean(assignedDistrict);
 
   return {
     user,
@@ -114,9 +137,14 @@ export function useAuth() {
     isAdmin,
     isStateOfficer,
     isDistrictOfficer,
+    assignedDistrict,
+    isScopedToDistrict,
     login: loginMutation.mutate,
     isLoggingIn: loginMutation.isPending,
     loginError: loginMutation.error,
+    registerDMO: registerMutation.mutate,
+    isRegisteringDMO: registerMutation.isPending,
+    registerError: registerMutation.error,
     logout,
     changePassword,
     refreshSession: loadSession,

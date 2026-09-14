@@ -4,33 +4,57 @@ import React, { useState } from 'react';
 import { DashboardShell } from '../../components/layout/DashboardShell';
 import { LiveRiskMap } from '../../components/map/LiveRiskMap';
 import { ZoneSectorCard } from './ZoneSectorCard';
-import { Satellite, Filter, Radio } from 'lucide-react';
+import { Satellite, Filter, Radio, ShieldCheck } from 'lucide-react';
 import { useZones } from '../../hooks/useZones';
+import { useAuth } from '../../hooks/useAuth';
 
 export default function RiskMapPage() {
   const [selectedState, setSelectedState] = useState('All States');
   const [selectedRisk, setSelectedRisk] = useState('All Risks');
 
+  const { isScopedToDistrict, assignedDistrict } = useAuth();
   const { zones, isLoading } = useZones();
 
   const filteredZones = zones.filter((zone) => {
+    // If DMO, restrict exclusively to their assigned district
+    if (isScopedToDistrict && assignedDistrict) {
+      if (zone.district.toLowerCase() !== assignedDistrict.toLowerCase()) {
+        return false;
+      }
+    }
     const matchesState = selectedState === 'All States' || zone.state === selectedState;
     const matchesRisk = selectedRisk === 'All Risks' || zone.risk_level === selectedRisk;
     return matchesState && matchesRisk;
   });
 
-  const criticalCount = zones.filter((z) => z.risk_level === 'CRITICAL').length;
-  const highCount = zones.filter((z) => z.risk_level === 'HIGH').length;
+  const criticalCount = filteredZones.filter((z) => z.risk_level === 'CRITICAL').length;
+  const highCount = filteredZones.filter((z) => z.risk_level === 'HIGH').length;
+
+  const pageTitle = isScopedToDistrict && assignedDistrict
+    ? `${assignedDistrict} GIS Risk Map & Surveillance`
+    : 'GIS Risk Map & Satellite Surveillance';
+
+  const pageSubtitle = isScopedToDistrict && assignedDistrict
+    ? `Dedicated district surveillance, localized susceptibility markers, and IoT sensor telemetry for ${assignedDistrict}`
+    : 'Multi-modal landslide susceptibility, InSAR satellite deformation, and IoT sensor telemetry across North East India';
 
   return (
     <DashboardShell>
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-3">
         <div>
-          <h1 className="text-[22px] sm:text-[26px] font-bold text-[#0F1F3D] tracking-tight leading-tight">
-            GIS Risk Map & Satellite Surveillance
-          </h1>
+          <div className="flex items-center gap-2">
+            <h1 className="text-[22px] sm:text-[26px] font-bold text-[#0F1F3D] tracking-tight leading-tight">
+              {pageTitle}
+            </h1>
+            {isScopedToDistrict && (
+              <span className="hidden sm:inline-flex items-center gap-1 px-2.5 py-0.5 rounded-md bg-[#EFF6FF] border border-[#BFDBFE] text-[#1E40AF] text-[11px] font-semibold">
+                <ShieldCheck className="w-3.5 h-3.5" />
+                <span>Assigned DMO Scope</span>
+              </span>
+            )}
+          </div>
           <p className="text-[13.5px] text-[#536B8F] mt-1 font-normal">
-            Multi-modal landslide susceptibility, InSAR satellite deformation, and IoT sensor telemetry across North East India
+            {pageSubtitle}
           </p>
         </div>
 
@@ -95,7 +119,11 @@ export default function RiskMapPage() {
       </div>
 
       <div className="w-full">
-        <LiveRiskMap />
+        <LiveRiskMap
+          filteredZones={filteredZones}
+          selectedState={selectedState}
+          selectedRisk={selectedRisk}
+        />
       </div>
 
       <div className="space-y-3">

@@ -10,6 +10,7 @@ import { WeatherForecast } from '../components/dashboard/WeatherForecast';
 import { DistrictRiskChart } from '../components/dashboard/DistrictRiskChart';
 import { RecentRainfallChart } from '../components/dashboard/RecentRainfallChart';
 import { RoadInfrastructureChart } from '../components/dashboard/RoadInfrastructureChart';
+import { ModelBreakdownCard } from '../components/dashboard/ModelBreakdownCard';
 
 export default function DashboardPage() {
   return (
@@ -34,6 +35,9 @@ export default function DashboardPage() {
         </div>
       </div>
 
+      {/* 4-Model AI/ML Sovereign Ensemble Live Breakdown */}
+      <ModelBreakdownCard />
+
       {/* Analytics Section: 3 Comprehensive Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
         <DistrictRiskChart />
@@ -43,3 +47,4 @@ export default function DashboardPage() {
     </DashboardShell>
   );
 }
+

@@ -3,6 +3,7 @@
 import React from 'react';
 import { ShieldAlert, ShieldCheck, Split, CloudRain, RotateCcw } from 'lucide-react';
 import { useKpis } from '../../hooks/useKpis';
+import { useAuth } from '../../hooks/useAuth';
 
 const ICON_MAP: Record<string, { icon: React.ElementType; iconBg: string; iconColor: string }> = {
   'active-alerts': { icon: ShieldAlert, iconBg: 'bg-[#FEF2F2]', iconColor: 'text-[#DC2626]' },
@@ -12,7 +13,9 @@ const ICON_MAP: Record<string, { icon: React.ElementType; iconBg: string; iconCo
 };
 
 export const KpiSummaryCards: React.FC = () => {
-  const { data, isLoading, isError, error, refetch } = useKpis();
+  const { assignedDistrict, isScopedToDistrict } = useAuth();
+  const activeDistrict = isScopedToDistrict && assignedDistrict ? assignedDistrict : undefined;
+  const { data, isLoading, isError, error, refetch } = useKpis(activeDistrict);
 
   if (isLoading) {
     return (

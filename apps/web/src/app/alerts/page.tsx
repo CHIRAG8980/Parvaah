@@ -34,7 +34,7 @@ export default function AlertsPage() {
   const handleApprove = async (id: string) => {
     try {
       const alert = alerts.find((a) => a.alert_id === id);
-      const officerId = user?.user_id || 'usr-dmo-east-khasi';
+      const officerId = user?.user_id || `officer-${user?.username || 'on-duty'}`;
       await approve(id, {
         officer_id: officerId,
         final_message: alert?.draft_message || 'Emergency landslide advisory dispatched.',
@@ -49,7 +49,7 @@ export default function AlertsPage() {
 
   const handleReject = async (id: string) => {
     try {
-      const officerId = user?.user_id || 'usr-dmo-east-khasi';
+      const officerId = user?.user_id || `officer-${user?.username || 'on-duty'}`;
       await reject(id, {
         officer_id: officerId,
         reason_code: 'false_positive_rain_threshold',

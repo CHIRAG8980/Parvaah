@@ -10,20 +10,21 @@ class LoginRequest(BaseModel):
     password: str = Field(..., min_length=1)
 
 
-class CreateOfficerRequest(BaseModel):
-    """Admin-only payload for official onboarding."""
+class RegisterDMORequest(BaseModel):
+    """Authorized registration payload for District Disaster Management Officers."""
 
     username: str = Field(..., min_length=3)
-    password: str = Field("Gov@Secure2026", min_length=6)
+    password: str = Field(..., min_length=6)
     full_name: str = Field(..., min_length=2)
     role: str = Field("district_officer", description="admin | state_officer | district_officer")
-    district: str | None = None
-    state: str | None = "Meghalaya"
-    contact_number: str | None = None
+    district: str = Field(..., min_length=2, description="Assigned district jurisdiction")
+    state: str = Field("Meghalaya", min_length=2)
+    contact_number: str | None = Field(None)
+    government_id: str | None = Field(None, description="Official Government Employee / Disaster Authority ID")
 
 
-# Deprecated alias for backwards compatibility in existing tests/calls
-RegisterRequest = CreateOfficerRequest
+CreateOfficerRequest = RegisterDMORequest
+RegisterRequest = RegisterDMORequest
 
 
 class PasswordChangeRequest(BaseModel):

@@ -1,11 +1,22 @@
 'use client';
 
 import React, { useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import Image from 'next/image';
+import { useAuth } from '@/hooks/useAuth';
 import { AuthHeroSection } from './AuthHeroSection';
 import { AuthFormCard } from './AuthFormCard';
 
 export default function LoginPage() {
+  const router = useRouter();
+  const { isAuthenticated, isLoading } = useAuth();
+
+  useEffect(() => {
+    if (!isLoading && isAuthenticated) {
+      router.replace('/');
+    }
+  }, [isLoading, isAuthenticated, router]);
+
   useEffect(() => {
     const originalBodyOverflow = document.body.style.overflow;
     const originalHtmlOverflow = document.documentElement.style.overflow;

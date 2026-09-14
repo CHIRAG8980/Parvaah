@@ -1,11 +1,10 @@
-'use client';
-
 import React, { useEffect, useRef } from 'react';
 import L from 'leaflet';
 import { updateBasemapTiles } from './mapTileManager';
-import { renderZoneMarkers, renderRoadCorridors, renderWeatherHeat } from './mapLayers';
-import { useZones } from '../../hooks/useZones';
+import { renderZoneMarkers, renderRoadCorridors, renderWeatherHeat, renderDistrictBoundaries } from './mapLayers';
+import { useZones, useLandslideHeatmap } from '../../hooks/useZones';
 import { useRoads } from '../../hooks/useRoads';
+import { ZoneSummaryResponse } from '../../lib/api/types';
 
 interface MapInnerProps {
   activeLayers: {
@@ -20,6 +19,8 @@ interface MapInnerProps {
   isFullscreen?: boolean;
   initialCenter?: [number, number];
   initialZoom?: number;
+  filteredZones?: ZoneSummaryResponse[];
+  selectedDistrict?: string;
 }
 
 export const MapInner: React.FC<MapInnerProps> = ({
@@ -29,6 +30,8 @@ export const MapInner: React.FC<MapInnerProps> = ({
   isFullscreen = false,
   initialCenter,
   initialZoom,
+  filteredZones,
+  selectedDistrict,
 }) => {
   const mapContainerRef = useRef<HTMLDivElement>(null);
   const mapInstanceRef = useRef<L.Map | null>(null);
@@ -37,9 +40,12 @@ export const MapInner: React.FC<MapInnerProps> = ({
   const markersLayerGroupRef = useRef<L.LayerGroup | null>(null);
   const roadsLayerGroupRef = useRef<L.LayerGroup | null>(null);
   const weatherLayerGroupRef = useRef<L.LayerGroup | null>(null);
+  const boundaryLayerGroupRef = useRef<L.LayerGroup | null>(null);
 
-  const { zones } = useZones();
+  const { zones: allZones } = useZones();
+  const zonesToDisplay = filteredZones || allZones;
   const { roads } = useRoads();
+  const { data: heatmapData } = useLandslideHeatmap(selectedDistrict);
 
   const onMapReadyRef = useRef(onMapReady);
   useEffect(() => {
@@ -63,6 +69,7 @@ export const MapInner: React.FC<MapInnerProps> = ({
     markersLayerGroupRef.current = L.layerGroup().addTo(map);
     roadsLayerGroupRef.current = L.layerGroup().addTo(map);
     weatherLayerGroupRef.current = L.layerGroup().addTo(map);
+    boundaryLayerGroupRef.current = L.layerGroup().addTo(map);
 
     const { tileLayer, labelLayer } = updateBasemapTiles(map, mapMode, null, null);
     tileLayerRef.current = tileLayer;
@@ -98,11 +105,11 @@ export const MapInner: React.FC<MapInnerProps> = ({
   useEffect(() => {
     if (!markersLayerGroupRef.current) return;
     if (activeLayers.landslideRisk) {
-      renderZoneMarkers(markersLayerGroupRef.current, zones);
+      renderZoneMarkers(markersLayerGroupRef.current, zonesToDisplay);
     } else {
       markersLayerGroupRef.current.clearLayers();
     }
-  }, [zones, activeLayers.landslideRisk]);
+  }, [zonesToDisplay, activeLayers.landslideRisk]);
 
   // Update Road Corridors
   useEffect(() => {
@@ -114,15 +121,25 @@ export const MapInner: React.FC<MapInnerProps> = ({
     }
   }, [roads, activeLayers.roadNetwork]);
 
-  // Update Weather Circles
+  // Update Continuous Landslide Heatmap & Telemetry
   useEffect(() => {
     if (!weatherLayerGroupRef.current) return;
     if (activeLayers.weather) {
-      renderWeatherHeat(weatherLayerGroupRef.current, zones);
+      renderWeatherHeat(weatherLayerGroupRef.current, zonesToDisplay, heatmapData?.points, selectedDistrict);
     } else {
       weatherLayerGroupRef.current.clearLayers();
     }
-  }, [zones, activeLayers.weather]);
+  }, [zonesToDisplay, activeLayers.weather, heatmapData, selectedDistrict]);
+
+  // Update District Boundary Polygons
+  useEffect(() => {
+    if (!boundaryLayerGroupRef.current) return;
+    if (activeLayers.districtBoundary) {
+      renderDistrictBoundaries(boundaryLayerGroupRef.current, zonesToDisplay, selectedDistrict);
+    } else {
+      boundaryLayerGroupRef.current.clearLayers();
+    }
+  }, [zonesToDisplay, activeLayers.districtBoundary, selectedDistrict]);
 
   // Invalidate map on resize/fullscreen
   useEffect(() => {

@@ -186,6 +186,9 @@ def set_auth_cookies(
     access_max_age = settings.ACCESS_TOKEN_EXPIRE_MINUTES * 60
     refresh_max_age = settings.REFRESH_TOKEN_EXPIRE_DAYS * 86400
 
+    # Domain handling: for localhost, use None for host-only cookies
+    cookie_domain = settings.COOKIE_DOMAIN if settings.COOKIE_DOMAIN else None
+
     # 1. HttpOnly Access Token Cookie
     response.set_cookie(
         key=settings.ACCESS_TOKEN_COOKIE_NAME,
@@ -194,7 +197,7 @@ def set_auth_cookies(
         httponly=True,
         secure=settings.COOKIE_SECURE,
         samesite=settings.COOKIE_SAMESITE,
-        domain=settings.COOKIE_DOMAIN,
+        domain=cookie_domain,
         path="/",
     )
 
@@ -206,7 +209,7 @@ def set_auth_cookies(
         httponly=True,
         secure=settings.COOKIE_SECURE,
         samesite=settings.COOKIE_SAMESITE,
-        domain=settings.COOKIE_DOMAIN,
+        domain=cookie_domain,
         path="/",
     )
 
@@ -218,7 +221,7 @@ def set_auth_cookies(
         httponly=False,  # Intentionally false for double-submit cookie pattern
         secure=settings.COOKIE_SECURE,
         samesite=settings.COOKIE_SAMESITE,
-        domain=settings.COOKIE_DOMAIN,
+        domain=cookie_domain,
         path="/",
     )
 

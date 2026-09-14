@@ -36,12 +36,13 @@ export const DistrictRiskChart: React.FC = () => {
     const isHigh = d.risk_level === 'HIGH';
     const isMedium = d.risk_level === 'MEDIUM';
 
+    const score = d.risk_score !== null && d.risk_score !== undefined ? Math.round(d.risk_score) : 0;
     return {
       district: d.district,
-      critical: isCritical ? Math.round(d.risk_score) : 0,
-      high: isHigh ? Math.round(d.risk_score) : 0,
-      medium: isMedium ? Math.round(d.risk_score) : 0,
-      low: !isCritical && !isHigh && !isMedium ? Math.round(d.risk_score) : 0,
+      critical: isCritical ? score : 0,
+      high: isHigh ? score : 0,
+      medium: isMedium ? score : 0,
+      low: !isCritical && !isHigh && !isMedium ? score : 0,
     };
   });
 

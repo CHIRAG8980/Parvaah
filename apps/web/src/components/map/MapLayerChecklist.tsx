@@ -38,7 +38,7 @@ export const MapLayerChecklist: React.FC<MapLayerChecklistProps> = ({
             onChange={() => onToggleLayer('weather')}
             className="w-3.5 h-3.5 text-[#1769D2] rounded border-[#CBD5E1] focus:ring-0 focus:ring-offset-0"
           />
-          <span>Weather (Rainfall)</span>
+          <span>Landslide Heatmap</span>
         </label>
 
         <label className="flex items-center gap-2 cursor-pointer select-none text-[#0F1F3D] font-medium hover:text-[#1769D2]">

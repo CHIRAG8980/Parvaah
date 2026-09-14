@@ -1,0 +1,1 @@
+"""Static Susceptibility Model Package"""

@@ -1,5 +1,5 @@
-export type RiskLevel = 'CRITICAL' | 'HIGH' | 'MEDIUM' | 'LOW';
-export type ConfidenceLevel = 'HIGH' | 'MEDIUM' | 'LOW';
+export type RiskLevel = 'CRITICAL' | 'HIGH' | 'MEDIUM' | 'LOW' | 'OUT_OF_COVERAGE';
+export type ConfidenceLevel = 'HIGH' | 'MEDIUM' | 'LOW' | 'OUT_OF_COVERAGE' | 'out_of_coverage';
 export type RoadStatus = 'operational' | 'at_risk' | 'blocked';
 export type AlertSeverity = 'Critical' | 'High' | 'Medium' | 'Low' | 'Info';
 export type AlertStatus = 'pending_review' | 'approved' | 'rejected' | 'auto_escalated' | 'resolved';
@@ -44,8 +44,15 @@ export interface ZoneSummaryResponse {
   risk_score: number;
   risk_level: RiskLevel;
   confidence: ConfidenceLevel;
+  historical_condition_window?: string | null;
   time_to_failure_window: string | null;
   created_at?: string;
+}
+
+export interface LandslideHeatmapResponse {
+  points: [number, number, number][]; // [lat, lng, intensity]
+  count: number;
+  source: string;
 }
 
 export interface ZoneDetailResponse extends ZoneSummaryResponse {
@@ -212,4 +219,105 @@ export interface SystemSettingsUpdateRequest {
 }
 
 export * from './auth-types';
+
+export interface StaticSusceptibilityDetails {
+  score: number | null;
+  category: string;
+  status: string;
+  model_type: string;
+  features: Record<string, number | null>;
+}
+
+export interface DynamicHazardDetails {
+  score: number | null;
+  trigger_state: string;
+  confidence: number | null;
+  status: string;
+  model_type: string;
+  rainfall_24h_mm: number;
+  rainfall_72h_mm: number;
+  rainfall_antecedent_7d_mm: number;
+}
+
+export interface LeadWindowDetails {
+  condition_class: number | null;
+  similarity_score: number | null;
+  description: string;
+  historical_condition_window?: string | null;
+  lead_days_min: number | null;
+  lead_days_max: number | null;
+  status: string;
+  model_type: string;
+}
+
+export interface FusionDetails {
+  score: number | null;
+  risk_level: string;
+  confidence_score: number | null;
+  confidence_level: string | null;
+  status: string;
+  model_type: string;
+}
+
+export interface ModelsBreakdown {
+  static_susceptibility: StaticSusceptibilityDetails;
+  dynamic_hazard: DynamicHazardDetails;
+  lead_window: LeadWindowDetails;
+  fusion: FusionDetails;
+}
+
+export interface DataSourceTelemetryItem {
+  source?: string;
+  status?: string;
+  quality?: string;
+  coherence?: number | null;
+  deformation_mm?: number | null;
+  los_deformation_m?: number | null;
+  fusion_weight?: number | null;
+  resolution?: string;
+  soil_moisture_pct?: number | null;
+  coverage?: string;
+  detail?: string;
+  [key: string]: string | number | boolean | null | undefined | string[];
+}
+
+export interface DataAvailabilityMap {
+  operational_provenance?: string;
+  geographic_coverage?: DataSourceTelemetryItem;
+  topography_cartodem?: DataSourceTelemetryItem;
+  geology_bhuvan?: DataSourceTelemetryItem;
+  meteorology_imd?: DataSourceTelemetryItem;
+  insar_nisar?: DataSourceTelemetryItem;
+  soil_moisture_eos04?: DataSourceTelemetryItem;
+  foreign_sources_policy?: {
+    status?: string;
+    sources?: string[];
+  };
+  [key: string]: DataSourceTelemetryItem | { status?: string; sources?: string[] } | string | undefined;
+}
+
+export interface UnifiedRiskPredictionResponse {
+  zone_id: string;
+  zone_name?: string | null;
+  risk_score: number | null;
+  risk_level: RiskLevel;
+  confidence?: ConfidenceLevel | null;
+  confidence_score: number | null;
+  historical_condition_window?: string | null;
+  time_to_failure_window?: string | null;
+  time_to_failure_min_days?: number | null;
+  time_to_failure_max_days?: number | null;
+  models: ModelsBreakdown;
+  data_availability: DataAvailabilityMap;
+  contributing_factors: string[];
+  model_version: string;
+  model_loaded: boolean;
+  preprocessor_loaded: boolean;
+  data_source: string;
+  rainfall_reading_timestamp?: string | null;
+  prediction_computed_at: string;
+  risk_score_id: string;
+  feature_importances: Record<string, number>;
+  explainability: ExplainabilityFactors;
+}
 

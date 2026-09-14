@@ -5,6 +5,17 @@ export interface LoginRequest {
   password?: string;
 }
 
+export interface RegisterDMORequest {
+  username: string;
+  password?: string;
+  full_name: string;
+  role?: string;
+  district: string;
+  state?: string;
+  contact_number?: string;
+  government_id?: string;
+}
+
 export interface PasswordChangeRequest {
   current_password: string;
   new_password: string;

@@ -144,7 +144,9 @@ export default function UsersPage() {
               <OfficerCard
                 key={officer.id}
                 officer={officer}
-                onDispatchCall={(target) => alert(`Direct dispatch call initiated to ${target.name}`)}
+                onDispatchCall={(target) => {
+                  window.location.href = `tel:${target.phone.replace(/\s+/g, '')}`;
+                }}
               />
             ))}
           </div>

@@ -70,7 +70,9 @@ class Settings(BaseModel):
         default_factory=lambda: os.getenv("COOKIE_SECURE", "false").lower() in ("true", "1")
     )
     COOKIE_SAMESITE: str = "lax"
-    COOKIE_DOMAIN: str | None = None
+    COOKIE_DOMAIN: str | None = Field(
+        default_factory=lambda: None if os.getenv("COOKIE_DOMAIN") in (None, "", "localhost") else os.getenv("COOKIE_DOMAIN")
+    )
     ACCESS_TOKEN_COOKIE_NAME: str = "parvaah_access_token"
     REFRESH_TOKEN_COOKIE_NAME: str = "parvaah_refresh_token"
     CSRF_COOKIE_NAME: str = "parvaah_csrf_token"

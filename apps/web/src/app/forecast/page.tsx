@@ -81,7 +81,7 @@ export default function ForecastPage() {
                   <th className="py-2.5 px-3 font-semibold">Avg Slope</th>
                   <th className="py-2.5 px-3 font-semibold">Risk Level</th>
                   <th className="py-2.5 px-3 font-semibold">Risk Index</th>
-                  <th className="py-2.5 px-3 font-semibold">Forecast Window</th>
+                  <th className="py-2.5 px-3 font-semibold">Pre-Event Profile</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-[#F1F5F9] text-[#0F1F3D]">
@@ -108,8 +108,8 @@ export default function ForecastPage() {
                           {z.risk_level}
                         </span>
                       </td>
-                      <td className="py-3 px-3 font-bold">{Math.round(z.risk_score)} / 100</td>
-                      <td className="py-3 px-3 text-[#536B8F] font-medium">{z.time_to_failure_window || 'Nominal Range'}</td>
+                      <td className="py-3 px-3 font-bold">{z.risk_score !== null && z.risk_score !== undefined ? `${Math.round(z.risk_score)} / 100` : 'OUT OF COVERAGE'}</td>
+                      <td className="py-3 px-3 text-[#536B8F] font-medium">{z.historical_condition_window || z.time_to_failure_window || 'Baseline Regime'}</td>
                     </tr>
                   );
                 })}

@@ -1,6 +1,9 @@
 """API endpoints for road network connectivity, hazards, and rerouting."""
 
+import csv
+import io
 from fastapi import APIRouter, Depends, HTTPException, Query
+from fastapi.responses import StreamingResponse
 from sqlalchemy.orm import Session
 from app.database import get_db
 from app.models.road import RoadSegment
@@ -9,6 +12,32 @@ from app.schemas.road import RoadSegmentResponse, RerouteRequest, RerouteRespons
 from app.services.road_service import RoadService
 
 router = APIRouter(prefix="/roads", tags=["Roads & Connectivity"])
+
+
+@router.get("/export")
+def export_roads_advisory_csv(db: Session = Depends(get_db)):
+    """Export road network status and blockage advisory to CSV."""
+    roads = RoadService.get_roads(db)
+    output = io.StringIO()
+    writer = csv.writer(output)
+    writer.writerow(["Road ID", "Highway Name", "Road Class", "District/Zone", "Status", "Blockage Reason", "Single Access", "Updated At"])
+    for r in roads:
+        writer.writerow([
+            r.road_id,
+            r.name,
+            r.road_class,
+            r.zone_id,
+            r.status.value if hasattr(r.status, "value") else str(r.status),
+            r.blockage_reason or "None",
+            "Yes" if r.is_single_access else "No",
+            r.status_updated_at.isoformat() if r.status_updated_at else "",
+        ])
+    output.seek(0)
+    return StreamingResponse(
+        iter([output.getvalue()]),
+        media_type="text/csv",
+        headers={"Content-Disposition": "attachment; filename=parvaah_road_corridors_advisory.csv"},
+    )
 
 
 @router.get("", response_model=list[RoadSegmentResponse])

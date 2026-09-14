@@ -9,15 +9,16 @@ export const HeaderUserProfile: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
   const { user, logout } = useAuth();
 
-  const name = user?.full_name || 'Shri S. K. Roy';
-  const role = user?.role || 'Disaster Management Officer';
-  const district = user?.district || 'East Khasi Hills';
+  const name = user?.full_name || 'Duty Officer';
+  const role = user?.role?.replace(/_/g, ' ') || 'Disaster Management Officer';
+  const district = user?.district || 'North East Region';
   const initials = name
     .split(' ')
+    .filter(Boolean)
     .map((n) => n[0])
     .join('')
     .slice(0, 2)
-    .toUpperCase() || 'DM';
+    .toUpperCase() || 'DO';
 
   return (
     <div className="relative">
