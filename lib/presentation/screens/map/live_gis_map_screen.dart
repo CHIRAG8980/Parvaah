@@ -363,36 +363,35 @@ class _LiveGisMapScreenState extends State<LiveGisMapScreen>
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
-                        // Left: Back button (if can pop or if enabled)
-                        GestureDetector(
-                          onTap: () {
-                            if (Navigator.canPop(context)) {
-                              Navigator.pop(context);
-                            }
-                          },
-                          child: Container(
-                            width: 44,
-                            height: 44,
-                            decoration: BoxDecoration(
-                              color: Colors.white,
-                              borderRadius: BorderRadius.circular(14),
-                              boxShadow: [
-                                BoxShadow(
-                                  color: Colors.black.withAlpha(15),
-                                  blurRadius: 10,
-                                  offset: const Offset(0, 2),
+                        // Left: Back button (if can pop and enabled) or Spacer
+                        if (widget.showBackButton && Navigator.canPop(context))
+                          GestureDetector(
+                            onTap: () => Navigator.pop(context),
+                            child: Container(
+                              width: 44,
+                              height: 44,
+                              decoration: BoxDecoration(
+                                color: Colors.white,
+                                borderRadius: BorderRadius.circular(14),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: Colors.black.withAlpha(15),
+                                    blurRadius: 10,
+                                    offset: const Offset(0, 2),
+                                  ),
+                                ],
+                              ),
+                              child: const Center(
+                                child: Icon(
+                                  Icons.chevron_left_rounded,
+                                  size: 28,
+                                  color: Color(0xFF0F243E),
                                 ),
-                              ],
-                            ),
-                            child: const Center(
-                              child: Icon(
-                                Icons.chevron_left_rounded,
-                                size: 28,
-                                color: Color(0xFF0F243E),
                               ),
                             ),
-                          ),
-                        ),
+                          )
+                        else
+                          const SizedBox(width: 44, height: 44),
 
                         // Center: Title & Subtitle
                         Column(

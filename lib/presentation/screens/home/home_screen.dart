@@ -44,12 +44,6 @@ class HomeScreen extends StatelessWidget {
     final primaryAlert = alertProvider.primaryActiveAlert;
     final hasActiveAlert = primaryAlert != null;
 
-    if (alertProvider.allAlerts.isNotEmpty) {
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        notifProvider.syncFromAlerts(alertProvider.allAlerts);
-      });
-    }
-
     final alertTitle = hasActiveAlert ? primaryAlert.title : 'All Monitored Zones Stable';
     final alertSubtitle = hasActiveAlert
         ? '${primaryAlert.region} • ${primaryAlert.severity.name.toUpperCase()}'
@@ -109,6 +103,7 @@ class HomeScreen extends StatelessWidget {
             await alertProvider.loadAlerts();
             await roadProvider.loadRoads();
             await safetyProvider.loadArticles();
+            notifProvider.syncFromAlerts(alertProvider.allAlerts);
           },
           color: const Color(0xFF1E88E5),
           child: SingleChildScrollView(

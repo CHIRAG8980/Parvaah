@@ -92,8 +92,12 @@ class _SplashScreenState extends State<SplashScreen>
   Future<void> _runRealInitializationSequence() async {
     try {
       // Milestone 1: Local cache & user session check (0% -> 22%)
-      await _animateProgressTo(0.22, 'INITIALIZING SYSTEM...', durationMs: 450);
-      await Future.delayed(const Duration(milliseconds: 150));
+      if (mounted) {
+        final authProvider = context.read<AuthProvider>();
+        final authFuture = authProvider.initialAuthFuture;
+        await _animateProgressTo(0.22, 'INITIALIZING SYSTEM...', durationMs: 450);
+        await authFuture;
+      }
 
       // Milestone 2: Pre-warming live landslide risk telemetry (22% -> 54%)
       if (mounted) {

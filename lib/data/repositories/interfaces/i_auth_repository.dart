@@ -22,5 +22,7 @@ abstract class IAuthRepository {
 
   Future<bool> isAuthenticated();
 
+  Future<void> saveUserProfileLocally(UserProfileModel user);
+
   Future<void> logout();
 }
