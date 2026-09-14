@@ -13,7 +13,6 @@ out/
 build/
 dist/
 *.tsbuildinfo
-next-env.d.ts
 
 # Environment variables & secrets
 .env
@@ -74,6 +73,7 @@ htmlcov/
 !apps/ml-engine/models/**/saved_models/**
 
 # Datasets & Geodata (Raw, Processed, Maps, GeoTIFF, Rasters)
+apps/ml-engine/data/**
 *.csv
 *.tsv
 *.parquet
@@ -90,8 +90,9 @@ htmlcov/
 *.tar
 *.tar.gz
 *.tgz
+*.h5
+*.pdf
 GeoTIFF/
-**/data/
 **/datasets/
 **/outputs/maps/
 **/outputs/predictions/
@@ -100,8 +101,20 @@ GeoTIFF/
 **/outputs/metrics/
 **/outputs/reports/
 
-# Exceptions: keep schemas and directory placeholders only
+# Exceptions: keep schemas, core ground-truth inventories, output JSONs and directory placeholders
 !apps/mobile/lib/**
+!apps/ml-engine/data/
+!apps/ml-engine/data/schemas/
+!apps/ml-engine/data/schemas/**
+!apps/ml-engine/data/raw/
+!apps/ml-engine/data/raw/ground_truth/
+!apps/ml-engine/data/raw/ground_truth/meghalaya_1330_landslides.geojson
+!apps/ml-engine/data/raw/ground_truth/meghalaya_1330_landslides.csv
+!apps/ml-engine/data/raw/ground_truth/isro_nrsc_landslide_atlas/
+!apps/ml-engine/data/raw/ground_truth/isro_nrsc_landslide_atlas/meghalaya_landslides_clean.csv
+!apps/ml-engine/data/processed/
+!apps/ml-engine/data/processed/outputs/
+!apps/ml-engine/data/processed/outputs/*.json
 !**/data/schemas/
 !**/data/schemas/**
 !**/.gitkeep
@@ -121,8 +134,6 @@ ephemeral/
 # Android build artifacts
 **/android/.gradle/
 **/android/captures/
-**/android/gradlew
-**/android/gradlew.bat
 **/android/local.properties
 **/android/**/GeneratedPluginRegistrant.java
 

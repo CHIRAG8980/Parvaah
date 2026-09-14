@@ -1,0 +1,343 @@
+{
+  "validation_timestamp": "2026-09-13T00:33:46.391713",
+  "source": "India Meteorological Department (IMD)",
+  "data_directory": "/home/pratham/Disk2/Hackathon Projects/SIH 2026/Parvaah/apps/ml-engine/data/raw/imd/gridded_rainfall_historical",
+  "files": [
+    {
+      "filename": "IMD_rainfall_2019.nc",
+      "file_size_mb": 24.29,
+      "variables": [
+        "rain"
+      ],
+      "dimensions": {
+        "time": 365,
+        "lat": 129,
+        "lon": 135
+      },
+      "date_range": {
+        "start": "2019-01-01",
+        "end": "2019-12-31"
+      },
+      "temporal_days": 365,
+      "spatial_resolution": {
+        "lat": 0.25,
+        "lon": 0.25
+      },
+      "coordinate_ranges": {
+        "lat": [
+          6.5,
+          38.5
+        ],
+        "lon": [
+          66.5,
+          100.0
+        ]
+      },
+      "data_quality": {
+        "total_values": 6356475,
+        "missing_values": 4544615,
+        "missing_percentage": 71.5,
+        "min_rainfall_mm": 0.0,
+        "max_rainfall_mm": 487.10498046875,
+        "mean_rainfall_mm": 3.476679801940918,
+        "negative_values": 0
+      },
+      "meghalaya_coverage": {
+        "bbox": {
+          "lat_min": 25.0,
+          "lat_max": 25.8,
+          "lon_min": 91.5,
+          "lon_max": 92.0
+        },
+        "grid_cells_in_bbox": 12,
+        "total_values": 4380,
+        "missing_percentage": 25.0,
+        "mean_rainfall_mm": 9.704421043395996
+      }
+    },
+    {
+      "filename": "IMD_rainfall_2020.nc",
+      "file_size_mb": 24.35,
+      "variables": [
+        "rain"
+      ],
+      "dimensions": {
+        "time": 366,
+        "lat": 129,
+        "lon": 135
+      },
+      "date_range": {
+        "start": "2020-01-01",
+        "end": "2020-12-31"
+      },
+      "temporal_days": 366,
+      "spatial_resolution": {
+        "lat": 0.25,
+        "lon": 0.25
+      },
+      "coordinate_ranges": {
+        "lat": [
+          6.5,
+          38.5
+        ],
+        "lon": [
+          66.5,
+          100.0
+        ]
+      },
+      "data_quality": {
+        "total_values": 6373890,
+        "missing_values": 4557066,
+        "missing_percentage": 71.5,
+        "min_rainfall_mm": 0.0,
+        "max_rainfall_mm": 539.9127807617188,
+        "mean_rainfall_mm": 3.4876961708068848,
+        "negative_values": 0
+      },
+      "meghalaya_coverage": {
+        "bbox": {
+          "lat_min": 25.0,
+          "lat_max": 25.8,
+          "lon_min": 91.5,
+          "lon_max": 92.0
+        },
+        "grid_cells_in_bbox": 12,
+        "total_values": 4392,
+        "missing_percentage": 25.0,
+        "mean_rainfall_mm": 13.938063621520996
+      }
+    },
+    {
+      "filename": "IMD_rainfall_2021.nc",
+      "file_size_mb": 24.29,
+      "variables": [
+        "rain"
+      ],
+      "dimensions": {
+        "time": 365,
+        "lat": 129,
+        "lon": 135
+      },
+      "date_range": {
+        "start": "2021-01-01",
+        "end": "2021-12-31"
+      },
+      "temporal_days": 365,
+      "spatial_resolution": {
+        "lat": 0.25,
+        "lon": 0.25
+      },
+      "coordinate_ranges": {
+        "lat": [
+          6.5,
+          38.5
+        ],
+        "lon": [
+          66.5,
+          100.0
+        ]
+      },
+      "data_quality": {
+        "total_values": 6356475,
+        "missing_values": 4544615,
+        "missing_percentage": 71.5,
+        "min_rainfall_mm": 0.0,
+        "max_rainfall_mm": 526.7105712890625,
+        "mean_rainfall_mm": 3.356478214263916,
+        "negative_values": 0
+      },
+      "meghalaya_coverage": {
+        "bbox": {
+          "lat_min": 25.0,
+          "lat_max": 25.8,
+          "lon_min": 91.5,
+          "lon_max": 92.0
+        },
+        "grid_cells_in_bbox": 12,
+        "total_values": 4380,
+        "missing_percentage": 25.0,
+        "mean_rainfall_mm": 7.977636337280273
+      }
+    },
+    {
+      "filename": "IMD_rainfall_2022.nc",
+      "file_size_mb": 24.29,
+      "variables": [
+        "rain"
+      ],
+      "dimensions": {
+        "time": 365,
+        "lat": 129,
+        "lon": 135
+      },
+      "date_range": {
+        "start": "2022-01-01",
+        "end": "2022-12-31"
+      },
+      "temporal_days": 365,
+      "spatial_resolution": {
+        "lat": 0.25,
+        "lon": 0.25
+      },
+      "coordinate_ranges": {
+        "lat": [
+          6.5,
+          38.5
+        ],
+        "lon": [
+          66.5,
+          100.0
+        ]
+      },
+      "data_quality": {
+        "total_values": 6356475,
+        "missing_values": 4544615,
+        "missing_percentage": 71.5,
+        "min_rainfall_mm": 0.0,
+        "max_rainfall_mm": 979.144775390625,
+        "mean_rainfall_mm": 3.4443230628967285,
+        "negative_values": 0
+      },
+      "meghalaya_coverage": {
+        "bbox": {
+          "lat_min": 25.0,
+          "lat_max": 25.8,
+          "lon_min": 91.5,
+          "lon_max": 92.0
+        },
+        "grid_cells_in_bbox": 12,
+        "total_values": 4380,
+        "missing_percentage": 25.0,
+        "mean_rainfall_mm": 12.491521835327148
+      }
+    },
+    {
+      "filename": "IMD_rainfall_2023.nc",
+      "file_size_mb": 24.29,
+      "variables": [
+        "rain"
+      ],
+      "dimensions": {
+        "time": 365,
+        "lat": 129,
+        "lon": 135
+      },
+      "date_range": {
+        "start": "2023-01-01",
+        "end": "2023-12-31"
+      },
+      "temporal_days": 365,
+      "spatial_resolution": {
+        "lat": 0.25,
+        "lon": 0.25
+      },
+      "coordinate_ranges": {
+        "lat": [
+          6.5,
+          38.5
+        ],
+        "lon": [
+          66.5,
+          100.0
+        ]
+      },
+      "data_quality": {
+        "total_values": 6356475,
+        "missing_values": 4544694,
+        "missing_percentage": 71.5,
+        "min_rainfall_mm": 0.0,
+        "max_rainfall_mm": 689.0372314453125,
+        "mean_rainfall_mm": 2.9621636867523193,
+        "negative_values": 0
+      },
+      "meghalaya_coverage": {
+        "bbox": {
+          "lat_min": 25.0,
+          "lat_max": 25.8,
+          "lon_min": 91.5,
+          "lon_max": 92.0
+        },
+        "grid_cells_in_bbox": 12,
+        "total_values": 4380,
+        "missing_percentage": 25.0,
+        "mean_rainfall_mm": 7.9624481201171875
+      }
+    },
+    {
+      "filename": "IMD_rainfall_2024.nc",
+      "file_size_mb": 24.35,
+      "variables": [
+        "rain"
+      ],
+      "dimensions": {
+        "time": 366,
+        "lat": 129,
+        "lon": 135
+      },
+      "date_range": {
+        "start": "2024-01-01",
+        "end": "2024-12-31"
+      },
+      "temporal_days": 366,
+      "spatial_resolution": {
+        "lat": 0.25,
+        "lon": 0.25
+      },
+      "coordinate_ranges": {
+        "lat": [
+          6.5,
+          38.5
+        ],
+        "lon": [
+          66.5,
+          100.0
+        ]
+      },
+      "data_quality": {
+        "total_values": 6373890,
+        "missing_values": 4557066,
+        "missing_percentage": 71.5,
+        "min_rainfall_mm": 0.0,
+        "max_rainfall_mm": 660.5491943359375,
+        "mean_rainfall_mm": 3.3205580711364746,
+        "negative_values": 0
+      },
+      "meghalaya_coverage": {
+        "bbox": {
+          "lat_min": 25.0,
+          "lat_max": 25.8,
+          "lon_min": 91.5,
+          "lon_max": 92.0
+        },
+        "grid_cells_in_bbox": 12,
+        "total_values": 4392,
+        "missing_percentage": 25.0,
+        "mean_rainfall_mm": 9.535555839538574
+      }
+    }
+  ],
+  "summary": {
+    "total_files": 6,
+    "successful_files": 6,
+    "total_days": 2192,
+    "date_range": {
+      "start": "2019-01-01",
+      "end": "2024-12-31"
+    },
+    "temporal_span_days": 2191,
+    "temporal_span_years": 6.0,
+    "meets_5year_requirement": true,
+    "spatial_coverage": "Pan-India (6.5\u00b0N-38.5\u00b0N, 66.5\u00b0E-100\u00b0E)",
+    "spatial_resolution": "0.25\u00b0 \u00d7 0.25\u00b0 (~25 km)",
+    "meghalaya_coverage": "YES - East Khasi Hills fully covered",
+    "data_format": "NetCDF",
+    "total_size_mb": 145.86
+  },
+  "cumulative_test": {
+    "test_date": "2019-01-11",
+    "rainfall_24h_mm": 0.04,
+    "rainfall_72h_mm": 0.1,
+    "rainfall_7d_mm": 0.65,
+    "status": "SUCCESS"
+  }
+}
