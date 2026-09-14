@@ -5,11 +5,12 @@ class SafetyProvider extends ChangeNotifier {
   final List<SafetyArticleModel> _articles = [
     const SafetyArticleModel(
       id: 'guide-landslide-safety',
-      title: 'Landslide Early Warning & Hill Safety',
-      category: 'Geological Hazard',
-      shortDescription:
-          'Essential protocol for slope deformation, sudden spring discharges, and emergency hill evacuation.',
-      iconCode: 'terrain',
+      title: 'Landslide Safety',
+      category: 'Geological',
+      tag: 'GEOLOGICAL',
+      shortDescription: 'Know the key precautions in hilly areas.',
+      iconCode: 'landscape',
+      assetImage: 'assets/images/safety_landslide_art.jpg',
       beforeGuidelines: [
         'Identify vulnerable slopes, retaining walls, and history of debris flow near your residence.',
         'Watch for tilting utility poles, leaning trees, or fresh cracks in masonry foundations.',
@@ -28,11 +29,12 @@ class SafetyProvider extends ChangeNotifier {
     ),
     const SafetyArticleModel(
       id: 'guide-heavy-rainfall',
-      title: 'Monsoon Torrential Rain & Inundation',
-      category: 'Meteorological Hazard',
-      shortDescription:
-          'Actionable steps to safeguard family and property during extreme monsoon downpours across NER.',
+      title: 'Heavy Rainfall',
+      category: 'Meteorological',
+      tag: 'METEOROLOGICAL',
+      shortDescription: 'Stay safe during extreme weather.',
       iconCode: 'thunderstorm',
+      assetImage: 'assets/images/safety_heavy_rain_art.jpg',
       beforeGuidelines: [
         'Clear domestic roof gutters, drains, and road culverts of accumulated silt and foliage.',
         'Stock emergency potable drinking water and water-purification tablets for minimum 72 hours.',
@@ -51,11 +53,12 @@ class SafetyProvider extends ChangeNotifier {
     ),
     const SafetyArticleModel(
       id: 'guide-flash-flood',
-      title: 'Riverine Flash Floods & Dam Surges',
-      category: 'Hydrological Hazard',
-      shortDescription:
-          'Rapid response guidelines for sudden river surges, cloudburst runoff, and valley flash flooding.',
-      iconCode: 'water_drop',
+      title: 'Flash Flood Safety',
+      category: 'Hydrological',
+      tag: 'HYDROLOGICAL',
+      shortDescription: 'Be prepared for sudden river rises.',
+      iconCode: 'water',
+      assetImage: 'assets/images/safety_flash_flood_art.jpg',
       beforeGuidelines: [
         'Know the shortest elevated pedestrian evacuation routes to higher hill slopes.',
         'Never construct dwelling units inside the designated active flood plains or dry riverbeds.',
@@ -75,23 +78,40 @@ class SafetyProvider extends ChangeNotifier {
   ];
 
   String _selectedCategory = 'All';
+  String _searchQuery = '';
 
   List<SafetyArticleModel> get articles {
-    if (_selectedCategory == 'All') return _articles;
-    return _articles.where((article) => article.category == _selectedCategory).toList();
+    var list = _articles;
+    if (_selectedCategory != 'All') {
+      list = list.where((article) => article.category.toLowerCase() == _selectedCategory.toLowerCase()).toList();
+    }
+    if (_searchQuery.trim().isNotEmpty) {
+      final q = _searchQuery.toLowerCase().trim();
+      list = list.where((a) =>
+          a.title.toLowerCase().contains(q) ||
+          a.shortDescription.toLowerCase().contains(q) ||
+          a.category.toLowerCase().contains(q)).toList();
+    }
+    return list;
   }
 
   String get selectedCategory => _selectedCategory;
+  String get searchQuery => _searchQuery;
 
   List<String> get categories => const [
         'All',
-        'Geological Hazard',
-        'Meteorological Hazard',
-        'Hydrological Hazard',
+        'Geological',
+        'Meteorological',
+        'Hydrological',
       ];
 
   void selectCategory(String category) {
     _selectedCategory = category;
+    notifyListeners();
+  }
+
+  void setSearchQuery(String query) {
+    _searchQuery = query;
     notifyListeners();
   }
 

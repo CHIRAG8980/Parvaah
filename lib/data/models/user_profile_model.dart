@@ -11,6 +11,7 @@ class UserProfileModel {
   final String selectedLanguage;
   final bool notificationsEnabled;
   final List<String> emergencyContacts;
+  final String? avatarPath;
 
   const UserProfileModel({
     this.userId = '',
@@ -25,6 +26,7 @@ class UserProfileModel {
     this.selectedLanguage = 'en',
     this.notificationsEnabled = true,
     this.emergencyContacts = const ['1077', '112'],
+    this.avatarPath,
   });
 
   factory UserProfileModel.fromJson(Map<String, dynamic> json) {
@@ -44,6 +46,7 @@ class UserProfileModel {
               ?.map((e) => e.toString())
               .toList() ??
           const ['1077', '112'],
+      avatarPath: json['avatar_path'] as String? ?? json['avatarPath'] as String?,
     );
   }
 
@@ -60,6 +63,7 @@ class UserProfileModel {
         'selected_language': selectedLanguage,
         'notifications_enabled': notificationsEnabled,
         'emergency_contacts': emergencyContacts,
+        'avatar_path': avatarPath,
       };
 
   UserProfileModel copyWith({
@@ -75,6 +79,7 @@ class UserProfileModel {
     String? selectedLanguage,
     bool? notificationsEnabled,
     List<String>? emergencyContacts,
+    String? avatarPath,
   }) {
     return UserProfileModel(
       userId: userId ?? this.userId,
@@ -89,6 +94,7 @@ class UserProfileModel {
       selectedLanguage: selectedLanguage ?? this.selectedLanguage,
       notificationsEnabled: notificationsEnabled ?? this.notificationsEnabled,
       emergencyContacts: emergencyContacts ?? this.emergencyContacts,
+      avatarPath: avatarPath ?? this.avatarPath,
     );
   }
 }

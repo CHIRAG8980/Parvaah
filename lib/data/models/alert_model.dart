@@ -15,6 +15,9 @@ class AlertModel {
   final String? instructions;
   final String language;
   final List<String> availableLanguages;
+  final String? assetImage;
+  final String? imageUrl;
+  final String? helpline;
 
   const AlertModel({
     required this.id,
@@ -31,6 +34,9 @@ class AlertModel {
     this.instructions,
     this.language = 'en',
     this.availableLanguages = const ['en'],
+    this.assetImage,
+    this.imageUrl,
+    this.helpline,
   });
 
   factory AlertModel.fromJson(Map<String, dynamic> json) {
@@ -79,6 +85,9 @@ class AlertModel {
       instructions: json['instructions'] as String? ?? json['suggested_action'] as String?,
       language: json['language'] as String? ?? 'en',
       availableLanguages: languagesList,
+      assetImage: json['asset_image'] as String? ?? json['assetImage'] as String?,
+      imageUrl: json['image_url'] as String? ?? json['imageUrl'] as String?,
+      helpline: json['helpline'] as String? ?? (sev == AlertSeverity.critical || sev == AlertSeverity.high ? '1077' : null),
     );
   }
 
@@ -100,24 +109,50 @@ class AlertModel {
         'instructions': instructions,
         'language': language,
         'available_languages': availableLanguages,
+        'asset_image': assetImage,
+        'image_url': imageUrl,
+        'helpline': helpline,
       };
 
-  AlertModel copyWith({bool? isRead}) {
+  AlertModel copyWith({
+    bool? isRead,
+    String? title,
+    String? message,
+    String? region,
+    AlertSeverity? severity,
+    DateTime? timestamp,
+    String? assetImage,
+    String? imageUrl,
+    String? helpline,
+    String? instructions,
+  }) {
     return AlertModel(
       id: id,
-      title: title,
-      message: message,
-      region: region,
+      title: title ?? this.title,
+      message: message ?? this.message,
+      region: region ?? this.region,
       zoneId: zoneId,
       district: district,
       state: state,
-      severity: severity,
-      timestamp: timestamp,
+      severity: severity ?? this.severity,
+      timestamp: timestamp ?? this.timestamp,
       isRead: isRead ?? this.isRead,
       actionLabel: actionLabel,
-      instructions: instructions,
+      instructions: instructions ?? this.instructions,
       language: language,
       availableLanguages: availableLanguages,
+      assetImage: assetImage ?? this.assetImage,
+      imageUrl: imageUrl ?? this.imageUrl,
+      helpline: helpline ?? this.helpline,
     );
+  }
+
+  String get timeAgoFormatted {
+    final diff = DateTime.now().difference(timestamp);
+    if (diff.inMinutes < 1) return 'Just now';
+    if (diff.inMinutes < 60) return '${diff.inMinutes}m ago';
+    if (diff.inHours < 24) return '${diff.inHours}h ago';
+    if (diff.inDays < 7) return '${diff.inDays}d ago';
+    return '${(diff.inDays / 7).floor()}w ago';
   }
 }

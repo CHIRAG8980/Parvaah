@@ -16,6 +16,19 @@ class CacheService {
   static const String keyUserName = 'parvaah_user_name';
   static const String keyUserEmail = 'parvaah_user_email';
   static const String keyUserPhone = 'parvaah_user_phone';
+  static const String keyUserAvatar = 'parvaah_user_avatar';
+
+  String? getAvatarPath() {
+    final val = _prefs.getString(keyUserAvatar);
+    return (val != null && val.isNotEmpty) ? val : null;
+  }
+
+  Future<bool> setAvatarPath(String? path) {
+    if (path == null || path.isEmpty) {
+      return _prefs.remove(keyUserAvatar);
+    }
+    return _prefs.setString(keyUserAvatar, path);
+  }
 
   List<Map<String, dynamic>>? getJsonList(String key) {
     final raw = _prefs.getString(key);

@@ -68,6 +68,24 @@ class SafetyDetailScreen extends StatelessWidget {
               ),
             ),
 
+            const SizedBox(height: 16),
+
+            ClipRRect(
+              borderRadius: BorderRadius.circular(18),
+              child: SizedBox(
+                height: 170,
+                width: double.infinity,
+                child: Image.asset(
+                  article.assetImage,
+                  fit: BoxFit.cover,
+                  errorBuilder: (context, error, stackTrace) => Container(
+                    color: const Color(0xFFE2E8F0),
+                    child: const Icon(Icons.terrain_rounded, size: 48, color: Color(0xFF94A3B8)),
+                  ),
+                ),
+              ),
+            ),
+
             const SizedBox(height: 20),
 
             // "Before" Section matching prompt Section 30

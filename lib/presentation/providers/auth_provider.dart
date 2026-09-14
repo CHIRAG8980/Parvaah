@@ -136,6 +136,11 @@ class AuthProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  Future<void> updateAvatar(String? path) async {
+    _user = _user.copyWith(avatarPath: path);
+    notifyListeners();
+  }
+
   Future<void> signOut() async {
     await _authRepository.logout();
     _isLoggedIn = false;
