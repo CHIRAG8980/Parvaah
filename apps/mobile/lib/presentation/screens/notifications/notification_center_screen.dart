@@ -7,25 +7,43 @@ import '../../providers/alert_provider.dart';
 import '../../providers/notification_provider.dart';
 import '../../widgets/common/state_empty_view.dart';
 
-class NotificationCenterScreen extends StatelessWidget {
+class NotificationCenterScreen extends StatefulWidget {
   const NotificationCenterScreen({super.key});
+
+  @override
+  State<NotificationCenterScreen> createState() => _NotificationCenterScreenState();
+}
+
+class _NotificationCenterScreenState extends State<NotificationCenterScreen> {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      final alerts = context.read<AlertProvider>().allAlerts;
+      context.read<NotificationProvider>().syncFromAlerts(alerts);
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
     final notifProvider = context.watch<NotificationProvider>();
     final alertProvider = context.watch<AlertProvider>();
 
-    if (alertProvider.allAlerts.isNotEmpty) {
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        notifProvider.syncFromAlerts(alertProvider.allAlerts);
-      });
-    }
-
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
         title: const Text('Notifications'),
         actions: [
+          IconButton(
+            icon: const Icon(Icons.refresh_rounded),
+            onPressed: () async {
+              await alertProvider.loadAlerts(forceRefresh: true);
+              if (context.mounted) {
+                notifProvider.syncFromAlerts(alertProvider.allAlerts);
+              }
+            },
+          ),
           if (notifProvider.unreadCount > 0)
             TextButton(
               onPressed: () => notifProvider.markAllAsRead(),

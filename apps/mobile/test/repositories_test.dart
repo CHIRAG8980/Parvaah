@@ -78,8 +78,22 @@ void main() {
       expect(cacheService.getBool(CacheService.keyIsLoggedIn), true);
       expect(await authRepo.isAuthenticated(), true);
 
+      // Verify offline profile retrieval returns cached details
+      final offlineProfile = await authRepo.getCurrentUserProfile();
+      expect(offlineProfile.name, 'Officer In-charge');
+      expect(offlineProfile.role, 'dmo');
+      expect(offlineProfile.district, 'East Khasi Hills');
+
+      // Verify saving user profile updates locally
+      await authRepo.saveUserProfileLocally(offlineProfile.copyWith(name: 'Updated Officer Name'));
+      expect(cacheService.getString(CacheService.keyUserName), 'Updated Officer Name');
+      final cachedJson = cacheService.getJsonObject(CacheService.keyUserProfileJson);
+      expect(cachedJson?['name'], 'Updated Officer Name');
+
       await authRepo.logout();
       expect(await authRepo.isAuthenticated(), false);
+      expect(cacheService.getBool(CacheService.keyIsLoggedIn), false);
+      expect(cacheService.getJsonObject(CacheService.keyUserProfileJson), null);
     });
   });
 
