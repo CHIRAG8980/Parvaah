@@ -13,12 +13,18 @@ class ApiConstants {
     if (_customBaseUrl != null && _customBaseUrl!.isNotEmpty) {
       return _customBaseUrl!;
     }
+    const envUrl = String.fromEnvironment('API_BASE_URL');
+    if (envUrl.isNotEmpty) {
+      return envUrl;
+    }
     if (kIsWeb) {
       return 'http://localhost:8000/api/v1';
     }
     if (defaultTargetPlatform == TargetPlatform.android) {
+      // Android emulator uses 10.0.2.2; for physical devices with `adb reverse tcp:8000 tcp:8000` or custom IP:
       return 'http://10.0.2.2:8000/api/v1';
     }
+    // iOS simulator / physical device on same network
     return 'http://127.0.0.1:8000/api/v1';
   }
 
@@ -32,6 +38,15 @@ class ApiConstants {
   static String zoneDetail(String zoneId) => '/zones/$zoneId/detail';
   static String zoneRisk(String zoneId) => '/zones/$zoneId/risk';
   static String zoneForecast(String zoneId) => '/zones/$zoneId/forecast';
+
+  // ML Prediction endpoints
+  static String predictZone(String zoneId) => '/predict/zone/$zoneId';
+  static const String predictMultiModal = '/predict/multi-modal';
+  static const String predictSimulate = '/predict/simulate';
+  static const String modelVersion = '/predict/model/version';
+
+  // Data source health
+  static const String datasourcesHealth = '/datasources/health';
 
   // Alerts
   static const String activeAlerts = '/alerts/active';
@@ -53,5 +68,5 @@ class ApiConstants {
   static const String getForecast = weatherForecast;
   static const String getUserProfile = currentUser;
 
-  static const Duration timeout = Duration(seconds: 15);
+  static const Duration timeout = Duration(seconds: 30);
 }

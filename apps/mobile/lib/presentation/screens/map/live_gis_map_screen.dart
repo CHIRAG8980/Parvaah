@@ -253,8 +253,8 @@ class _LiveGisMapScreenState extends State<LiveGisMapScreen>
                                     color: const Color(0xFFE0F2FE),
                                     borderRadius: BorderRadius.circular(8),
                                   ),
-                                  child: Icon(
-                                    selectedZone.factors.rainfall24hMm > 30
+                                   child: Icon(
+                                    (selectedZone.factors.rainfall24hMm ?? 0) > 30
                                         ? Icons.thunderstorm_rounded
                                         : Icons.grain_rounded,
                                     color: const Color(0xFF0284C7),
@@ -278,7 +278,9 @@ class _LiveGisMapScreenState extends State<LiveGisMapScreen>
                                         ),
                                       ),
                                       Text(
-                                        '${selectedZone.factors.rainfall24hMm.toStringAsFixed(0)}mm Rain',
+                                        selectedZone.factors.rainfall24hMm != null
+                                            ? '${selectedZone.factors.rainfall24hMm!.toStringAsFixed(0)}mm Rain'
+                                            : 'Rain: N/A',
                                         maxLines: 1,
                                         overflow: TextOverflow.ellipsis,
                                         style: const TextStyle(

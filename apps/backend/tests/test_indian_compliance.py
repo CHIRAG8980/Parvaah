@@ -78,7 +78,7 @@ def test_no_usgs_in_backend_runtime():
 
 def test_no_fake_sensor_defaults_in_ml_service():
     """Verify that ml_service does not inject fake InSAR or soil moisture defaults."""
-    score, level, conf, min_d, max_d, factors = ml_service.predict_risk(
+    score, level, conf, min_d, max_d, factors, conf_score = ml_service.predict_risk(
         slope_deg=30.0,
         rainfall_24h_mm=0.0,
         rainfall_72h_mm=0.0,

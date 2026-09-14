@@ -159,8 +159,14 @@ class MLService:
         static_features: dict[str, float] | None = None,
         lat: float | None = None,
         lon: float | None = None,
-    ) -> tuple[float, RiskLevel, ConfidenceLevel, int | None, int | None, ExplainabilityFactors]:
-        """Evaluate full multi-modal risk and return standard 6-tuple."""
+    ) -> tuple[float, RiskLevel, ConfidenceLevel, int | None, int | None, ExplainabilityFactors, float]:
+        """Evaluate full multi-modal risk and return standard 7-tuple.
+
+        The 7th element is the real model-computed confidence score (0-1),
+        as opposed to `conf` (the 3rd element) which is only the bucketed
+        ConfidenceLevel. Callers persisting a RiskScore record should use
+        the raw float, not a hardcoded constant keyed off the bucket.
+        """
         nisar_m = (insar_deformation_mm_yr / 1000.0) if insar_deformation_mm_yr is not None else None
         res = self.predict_unified(
             slope_deg=slope_deg,
@@ -200,6 +206,7 @@ class MLService:
             min_days,
             max_days,
             factors,
+            res.confidence_score,
         )
 
     def predict_risk_for_zone(
@@ -211,7 +218,7 @@ class MLService:
         rainfall_antecedent_7d_mm: float | None = None,
         rainfall_14d_mm: float | None = None,
         rainfall_30d_mm: float | None = None,
-    ) -> tuple[float, RiskLevel, ConfidenceLevel, int | None, int | None, ExplainabilityFactors]:
+    ) -> tuple[float, RiskLevel, ConfidenceLevel, int | None, int | None, ExplainabilityFactors, float]:
         """Fetch Indian primary features from DB for zone and evaluate risk."""
         from app.models.zone import Zone, TerrainFeature
 

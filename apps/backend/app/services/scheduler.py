@@ -63,7 +63,7 @@ def _run_prediction_cycle_sync() -> dict[str, int]:
                 r7d = round(r72 * 1.5, 1)
 
                 # ML inference using verified Indian inputs
-                score, level, conf, min_d, max_d, factors = (
+                score, level, conf, min_d, max_d, factors, conf_score = (
                     ml_service.predict_risk_for_zone(
                         db=db,
                         zone_id=zone.zone_id,
@@ -73,6 +73,7 @@ def _run_prediction_cycle_sync() -> dict[str, int]:
                     )
                 )
 
+                ts_unix = int(now.timestamp())
                 ts_micro = int(now.timestamp() * 1000)
                 risk_id = f"rs-imd-{zone.zone_id.lower()}-{ts_micro}"
 
@@ -83,7 +84,7 @@ def _run_prediction_cycle_sync() -> dict[str, int]:
                     risk_score_numeric=score,
                     time_to_failure_min_days=min_d,
                     time_to_failure_max_days=max_d,
-                    confidence_score=0.92 if conf.value == "HIGH" else 0.75,
+                    confidence_score=conf_score,
                     model_version=ml_service.model_version,
                     explainability_json=factors.model_dump_json(),
                     computed_at=now,

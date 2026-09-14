@@ -66,16 +66,6 @@ class _LoginRegisterScreenState extends State<LoginRegisterScreen> {
     }
   }
 
-  void _submitGoogle() async {
-    await context.read<AuthProvider>().signInWithGoogle();
-    if (mounted) {
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (_) => const MainNavigationShell()),
-      );
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     final auth = context.watch<AuthProvider>();
@@ -173,7 +163,7 @@ class _LoginRegisterScreenState extends State<LoginRegisterScreen> {
                         ),
                 ),
                 const SizedBox(height: 20),
-                SocialAuthButtons(onGooglePressed: _submitGoogle, onPhonePressed: _submit),
+                SocialAuthButtons(onPhonePressed: _submit),
                 const SizedBox(height: 20),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,

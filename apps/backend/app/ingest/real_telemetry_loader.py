@@ -99,7 +99,7 @@ def load_real_rainfall_and_risks(db: Session, zone_id_map: dict[str, str]) -> No
         reading_id = f"rf-imd-baseline-{zid.lower()}-{ts_unix}"
         risk_id = f"rs-imd-baseline-{zid.lower()}-{ts_unix}"
 
-        score, level, conf, min_d, max_d, factors = ml_service.predict_risk_for_zone(
+        score, level, conf, min_d, max_d, factors, conf_score = ml_service.predict_risk_for_zone(
             db=db,
             zone_id=zid,
             rainfall_24h_mm=rain_24h,
@@ -131,7 +131,7 @@ def load_real_rainfall_and_risks(db: Session, zone_id_map: dict[str, str]) -> No
             risk_score_numeric=score,
             time_to_failure_min_days=min_d,
             time_to_failure_max_days=max_d,
-            confidence_score=0.90,
+            confidence_score=conf_score,
             model_version=ml_service.model_version,
             explainability_json=factors.model_dump_json(),
             computed_at=now,

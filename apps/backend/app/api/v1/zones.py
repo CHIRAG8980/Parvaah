@@ -92,17 +92,33 @@ def _get_zone_risk(db: Session, zone_id: str) -> RiskScore | None:
     )
 
 
+def _confidence_level_from_score(confidence_score: float | None) -> ConfidenceLevel | None:
+    """Bucket a real model confidence_score (0-1) into a ConfidenceLevel.
+
+    Returns None when no confidence score exists yet (no computed risk record)
+    rather than defaulting to a level that implies a prediction was made.
+    """
+    if confidence_score is None:
+        return None
+    if confidence_score > 0.8:
+        return ConfidenceLevel.HIGH
+    if confidence_score > 0.5:
+        return ConfidenceLevel.MEDIUM
+    return ConfidenceLevel.LOW
+
+
 def _resolve_factors(zone: Zone, risk: RiskScore | None) -> ExplainabilityFactors:
-    """Resolve SHAP factors from risk record or return baseline zeroed factors."""
+    """Resolve SHAP factors from risk record, or None-valued factors if no
+    risk record has been computed yet (no fabricated zero readings)."""
     if risk and risk.explainability_json:
         return ExplainabilityFactors.model_validate_json(risk.explainability_json)
     return ExplainabilityFactors(
         slope_degrees=zone.avg_slope_deg,
-        rainfall24h_mm=0.0,
-        rainfall72h_cumulative_mm=0.0,
-        insar_deformation_mm_yr=0.0,
-        ndvi_index=0.0,
-        soil_moisture_pct=0.0,
+        rainfall24h_mm=None,
+        rainfall72h_cumulative_mm=None,
+        insar_deformation_mm_yr=None,
+        ndvi_index=None,
+        soil_moisture_pct=None,
         top_factors=[],
     )
 

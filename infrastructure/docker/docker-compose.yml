@@ -22,9 +22,3 @@ services:
     depends_on:
       - api
     restart: unless-stopped
-
-  ml-engine:
-    build:
-      context: ../../
-      dockerfile: infrastructure/docker/ml-engine.Dockerfile
-    restart: "no"

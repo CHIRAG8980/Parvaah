@@ -267,6 +267,7 @@ def simulate_hazard(request: RiskSimulationRequest):
         min_d,
         max_d,
         factors,
+        conf_score,
     ) = ml_service.predict_risk(
         slope_deg=request.slope_degrees,
         rainfall_24h_mm=request.rainfall24h_mm,
@@ -288,7 +289,7 @@ def simulate_hazard(request: RiskSimulationRequest):
     return RiskSimulationResponse(
         risk_score_numeric=score,
         risk_level=level,
-        confidence_score=0.92,
+        confidence_score=conf_score,
         historical_condition_window=window,
         time_to_failure_estimate=window,
         primary_driver=primary,

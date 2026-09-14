@@ -6,6 +6,7 @@ import 'package:mobile/core/errors/app_exceptions.dart';
 import 'package:mobile/core/network/http_network_client.dart';
 import 'package:mobile/core/security/i_secure_storage.dart';
 import 'package:mobile/data/models/alert_model.dart';
+import 'package:mobile/data/models/zone_risk_model.dart';
 import 'package:mobile/data/repositories/alert_repository.dart';
 import 'package:mobile/data/repositories/auth_repository.dart';
 import 'package:mobile/data/repositories/risk_repository.dart';
@@ -82,23 +83,44 @@ void main() {
     });
   });
 
-  group('RiskRepository Offline Cache Tests', () {
-    test('Falls back to cached risks when network client fails', () async {
+  group('RiskRepository Zero-Fallback Tests', () {
+    test('Throws ServerException on server failure under zero-fallback policy', () async {
       final mockClient = MockClient((request) async {
         return http.Response('Server Error', 500);
       });
 
-      // Seed offline cache
-      await cacheService.setJsonList(CacheService.keyCachedRisks, [
-        {
-          'zone_id': 'NER-CACHED-01',
-          'name': 'Cached Sector',
-          'district': 'East Khasi',
-          'state': 'Meghalaya',
-          'risk_score': 60.0,
-          'risk_level': 'HIGH',
-        }
-      ]);
+      final networkClient = HttpNetworkClient(client: mockClient);
+      final apiClient = ApiClient(networkClient: networkClient);
+      final riskRepo = RiskRepository(apiClient: apiClient, cacheService: cacheService);
+
+      expect(riskRepo.getAllZones(), throwsA(isA<ServerException>()));
+    });
+
+    test('Successfully parses live zones and writes to cache on success', () async {
+      final mockClient = MockClient((request) async {
+        return http.Response(
+          jsonEncode([
+            {
+              'zone_id': 'NER-MEG-001',
+              'name': 'Sohra Sector A',
+              'district': 'East Khasi Hills',
+              'state': 'Meghalaya',
+              'latitude': 25.2517,
+              'longitude': 91.7353,
+              'risk_score': 0.70,
+              'risk_level': 'CRITICAL',
+              'confidence': 'HIGH',
+              'historical_condition_window': 'Historical 1-3 day condition-match profile',
+              'data_availability': {
+                'insar_nisar': {'status': 'AVAILABLE', 'quality': 'GOOD', 'coherence': 0.72},
+                'soil_moisture_eos04': {'status': 'AVAILABLE', 'quality': 'GOOD'},
+              },
+            }
+          ]),
+          200,
+          headers: {'content-type': 'application/json; charset=utf-8'},
+        );
+      });
 
       final networkClient = HttpNetworkClient(client: mockClient);
       final apiClient = ApiClient(networkClient: networkClient);
@@ -106,7 +128,10 @@ void main() {
 
       final zones = await riskRepo.getAllZones();
       expect(zones.length, 1);
-      expect(zones.first.zoneId, 'NER-CACHED-01');
+      expect(zones.first.zoneId, 'NER-MEG-001');
+      expect(zones.first.riskLevel, RiskLevel.critical);
+      expect(zones.first.nisarStatus.isAvailable, true);
+      expect(zones.first.nisarStatus.isGoodQuality, true);
     });
   });
 
@@ -167,7 +192,7 @@ void main() {
       final apiClient = ApiClient(networkClient: networkClient);
       final alertRepo = AlertRepository(apiClient: apiClient, cacheService: cacheService);
 
-      expect(() => alertRepo.getAlerts(), throwsA(isA<ServerException>()));
+      expect(alertRepo.getAlerts(), throwsA(isA<ServerException>()));
     });
   });
 }

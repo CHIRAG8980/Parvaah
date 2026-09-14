@@ -1,0 +1,7 @@
+# Parvaah ML Engine — inference-time dependencies for apps/ml-engine/src/inference_pipeline.py
+numpy==1.26.4
+pandas==2.3.3
+joblib==1.6.0
+scikit-learn==1.9.1
+xgboost==2.1.4
+rasterio==1.4.4

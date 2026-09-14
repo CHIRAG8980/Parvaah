@@ -33,17 +33,25 @@ class LocationProvider extends ChangeNotifier {
   }
 
   Future<void> _init() async {
-    _availableZones = await _riskRepository.getAllZones();
-    final savedZoneId = _cacheService.getString(CacheService.keySelectedZone);
-    if (savedZoneId.isNotEmpty && _availableZones.isNotEmpty) {
-      try {
-        _selectedZone = _availableZones.firstWhere(
-          (zone) => zone.zoneId == savedZoneId,
-        );
-      } catch (_) {
+    await loadZones();
+  }
+
+  Future<void> loadZones() async {
+    try {
+      _availableZones = await _riskRepository.getAllZones();
+      final savedZoneId = _cacheService.getString(CacheService.keySelectedZone);
+      if (savedZoneId.isNotEmpty && _availableZones.isNotEmpty) {
+        try {
+          _selectedZone = _availableZones.firstWhere(
+            (zone) => zone.zoneId == savedZoneId,
+          );
+        } catch (_) {
+          _selectedZone = _availableZones.first;
+        }
+      } else if (_availableZones.isNotEmpty) {
         _selectedZone = _availableZones.first;
       }
-    }
+    } catch (_) {}
     notifyListeners();
   }
 
