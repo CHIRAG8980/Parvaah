@@ -1,0 +1,12 @@
+[
+  "elevation",
+  "slope",
+  "aspect",
+  "curvature",
+  "bhuvan_lulc",
+  "bhuvan_geomorphology",
+  "bhuvan_lineament",
+  "distance_to_road",
+  "distance_to_streams",
+  "distance_to_settlements"
+]

@@ -1,0 +1,11 @@
+{
+  "experiment_name": "dynamic_hazard_20260914_170650",
+  "model_version": "1.0.0",
+  "sequence_length": 14,
+  "n_features": 47,
+  "lstm_units": [
+    64,
+    32
+  ],
+  "training_date": "2026-09-14T17:11:38.385124"
+}

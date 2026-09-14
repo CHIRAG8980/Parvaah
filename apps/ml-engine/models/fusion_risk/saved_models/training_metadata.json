@@ -1,0 +1,124 @@
+{
+  "model_version": "1.0.0",
+  "experiment_name": "fusion_risk_20260914_170832",
+  "timestamp": "2026-09-14T17:09:53.944881",
+  "config": {
+    "model_type": "xgboost",
+    "n_features": 19,
+    "train_samples": 7314,
+    "val_samples": 1571,
+    "test_samples": 1576
+  },
+  "features": {
+    "names": [
+      "aspect",
+      "bhuvan_geomorphology_shillong",
+      "bhuvan_lineament_shillong",
+      "bhuvan_lulc_shillong",
+      "curvature",
+      "distance_to_road",
+      "distance_to_settlements",
+      "distance_to_streams",
+      "dynamic_hazard_alert_DOY235",
+      "elevation",
+      "ndvi_shillong",
+      "rainfall_24h",
+      "rainfall_72h",
+      "rainfall_antecedent_7d",
+      "sar_coherence_shillong",
+      "sar_intensity_shillong",
+      "sar_ratio_shillong",
+      "slope",
+      "static_susceptibility_map"
+    ],
+    "provenance": {
+      "static_susceptibility": "XGBoost model trained on ISRO/GSI landslide inventory",
+      "dynamic_hazard": "LSTM model trained on IMD rainfall + landslide events",
+      "elevation": "CartoDEM 30m - ISRO/NRSC",
+      "slope": "Derived from CartoDEM 30m - ISRO/NRSC",
+      "aspect": "Derived from CartoDEM 30m - ISRO/NRSC",
+      "curvature": "Derived from CartoDEM 30m - ISRO/NRSC",
+      "rainfall_24h": "IMD 0.25\u00b0 gridded rainfall resampled to 30m",
+      "rainfall_72h": "IMD 0.25\u00b0 gridded rainfall resampled to 30m",
+      "rainfall_antecedent_7d": "IMD 0.25\u00b0 gridded rainfall resampled to 30m",
+      "ndvi": "Sentinel-2 MSI L2A (ESA) - August 2024",
+      "sar_intensity": "Sentinel-1 IW SLC (ESA) - August 2024",
+      "sar_coherence": "Sentinel-1 coherence (ESA) - August 2024",
+      "sar_ratio": "Sentinel-1 intensity ratio (ESA) - August 2024",
+      "geomorphology": "ISRO Bhuvan Geomorphology - Meghalaya",
+      "lineament": "ISRO Bhuvan Lineament - Meghalaya",
+      "lulc": "ISRO Bhuvan Land Use Land Cover - Meghalaya",
+      "distance_to_road": "Derived from OpenStreetMap",
+      "distance_to_settlements": "Derived from OpenStreetMap",
+      "distance_to_streams": "Derived from OpenStreetMap"
+    }
+  },
+  "metrics": {
+    "accuracy": 0.8746021642266073,
+    "precision": 0.2857142857142857,
+    "recall": 0.2517482517482518,
+    "f1": 0.26765799256505574,
+    "roc_auc": 0.7638635873929992,
+    "pr_auc": 0.24173276914798422,
+    "confusion_matrix": [
+      [
+        1338,
+        90
+      ],
+      [
+        107,
+        36
+      ]
+    ],
+    "top_10_features": [
+      {
+        "name": "static_susceptibility_map",
+        "importance": 0.13634330034255981
+      },
+      {
+        "name": "rainfall_antecedent_7d",
+        "importance": 0.07271399348974228
+      },
+      {
+        "name": "rainfall_72h",
+        "importance": 0.060598812997341156
+      },
+      {
+        "name": "distance_to_settlements",
+        "importance": 0.05849165469408035
+      },
+      {
+        "name": "rainfall_24h",
+        "importance": 0.05791115760803223
+      },
+      {
+        "name": "slope",
+        "importance": 0.056351155042648315
+      },
+      {
+        "name": "elevation",
+        "importance": 0.05624987557530403
+      },
+      {
+        "name": "ndvi_shillong",
+        "importance": 0.052752312272787094
+      },
+      {
+        "name": "distance_to_road",
+        "importance": 0.05092957243323326
+      },
+      {
+        "name": "sar_coherence_shillong",
+        "importance": 0.04980132728815079
+      }
+    ]
+  },
+  "training_history": {
+    "train_auc": [
+      0.9999982028448966
+    ],
+    "val_auc": [
+      0.7638635873929992
+    ]
+  }
+}

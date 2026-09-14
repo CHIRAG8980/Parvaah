@@ -57,21 +57,21 @@ wheels/
 .coverage
 htmlcov/
 *.ipynb_checkpoints/
-*.pkl
 *.pickle
 *.pt
 *.pth
 *.onnx
-*.h5
 *.hdf5
 *.keras
-*.joblib
 *.weights
 *.ckpt
 **/models/checkpoints/
-**/saved_models/
 /models/
 !apps/backend/app/models/
+
+# Allow trained models and artifacts in ML Engine
+!apps/ml-engine/models/**/saved_models/
+!apps/ml-engine/models/**/saved_models/**
 
 # Datasets & Geodata (Raw, Processed, Maps, GeoTIFF, Rasters)
 *.csv

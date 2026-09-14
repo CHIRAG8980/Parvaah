@@ -1,0 +1,21 @@
+[
+  "aspect",
+  "bhuvan_geomorphology_shillong",
+  "bhuvan_lineament_shillong",
+  "bhuvan_lulc_shillong",
+  "curvature",
+  "distance_to_road",
+  "distance_to_settlements",
+  "distance_to_streams",
+  "dynamic_hazard_alert_DOY235",
+  "elevation",
+  "ndvi_shillong",
+  "rainfall_24h",
+  "rainfall_72h",
+  "rainfall_antecedent_7d",
+  "sar_coherence_shillong",
+  "sar_intensity_shillong",
+  "sar_ratio_shillong",
+  "slope",
+  "static_susceptibility_map"
+]
