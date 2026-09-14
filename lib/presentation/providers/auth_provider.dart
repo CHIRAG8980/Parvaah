@@ -79,19 +79,6 @@ class AuthProvider extends ChangeNotifier {
     }
   }
 
-  Future<void> signInWithGoogle({String? name, String? email}) async {
-    _viewState = ViewState.loading;
-    notifyListeners();
-
-    _isLoggedIn = true;
-    _user = _user.copyWith(
-      name: name ?? '',
-      email: email ?? '',
-    );
-    _viewState = ViewState.success;
-    notifyListeners();
-  }
-
   Future<bool> register({
     required String name,
     required String email,

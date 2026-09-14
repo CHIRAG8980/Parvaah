@@ -32,7 +32,7 @@ class AlertRepository implements IAlertRepository {
     if (response.isSuccess && response.data is List) {
       try {
         final list = (response.data as List)
-            .map((item) => AlertModel.fromJson(item as Map<String, dynamic>))
+            .map((item) => AlertModel.fromJson(Map<String, dynamic>.from(item as Map)))
             .toList();
 
         await cacheService.setJsonList(
@@ -46,19 +46,18 @@ class AlertRepository implements IAlertRepository {
       }
     }
 
-    final cached = cacheService.getJsonList(CacheService.keyCachedAlerts);
-    if (cached != null && cached.isNotEmpty) {
-      try {
-        final list = cached.map((e) => AlertModel.fromJson(e)).toList();
-        return _applyFilter(list, filter);
-      } catch (e) {
-        throw DataParseException('Failed to parse cached alerts payload: $e');
-      }
+    // Zero-fallback policy: When backend is unreachable, throw explicit exception
+    final statusCode = response.statusCode;
+    if (statusCode == 0 || statusCode == 408 || statusCode >= 500) {
+      throw ServerException(
+        'Unable to connect to Parvaah server. Check your internet connection.',
+        statusCode,
+      );
     }
 
     throw ServerException(
       response.errorMessage ?? 'Failed to retrieve active alerts from warning gateway',
-      response.statusCode,
+      statusCode,
     );
   }
 

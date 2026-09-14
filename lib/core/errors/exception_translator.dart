@@ -10,16 +10,31 @@ class ExceptionTranslator {
       return 'An unexpected error occurred.';
     }
 
+    if (error is ServerException) {
+      final code = error.statusCode ?? 0;
+      if (code == 503 || code == 0) {
+        return 'Unable to connect to Parvaah server. Check your internet connection.';
+      }
+      if (code == 408) {
+        return 'Parvaah server timed out. Check your connection and try again.';
+      }
+      return error.message;
+    }
+
     if (error is AppException) {
+      final msg = error.message.toLowerCase();
+      if (msg.contains('unable to connect') || msg.contains('parvaah server')) {
+        return error.message;
+      }
       return error.message;
     }
 
     if (error is SocketException) {
-      return 'Unable to reach the server. Please check your internet connection.';
+      return 'Unable to connect to Parvaah server. Check your internet connection.';
     }
 
     if (error is TimeoutException) {
-      return 'Connection timed out. Please check your network and try again.';
+      return 'Parvaah server timed out. Check your network and try again.';
     }
 
     if (error is HttpException) {
@@ -33,12 +48,13 @@ class ExceptionTranslator {
     final errorString = error.toString();
     if (errorString.contains('SocketException') ||
         errorString.contains('Failed host lookup') ||
-        errorString.contains('Network is unreachable')) {
-      return 'Unable to connect. Please ensure your device is connected to the internet.';
+        errorString.contains('Network is unreachable') ||
+        errorString.contains('Connection refused')) {
+      return 'Unable to connect to Parvaah server. Check your internet connection.';
     }
 
     if (errorString.contains('TimeoutException')) {
-      return 'Request timed out. Please retry.';
+      return 'Parvaah server timed out. Please retry.';
     }
 
     return 'An error occurred: $errorString';
