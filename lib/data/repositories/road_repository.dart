@@ -32,7 +32,7 @@ class RoadRepository implements IRoadRepository {
     if (response.isSuccess && response.data is List) {
       try {
         final list = (response.data as List)
-            .map((item) => RoadStatusModel.fromJson(item as Map<String, dynamic>))
+            .map((item) => RoadStatusModel.fromJson(Map<String, dynamic>.from(item as Map)))
             .toList();
 
         await cacheService.setJsonList(
@@ -46,18 +46,18 @@ class RoadRepository implements IRoadRepository {
       }
     }
 
-    final cached = cacheService.getJsonList(CacheService.keyCachedRoads);
-    if (cached != null && cached.isNotEmpty) {
-      try {
-        return cached.map((e) => RoadStatusModel.fromJson(e)).toList();
-      } catch (e) {
-        throw DataParseException('Failed to parse cached road corridors telemetry: $e');
-      }
+    // Zero-fallback policy: When backend is unreachable, throw explicit exception
+    final statusCode = response.statusCode;
+    if (statusCode == 0 || statusCode == 408 || statusCode >= 500) {
+      throw ServerException(
+        'Unable to connect to Parvaah server. Check your internet connection.',
+        statusCode,
+      );
     }
 
     throw ServerException(
       response.errorMessage ?? 'Failed to retrieve road corridors status from transport network',
-      response.statusCode,
+      statusCode,
     );
   }
 

@@ -40,10 +40,16 @@ void main() async {
   final cacheService = CacheService(sharedPrefs);
   final secureStorage = PlatformSecureStorage(fallbackPrefs: sharedPrefs);
 
-  final networkClient = HttpNetworkClient(secureStorage: secureStorage);
+  late final HttpNetworkClient networkClient;
+  late final AuthRepository authRepository;
+
+  networkClient = HttpNetworkClient(
+    secureStorage: secureStorage,
+    onUnauthenticated: () => authRepository.logout(),
+  );
   final apiClient = ApiClient(networkClient: networkClient);
 
-  final authRepository = AuthRepository(
+  authRepository = AuthRepository(
     apiClient: apiClient,
     secureStorage: secureStorage,
     cacheService: cacheService,

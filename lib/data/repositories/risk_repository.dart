@@ -33,7 +33,7 @@ class RiskRepository implements IRiskRepository {
     if (response.isSuccess && response.data is List) {
       try {
         final list = (response.data as List)
-            .map((item) => ZoneRiskModel.fromJson(item as Map<String, dynamic>))
+            .map((item) => ZoneRiskModel.fromJson(Map<String, dynamic>.from(item as Map)))
             .toList();
 
         if (list.isNotEmpty) {
@@ -42,40 +42,55 @@ class RiskRepository implements IRiskRepository {
             list.map((z) => z.toJson()).toList(),
           );
           await cacheService.setLastSyncTime(DateTime.now());
-          return list;
         }
+        return list;
       } catch (e) {
         throw DataParseException('Failed to parse risk zones telemetry: $e');
       }
     }
 
-    // Offline fallback to verified cached data if network failed
-    final cached = cacheService.getJsonList(CacheService.keyCachedRisks);
-    if (cached != null && cached.isNotEmpty) {
-      try {
-        return cached.map((item) => ZoneRiskModel.fromJson(item)).toList();
-      } catch (e) {
-        throw DataParseException('Failed to parse cached risk zones telemetry: $e');
-      }
+    // Zero-fallback policy: When backend is unreachable, throw explicit exception
+    // to inform user and UI rather than silently masking failure.
+    final statusCode = response.statusCode;
+    if (statusCode == 0 || statusCode == 408 || statusCode >= 500) {
+      throw ServerException(
+        response.errorMessage ??
+            'Unable to connect to Parvaah server. Check your internet connection.',
+        statusCode,
+      );
     }
 
     throw ServerException(
-      response.errorMessage ?? 'Failed to retrieve landslide risk zones from gateway',
-      response.statusCode,
+      response.errorMessage ??
+          'Failed to retrieve landslide risk zones from gateway',
+      statusCode,
     );
   }
 
   @override
   Future<ZoneRiskModel?> getZoneById(String zoneId) async {
-    final response = await apiClient.get(ApiConstants.zoneDetail(zoneId));
-    if (response.isSuccess && response.data is Map<String, dynamic>) {
+    // Prefer the live prediction endpoint for individual zones —
+    // this returns full 4-model ML inference output.
+    final predResponse = await apiClient.get(ApiConstants.predictZone(zoneId));
+    if (predResponse.isSuccess && predResponse.data is Map<String, dynamic>) {
       try {
-        return ZoneRiskModel.fromJson(response.data as Map<String, dynamic>);
+        return ZoneRiskModel.fromJson(predResponse.data as Map<String, dynamic>);
       } catch (_) {}
     }
 
-    final allZones = await getAllZones();
+    // Fallback to zone detail endpoint
+    final detailResponse = await apiClient.get(ApiConstants.zoneDetail(zoneId));
+    if (detailResponse.isSuccess &&
+        detailResponse.data is Map<String, dynamic>) {
+      try {
+        return ZoneRiskModel.fromJson(
+            detailResponse.data as Map<String, dynamic>);
+      } catch (_) {}
+    }
+
+    // Last resort: find from already-loaded zone list
     try {
+      final allZones = await getAllZones();
       return allZones.firstWhere((z) => z.zoneId == zoneId);
     } catch (_) {
       return null;

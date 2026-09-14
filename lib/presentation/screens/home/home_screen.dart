@@ -44,12 +44,6 @@ class HomeScreen extends StatelessWidget {
     final primaryAlert = alertProvider.primaryActiveAlert;
     final hasActiveAlert = primaryAlert != null;
 
-    if (alertProvider.allAlerts.isNotEmpty) {
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        notifProvider.syncFromAlerts(alertProvider.allAlerts);
-      });
-    }
-
     final alertTitle = hasActiveAlert ? primaryAlert.title : 'All Monitored Zones Stable';
     final alertSubtitle = hasActiveAlert
         ? '${primaryAlert.region} • ${primaryAlert.severity.name.toUpperCase()}'
@@ -87,7 +81,7 @@ class HomeScreen extends StatelessWidget {
       return NearbyRiskRowData(
         title: '${zone.riskLevel.name[0].toUpperCase()}${zone.riskLevel.name.substring(1)} Risk Alert',
         location: '${zone.zoneName}, ${zone.state}',
-        level: '${(zone.riskScore * 100).toInt()}% Risk',
+        level: zone.riskScore != null ? '${(zone.riskScore! * 100).toInt()}% Risk' : 'N/A',
         levelColor: levelColor,
         levelBg: levelBg,
         icon: icon,
@@ -109,6 +103,7 @@ class HomeScreen extends StatelessWidget {
             await alertProvider.loadAlerts();
             await roadProvider.loadRoads();
             await safetyProvider.loadArticles();
+            notifProvider.syncFromAlerts(alertProvider.allAlerts);
           },
           color: const Color(0xFF1E88E5),
           child: SingleChildScrollView(
@@ -650,7 +645,7 @@ class HomeScreen extends StatelessWidget {
                             borderRadius: BorderRadius.circular(12),
                           ),
                           child: Text(
-                            '${(item.riskScore * 100).toInt()}% Risk',
+                            '${item.riskScore != null ? (item.riskScore! * 100).toInt() : '--'}% Risk',
                             style: TextStyle(
                               fontSize: 11,
                               fontWeight: FontWeight.w700,

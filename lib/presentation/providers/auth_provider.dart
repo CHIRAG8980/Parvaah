@@ -17,16 +17,19 @@ class AuthProvider extends ChangeNotifier {
     selectedZoneId: '',
   );
 
+  Future<bool>? _initialAuthFuture;
+
   AuthProvider(this._authRepository) {
-    _checkInitialAuth();
+    _initialAuthFuture = checkInitialAuth();
   }
 
   bool get isLoggedIn => _isLoggedIn;
   ViewState get viewState => _viewState;
   String? get errorMessage => _errorMessage;
   UserProfileModel get user => _user;
+  Future<bool> get initialAuthFuture => _initialAuthFuture ?? checkInitialAuth();
 
-  Future<void> _checkInitialAuth() async {
+  Future<bool> checkInitialAuth() async {
     _viewState = ViewState.loading;
     notifyListeners();
 
@@ -37,8 +40,10 @@ class AuthProvider extends ChangeNotifier {
         _user = await _authRepository.getCurrentUserProfile();
       }
       _viewState = ViewState.success;
+      return _isLoggedIn;
     } catch (_) {
       _viewState = ViewState.initial;
+      return _isLoggedIn;
     } finally {
       notifyListeners();
     }
@@ -77,19 +82,6 @@ class AuthProvider extends ChangeNotifier {
       notifyListeners();
       return false;
     }
-  }
-
-  Future<void> signInWithGoogle({String? name, String? email}) async {
-    _viewState = ViewState.loading;
-    notifyListeners();
-
-    _isLoggedIn = true;
-    _user = _user.copyWith(
-      name: name ?? '',
-      email: email ?? '',
-    );
-    _viewState = ViewState.success;
-    notifyListeners();
   }
 
   Future<bool> register({
@@ -133,6 +125,7 @@ class AuthProvider extends ChangeNotifier {
 
   Future<void> updateProfile({required String name, required String phone}) async {
     _user = _user.copyWith(name: name, phone: phone);
+    await _authRepository.saveUserProfileLocally(_user);
     notifyListeners();
   }
 

@@ -14,6 +14,11 @@ class RiskMapBottomCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // OUT_OF_COVERAGE — never display as Low Risk
+    if (zone.isOutOfCoverage) {
+      return _buildOutOfCoverageCard();
+    }
+
     final isCritical = zone.riskLevel == RiskLevel.critical;
     final isHigh = zone.riskLevel == RiskLevel.high;
     final isModerate = zone.riskLevel == RiskLevel.elevated || zone.riskLevel == RiskLevel.medium;
@@ -267,6 +272,121 @@ class RiskMapBottomCard extends StatelessWidget {
                     size: 20,
                   ),
                 ],
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildOutOfCoverageCard() {
+    return Container(
+      padding: const EdgeInsets.fromLTRB(18, 10, 18, 16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(24),
+        boxShadow: [
+          BoxShadow(
+            color: const Color(0xFF0F243E).withAlpha(25),
+            blurRadius: 24,
+            offset: const Offset(0, 8),
+          ),
+        ],
+        border: Border.all(color: const Color(0xFFE2E8F0), width: 1.0),
+      ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Center(
+            child: Container(
+              width: 38,
+              height: 4,
+              margin: const EdgeInsets.only(bottom: 12),
+              decoration: BoxDecoration(
+                color: const Color(0xFFCBD5E1),
+                borderRadius: BorderRadius.circular(10),
+              ),
+            ),
+          ),
+          Row(
+            children: [
+              Container(
+                width: 48,
+                height: 48,
+                decoration: BoxDecoration(
+                  color: const Color(0xFFF1F5F9),
+                  borderRadius: BorderRadius.circular(14),
+                ),
+                child: const Center(
+                  child: Icon(
+                    Icons.location_off_outlined,
+                    color: Color(0xFF94A3B8),
+                    size: 24,
+                  ),
+                ),
+              ),
+              const SizedBox(width: 14),
+              const Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      'Outside Monitoring Area',
+                      style: TextStyle(
+                        fontSize: 15,
+                        fontWeight: FontWeight.w800,
+                        color: Color(0xFF0F243E),
+                      ),
+                    ),
+                    SizedBox(height: 3),
+                    Text(
+                      'Not within Meghalaya / NER operational zone',
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: Color(0xFF64748B),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                decoration: BoxDecoration(
+                  color: const Color(0xFFF1F5F9),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: const Text(
+                  'N/A',
+                  style: TextStyle(
+                    fontSize: 13,
+                    fontWeight: FontWeight.w800,
+                    color: Color(0xFF94A3B8),
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
+          GestureDetector(
+            onTap: onViewDetails,
+            child: Container(
+              width: double.infinity,
+              height: 44,
+              decoration: BoxDecoration(
+                color: const Color(0xFFF1F5F9),
+                borderRadius: BorderRadius.circular(14),
+              ),
+              child: const Center(
+                child: Text(
+                  'View Coverage Details',
+                  style: TextStyle(
+                    color: Color(0xFF475569),
+                    fontSize: 14,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
               ),
             ),
           ),

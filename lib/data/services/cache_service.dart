@@ -30,6 +30,25 @@ class CacheService {
     return _prefs.setString(keyUserAvatar, path);
   }
 
+  static const String keyUserRole = 'parvaah_user_role';
+  static const String keyUserDistrict = 'parvaah_user_district';
+  static const String keyUserId = 'parvaah_user_id';
+  static const String keyUserProfileJson = 'parvaah_user_profile_json';
+
+  Map<String, dynamic>? getJsonObject(String key) {
+    final raw = _prefs.getString(key);
+    if (raw == null) return null;
+    try {
+      final decoded = jsonDecode(raw);
+      if (decoded is Map<String, dynamic>) return decoded;
+    } catch (_) {}
+    return null;
+  }
+
+  Future<bool> setJsonObject(String key, Map<String, dynamic> map) {
+    return _prefs.setString(key, jsonEncode(map));
+  }
+
   List<Map<String, dynamic>>? getJsonList(String key) {
     final raw = _prefs.getString(key);
     if (raw == null) return null;
@@ -69,5 +88,20 @@ class CacheService {
 
   Future<bool> setBool(String key, bool value) {
     return _prefs.setBool(key, value);
+  }
+
+  Future<bool> remove(String key) {
+    return _prefs.remove(key);
+  }
+
+  Future<void> clearUserSession() async {
+    await _prefs.setBool(keyIsLoggedIn, false);
+    await _prefs.remove(keyUserName);
+    await _prefs.remove(keyUserEmail);
+    await _prefs.remove(keyUserPhone);
+    await _prefs.remove(keyUserRole);
+    await _prefs.remove(keyUserDistrict);
+    await _prefs.remove(keyUserId);
+    await _prefs.remove(keyUserProfileJson);
   }
 }

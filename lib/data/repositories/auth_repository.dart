@@ -44,6 +44,25 @@ class AuthRepository implements IAuthRepository {
     await secureStorage.write(_tokenKey, tokens.accessToken);
     await cacheService.setBool(CacheService.keyIsLoggedIn, true);
     await cacheService.setString(CacheService.keyUserName, tokens.fullName);
+    await cacheService.setString(CacheService.keyUserEmail, tokens.username);
+    await cacheService.setString(CacheService.keyUserRole, tokens.role);
+    await cacheService.setString(CacheService.keyUserId, tokens.userId);
+    if (tokens.district != null) {
+      await cacheService.setString(CacheService.keyUserDistrict, tokens.district!);
+    }
+
+    final initialProfile = UserProfileModel(
+      userId: tokens.userId,
+      username: tokens.username,
+      name: tokens.fullName,
+      email: tokens.username,
+      phone: '',
+      role: tokens.role,
+      district: tokens.district,
+      escalationLevel: tokens.escalationLevel,
+      selectedZoneId: cacheService.getString(CacheService.keySelectedZone),
+    );
+    await cacheService.setJsonObject(CacheService.keyUserProfileJson, initialProfile.toJson());
 
     return tokens;
   }
@@ -80,32 +99,86 @@ class AuthRepository implements IAuthRepository {
     await secureStorage.write(_tokenKey, tokens.accessToken);
     await cacheService.setBool(CacheService.keyIsLoggedIn, true);
     await cacheService.setString(CacheService.keyUserName, tokens.fullName);
+    await cacheService.setString(CacheService.keyUserEmail, tokens.username);
+    await cacheService.setString(CacheService.keyUserRole, tokens.role);
+    await cacheService.setString(CacheService.keyUserId, tokens.userId);
+    if (tokens.district != null) {
+      await cacheService.setString(CacheService.keyUserDistrict, tokens.district!);
+    }
+    if (contactNumber != null && contactNumber.isNotEmpty) {
+      await cacheService.setString(CacheService.keyUserPhone, contactNumber);
+    }
+
+    final initialProfile = UserProfileModel(
+      userId: tokens.userId,
+      username: tokens.username,
+      name: tokens.fullName,
+      email: tokens.username,
+      phone: contactNumber ?? '',
+      role: tokens.role,
+      district: tokens.district,
+      escalationLevel: tokens.escalationLevel,
+      selectedZoneId: cacheService.getString(CacheService.keySelectedZone),
+    );
+    await cacheService.setJsonObject(CacheService.keyUserProfileJson, initialProfile.toJson());
 
     return tokens;
   }
 
   @override
   Future<UserProfileModel> getCurrentUserProfile() async {
-    final response = await apiClient.get(ApiConstants.currentUser);
-
-    if (response.isSuccess && response.data is Map<String, dynamic>) {
-      final user = UserProfileModel.fromJson(response.data as Map<String, dynamic>);
-      await cacheService.setString(CacheService.keyUserName, user.name);
-      if (user.phone.isNotEmpty) {
-        await cacheService.setString(CacheService.keyUserPhone, user.phone);
+    try {
+      final response = await apiClient.get(ApiConstants.currentUser);
+      if (response.isSuccess && response.data is Map<String, dynamic>) {
+        final user = UserProfileModel.fromJson(response.data as Map<String, dynamic>);
+        await saveUserProfileLocally(user);
+        return user;
       }
-      return user;
+    } catch (_) {}
+
+    final cachedJson = cacheService.getJsonObject(CacheService.keyUserProfileJson);
+    if (cachedJson != null) {
+      return UserProfileModel.fromJson(cachedJson);
     }
 
     final name = cacheService.getString(CacheService.keyUserName);
     final email = cacheService.getString(CacheService.keyUserEmail);
     final phone = cacheService.getString(CacheService.keyUserPhone);
+    final role = cacheService.getString(CacheService.keyUserRole, defaultValue: 'Officer');
+    final district = cacheService.getString(CacheService.keyUserDistrict);
+    final userId = cacheService.getString(CacheService.keyUserId);
+
     return UserProfileModel(
-      name: name,
+      userId: userId,
+      username: email,
+      name: name.isNotEmpty ? name : 'Officer',
       email: email,
       phone: phone,
+      role: role.isNotEmpty ? role : 'Officer',
+      district: district.isNotEmpty ? district : null,
       selectedZoneId: cacheService.getString(CacheService.keySelectedZone),
     );
+  }
+
+  @override
+  Future<void> saveUserProfileLocally(UserProfileModel user) async {
+    await cacheService.setString(CacheService.keyUserName, user.name);
+    if (user.email.isNotEmpty) {
+      await cacheService.setString(CacheService.keyUserEmail, user.email);
+    }
+    if (user.phone.isNotEmpty) {
+      await cacheService.setString(CacheService.keyUserPhone, user.phone);
+    }
+    if (user.role.isNotEmpty) {
+      await cacheService.setString(CacheService.keyUserRole, user.role);
+    }
+    if (user.district != null && user.district!.isNotEmpty) {
+      await cacheService.setString(CacheService.keyUserDistrict, user.district!);
+    }
+    if (user.userId.isNotEmpty) {
+      await cacheService.setString(CacheService.keyUserId, user.userId);
+    }
+    await cacheService.setJsonObject(CacheService.keyUserProfileJson, user.toJson());
   }
 
   @override
@@ -123,6 +196,6 @@ class AuthRepository implements IAuthRepository {
   @override
   Future<void> logout() async {
     await secureStorage.delete(_tokenKey);
-    await cacheService.setBool(CacheService.keyIsLoggedIn, false);
+    await cacheService.clearUserSession();
   }
 }
