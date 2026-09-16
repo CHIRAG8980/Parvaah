@@ -1,4 +1,0 @@
-source_line,latitude,longitude,event_date,event_year,date_precision,source_row,event_datetime,grid_lat_idx,grid_lon_idx,grid_distance_km
-1054,25.770935,91.656497,2024-05-29,2024,day,Eastern-West Khasi Hill   Mawpat                           Mairang-Guwahati Road           25.770935     91.656497     Debris          Slide         29 May 2024,2024-05-29,5,5,10.635795746821717
-1055,25.791616,91.658242,2024-05-29,2024,day,Eastern-West Khasi Hill   Madpan                           Mairang-Guwahati Road           25.791616     91.658242     Debris          Slide         29 May 2024,2024-05-29,5,5,11.183723472458455
-280,25.28236861,91.73874417,2024-05-30,2024,day,East Khasi Hills         NA                                   NA                              25.28236861   91.73874417   Debris          Slide and flow   30 May 2024 at 02:00 AM.,2024-05-30,3,5,3.8039501163415754
