@@ -1,0 +1,30 @@
+{
+  "train_mae": 168.8477,
+  "train_rmse": 242.5457,
+  "train_r2": 0.9593,
+  "val_mae": 878.1717,
+  "val_rmse": 1039.0005,
+  "val_r2": -1210.9472,
+  "test_mae": 878.1717,
+  "test_rmse": 1039.0005,
+  "mean_uncertainty": 615.1405,
+  "model_path": "/home/pratham/Disk2/Hackathon Projects/SIH 2026/Parvaah/apps/ml-engine/models/time_to_failure/saved_models/ttf_model.joblib",
+  "features": [
+    "latitude",
+    "longitude",
+    "grid_lat_idx",
+    "grid_lon_idx",
+    "grid_distance_km",
+    "lat_rounded",
+    "lon_rounded",
+    "dist_from_shillong",
+    "antecedent_3d",
+    "antecedent_7d",
+    "antecedent_14d",
+    "cumulative_30d",
+    "slope",
+    "elevation",
+    "aspect",
+    "curvature"
+  ]
+}

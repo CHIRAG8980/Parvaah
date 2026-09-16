@@ -72,52 +72,55 @@ htmlcov/
 !apps/ml-engine/models/**/saved_models/
 !apps/ml-engine/models/**/saved_models/**
 
-# Datasets & Geodata (Raw, Processed, Maps, GeoTIFF, Rasters)
-apps/ml-engine/data/**
-*.csv
-*.tsv
-*.parquet
-*.feather
-*.npy
-*.npz
-*.nc
-*.nc4
-*.tif
-*.tiff
-*.geotiff
-*.SAFE/
-*.zip
-*.tar
-*.tar.gz
-*.tgz
-*.h5
-*.pdf
-GeoTIFF/
-**/datasets/
-**/outputs/maps/
-**/outputs/predictions/
-**/outputs/plots/
-**/outputs/explanations/
-**/outputs/metrics/
-**/outputs/reports/
-
-# Exceptions: keep schemas, core ground-truth inventories, output JSONs and directory placeholders
-!apps/mobile/lib/**
+# Allow essential ground-truth, schemas, rasters, processed features, outputs, and models
 !apps/ml-engine/data/
 !apps/ml-engine/data/schemas/
 !apps/ml-engine/data/schemas/**
 !apps/ml-engine/data/raw/
 !apps/ml-engine/data/raw/ground_truth/
-!apps/ml-engine/data/raw/ground_truth/meghalaya_1330_landslides.geojson
-!apps/ml-engine/data/raw/ground_truth/meghalaya_1330_landslides.csv
-!apps/ml-engine/data/raw/ground_truth/isro_nrsc_landslide_atlas/
-!apps/ml-engine/data/raw/ground_truth/isro_nrsc_landslide_atlas/meghalaya_landslides_clean.csv
+!apps/ml-engine/data/raw/ground_truth/**
+!apps/ml-engine/data/raw/infrastructure/
+!apps/ml-engine/data/raw/infrastructure/**
 !apps/ml-engine/data/processed/
+!apps/ml-engine/data/processed/dynamic_hazard/
+!apps/ml-engine/data/processed/dynamic_hazard/**
+!apps/ml-engine/data/processed/eda/
+!apps/ml-engine/data/processed/eda/**
+!apps/ml-engine/data/processed/features/
+!apps/ml-engine/data/processed/features/individual_bands/
+!apps/ml-engine/data/processed/features/individual_bands/**
+!apps/ml-engine/data/processed/features/NISAR/
+!apps/ml-engine/data/processed/features/NISAR/**
+!apps/ml-engine/data/processed/features/*.csv
+!apps/ml-engine/data/processed/models/
+!apps/ml-engine/data/processed/models/master_tensor/
+!apps/ml-engine/data/processed/models/master_tensor/dataset_manifest.json
 !apps/ml-engine/data/processed/outputs/
-!apps/ml-engine/data/processed/outputs/*.json
-!**/data/schemas/
-!**/data/schemas/**
+!apps/ml-engine/data/processed/outputs/**
+!apps/ml-engine/models/**/outputs/
+!apps/ml-engine/models/**/outputs/**
+!apps/ml-engine/models/**/saved_models/
+!apps/ml-engine/models/**/saved_models/**
+!apps/mobile/lib/**
 !**/.gitkeep
+
+# Exclude large raw dumps, archives, and files >100MB
+apps/ml-engine/data/raw/satellite/
+apps/ml-engine/data/raw/NISAR/
+apps/ml-engine/data/raw/meteorological/
+apps/ml-engine/data/raw/soil_moisture/
+apps/ml-engine/data/raw/topographic/
+apps/ml-engine/data/processed/models/master_tensor/*.tif
+apps/ml-engine/data/processed/features/road_infrastructure.csv
+apps/ml-engine/data/raw/ground_truth/isro_nrsc_landslide_atlas/*.pdf
+apps/ml-engine/models/**/outputs/predictions/*.csv
+docs/reports/*.pdf
+*.SAFE/
+*.zip
+*.tar
+*.tar.gz
+*.tgz
+*.pdf
 
 
 

@@ -1,0 +1,19 @@
+<GDAL_WMS>
+  <Service name="WMS">
+    <Version>1.1.1</Version>
+    <ServerUrl>https://bhuvan-vec2.nrsc.gov.in/bhuvan/wms</ServerUrl>
+    <Layers>geomorphology:ML_GM50K_0506</Layers>
+    <ImageFormat>image/png</ImageFormat>
+    <SRS>EPSG:4326</SRS>
+  </Service>
+  <DataWindow>
+    <UpperLeftX>89.822</UpperLeftX>
+    <UpperLeftY>26.119</UpperLeftY>
+    <LowerRightX>92.804</LowerRightX>
+    <LowerRightY>25.032</LowerRightY>
+    <SizeX>10000</SizeX>
+    <SizeY>4000</SizeY>
+  </DataWindow>
+  <Projection>EPSG:4326</Projection>
+  <BandsCount>3</BandsCount>
+</GDAL_WMS>

@@ -1,0 +1,22 @@
+{
+  "split": "test",
+  "n_samples": 1576,
+  "n_positive": 138,
+  "n_negative": 1438,
+  "threshold": 0.5,
+  "accuracy": 0.8851522842639594,
+  "precision": 0.2345679012345679,
+  "recall": 0.13768115942028986,
+  "f1": 0.1735159817351598,
+  "roc_auc": 0.7623309346717462,
+  "pr_auc": 0.21748020905696785,
+  "confusion_matrix": {
+    "tn": 1376,
+    "fp": 62,
+    "fn": 119,
+    "tp": 19
+  },
+  "specificity": 0.9568845618915159,
+  "false_positive_rate": 0.043115438108484005,
+  "false_negative_rate": 0.8623188405797102
+}

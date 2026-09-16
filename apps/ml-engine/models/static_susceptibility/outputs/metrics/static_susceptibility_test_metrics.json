@@ -1,0 +1,30 @@
+{
+  "split": "test",
+  "sample_count": 420,
+  "positive_count": 246,
+  "negative_count": 174,
+  "roc_auc": 0.5976544248201103,
+  "pr_auc": 0.6821402935796,
+  "accuracy": 0.5952380952380952,
+  "precision": 0.7375,
+  "recall": 0.4796747967479675,
+  "f1_score": 0.5812807881773399,
+  "confusion_matrix": {
+    "tn": 132,
+    "fp": 42,
+    "fn": 128,
+    "tp": 118
+  },
+  "feature_importances": {
+    "elevation": 0.1815853510139098,
+    "slope": 0.1267673373625265,
+    "aspect": 0.11517698535928723,
+    "curvature": 0.12232362574479304,
+    "bhuvan_lulc": 0.026677378242889127,
+    "bhuvan_geomorphology": 0.07712970161261445,
+    "bhuvan_lineament": 0.0029705375182603275,
+    "distance_to_road": 0.12303192133096222,
+    "distance_to_streams": 0.07218459078906296,
+    "distance_to_settlements": 0.15215257102569424
+  }
+}

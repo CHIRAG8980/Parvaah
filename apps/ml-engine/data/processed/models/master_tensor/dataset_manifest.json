@@ -1,0 +1,284 @@
+{
+  "version": "2.1",
+  "timestamp": "2026-09-12",
+  "dataset_name": "Landslide Susceptibility Features - Meghalaya Shillong Plateau (30m)",
+  "data_category": "VERIFIED - NO SYNTHETIC DATA",
+  "spatial_resolution": 30,
+  "spatial_units": "meters",
+  "crs": "EPSG:4326",
+  "dimensions": {
+    "height_pixels": 3600,
+    "width_pixels": 3600,
+    "num_bands": 16,
+    "bounding_box": {
+      "north": 26.0,
+      "south": 25.0,
+      "east": 92.0,
+      "west": 91.0
+    }
+  },
+  "bands": [
+    {
+      "band_index": 1,
+      "column_name": "elevation",
+      "filename": "elevation_30m.tif",
+      "description": "CartoDEM Elevation (m)",
+      "category": "Topography",
+      "dtype": "float32",
+      "min": -70.37690734863281,
+      "max": 1919.2230224609375,
+      "mean": 680.06982421875,
+      "std": 590.5044555664062
+    },
+    {
+      "band_index": 2,
+      "column_name": "slope",
+      "filename": "slope_30m.tif",
+      "description": "CartoDEM Slope (degrees)",
+      "category": "Topography",
+      "dtype": "float32",
+      "min": 0.0002934119547717273,
+      "max": 74.48621368408203,
+      "mean": 11.870318412780762,
+      "std": 10.490989685058594
+    },
+    {
+      "band_index": 3,
+      "column_name": "aspect",
+      "filename": "aspect_30m.tif",
+      "description": "CartoDEM Aspect (degrees)",
+      "category": "Topography",
+      "dtype": "float32",
+      "min": 0.0,
+      "max": 359.9998474121094,
+      "mean": 185.82411193847656,
+      "std": 102.42350006103516
+    },
+    {
+      "band_index": 4,
+      "column_name": "curvature",
+      "filename": "curvature_30m.tif",
+      "description": "CartoDEM Curvature (1/100m)",
+      "category": "Topography",
+      "dtype": "float32",
+      "min": 0.03841400146484375,
+      "max": 260.44061279296875,
+      "mean": 18.134981155395508,
+      "std": 16.490652084350586
+    },
+    {
+      "band_index": 5,
+      "column_name": "lulc",
+      "filename": "bhuvan_lulc_shillong_30m.tif",
+      "description": "Bhuvan LULC (class code)",
+      "category": "Land Use",
+      "dtype": "uint8",
+      "min": 0.0,
+      "max": 255.0,
+      "mean": 145.48346766975308,
+      "std": 87.1538558037796
+    },
+    {
+      "band_index": 6,
+      "column_name": "geomorphology",
+      "filename": "bhuvan_geomorphology_shillong_30m.tif",
+      "description": "Bhuvan Geomorphology (class)",
+      "category": "Geology",
+      "dtype": "uint8",
+      "min": 0.0,
+      "max": 255.0,
+      "mean": 215.45863418209876,
+      "std": 73.10315364377522
+    },
+    {
+      "band_index": 7,
+      "column_name": "lineament",
+      "filename": "bhuvan_lineament_shillong_30m.tif",
+      "description": "Bhuvan Lineaments (density)",
+      "category": "Geology",
+      "dtype": "uint8",
+      "min": 0.0,
+      "max": 255.0,
+      "mean": 245.61584537037038,
+      "std": 46.95661759563824
+    },
+    {
+      "band_index": 8,
+      "column_name": "dist_roads",
+      "filename": "distance_to_road_30m.tif",
+      "description": "Distance to Roads (m)",
+      "category": "Infrastructure",
+      "dtype": "float32",
+      "min": 0.0,
+      "max": 9853.576171875,
+      "mean": 1016.4777221679688,
+      "std": 1380.1895751953125
+    },
+    {
+      "band_index": 9,
+      "column_name": "dist_streams",
+      "filename": "distance_to_streams_30m.tif",
+      "description": "Distance to Streams (m)",
+      "category": "Hydrology",
+      "dtype": "float32",
+      "min": 0.0,
+      "max": 722.4956665039062,
+      "mean": 86.56097412109375,
+      "std": 68.31056213378906
+    },
+    {
+      "band_index": 10,
+      "column_name": "dist_settlements",
+      "filename": "distance_to_settlements_30m.tif",
+      "description": "Distance to Settlements (m)",
+      "category": "Anthropogenic",
+      "dtype": "float32",
+      "min": 0.0,
+      "max": 21587.8515625,
+      "mean": 3886.09765625,
+      "std": 4498.27294921875
+    },
+    {
+      "band_index": 11,
+      "column_name": "ndvi",
+      "filename": "ndvi_shillong_30m.tif",
+      "description": "NDVI (Sentinel-2 L2A)",
+      "category": "Vegetation",
+      "dtype": "float32",
+      "min": -0.12194772809743881,
+      "max": 0.5513502359390259,
+      "mean": 0.014350777491927147,
+      "std": 0.04857539385557175
+    },
+    {
+      "band_index": 12,
+      "column_name": "sar_coherence",
+      "filename": "sar_coherence_shillong_30m.tif",
+      "description": "SAR Coherence (Sentinel-1)",
+      "category": "InSAR",
+      "dtype": "float32",
+      "min": 0.0,
+      "max": 0.9999434947967529,
+      "mean": 0.6756734848022461,
+      "std": 0.2889593541622162
+    },
+    {
+      "band_index": 13,
+      "column_name": "sar_ratio_db",
+      "filename": "sar_ratio_shillong_30m.tif",
+      "description": "SAR Amplitude Ratio (dB)",
+      "category": "InSAR",
+      "dtype": "float32",
+      "min": -15.0,
+      "max": 15.0,
+      "mean": 0.8576691150665283,
+      "std": 3.5549521446228027
+    },
+    {
+      "band_index": 14,
+      "column_name": "rainfall_24h",
+      "filename": "rainfall_24h_30m.tif",
+      "description": "Rainfall 24-hour (mm, IMD Aug 23 2024)",
+      "category": "Precipitation",
+      "dtype": "float32",
+      "min": 0.0,
+      "max": 17.064571380615234,
+      "mean": 2.398247480392456,
+      "std": 3.540602684020996
+    },
+    {
+      "band_index": 15,
+      "column_name": "rainfall_72h",
+      "filename": "rainfall_72h_30m.tif",
+      "description": "Rainfall 72-hour cumulative (mm, IMD Aug 21-23 2024)",
+      "category": "Precipitation",
+      "dtype": "float32",
+      "min": 0.0,
+      "max": 119.52728271484375,
+      "mean": 15.579792976379395,
+      "std": 20.949304580688477
+    },
+    {
+      "band_index": 16,
+      "column_name": "rainfall_7d",
+      "filename": "rainfall_antecedent_7d_30m.tif",
+      "description": "Rainfall Antecedent 7-day (mm, IMD Aug 17-23 2024)",
+      "category": "Precipitation",
+      "dtype": "float32",
+      "min": 0.0,
+      "max": 121.91683959960938,
+      "mean": 19.91549301147461,
+      "std": 20.902860641479492
+    }
+  ],
+  "data_sources": {
+    "CartoDEM": "ALOS DEM 30m (ISRO Bhuvan) - VERIFIED",
+    "Bhuvan": "NRSC/ISRO 1:50k Thematic Layers - VERIFIED",
+    "Sentinel-1": "ESA SAR IW3 12-day stack - VERIFIED",
+    "Sentinel-2": "ESA NDVI L2A 10m resampled to 30m - VERIFIED",
+    "OSM": "OpenStreetMap Road Network - VERIFIED",
+    "PWD": "Indian Public Works Department Road Network - VERIFIED",
+    "IMD": "Indian Meteorological Department 0.25\u00b0 Grid - TRUE DATA (Little-endian float32)",
+    "Streams": "CartoDEM Flow Accumulation Derivative - COMPUTED",
+    "Settlements": "Bhuvan LULC Built-up + OSM - VERIFIED"
+  },
+  "rainfall_data_info": {
+    "band_14_rainfall_24h": {
+      "source": "IMD Rainfall_ind2024_rfp25.grd",
+      "date": "2024-08-23",
+      "doy": 236,
+      "file_index": 235,
+      "physical_range_mm": [
+        0.0,
+        110.0
+      ],
+      "description": "Peak monsoon rainfall day"
+    },
+    "band_15_rainfall_72h": {
+      "source": "IMD Rainfall_ind2024_rfp25.grd cumulative",
+      "dates": "2024-08-21 to 2024-08-23",
+      "doy_range": [
+        234,
+        235,
+        236
+      ],
+      "file_indices": [
+        233,
+        234,
+        235
+      ],
+      "physical_range_mm": [
+        0.0,
+        423.3
+      ],
+      "description": "Cumulative monsoon event"
+    },
+    "band_16_rainfall_7d": {
+      "source": "IMD Rainfall_ind2024_rfp25.grd cumulative",
+      "dates": "2024-08-17 to 2024-08-23",
+      "doy_range": [
+        230,
+        231,
+        232,
+        233,
+        234,
+        235,
+        236
+      ],
+      "file_indices": [
+        229,
+        230,
+        231,
+        232,
+        233,
+        234,
+        235
+      ],
+      "physical_range_mm": [
+        0.0,
+        730.3
+      ],
+      "description": "Antecedent saturation period"
+    }
+  }
+}

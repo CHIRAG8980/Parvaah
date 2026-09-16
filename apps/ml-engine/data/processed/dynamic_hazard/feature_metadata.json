@@ -1,0 +1,32 @@
+{
+  "lookback_days": 14,
+  "features": [
+    "daily_rainfall"
+  ],
+  "n_timesteps": 14,
+  "n_features": 1,
+  "train_shape": [
+    40,
+    14,
+    1
+  ],
+  "val_shape": [
+    8,
+    14,
+    1
+  ],
+  "test_shape": [
+    12,
+    14,
+    1
+  ],
+  "train_positive": 10,
+  "train_negative": 30,
+  "val_positive": 2,
+  "val_negative": 6,
+  "test_positive": 3,
+  "test_negative": 9,
+  "scaler_mean": 4.4158662515027185,
+  "scaler_std": 11.32161438025885,
+  "feature_engineering_date": "2026-09-13 13:27:37.948616"
+}

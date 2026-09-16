@@ -1,0 +1,41 @@
+================================================================================
+FUSION/RISK MODEL EVALUATION REPORT
+================================================================================
+
+Split: test
+Samples: 1,576
+  Positive (Landslides): 138
+  Negative: 1,438
+
+CLASSIFICATION METRICS
+--------------------------------------------------------------------------------
+Threshold: 0.500
+Accuracy: 0.8852
+Precision: 0.2346
+Recall (Sensitivity): 0.1377
+Specificity: 0.9569
+F1 Score: 0.1735
+ROC-AUC: 0.7623
+PR-AUC: 0.2175
+
+CONFUSION MATRIX
+--------------------------------------------------------------------------------
+True Negatives: 1,376
+False Positives: 62
+False Negatives: 119
+True Positives: 19
+
+TOP 10 FEATURES BY IMPORTANCE
+--------------------------------------------------------------------------------
+ 1. static_susceptibility_map                0.1363
+ 2. rainfall_antecedent_7d                   0.0727
+ 3. rainfall_72h                             0.0606
+ 4. distance_to_settlements                  0.0585
+ 5. rainfall_24h                             0.0579
+ 6. slope                                    0.0564
+ 7. elevation                                0.0562
+ 8. ndvi_shillong                            0.0528
+ 9. distance_to_road                         0.0509
+10. sar_coherence_shillong                   0.0498
+
+================================================================================

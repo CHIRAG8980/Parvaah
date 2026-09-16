@@ -1,0 +1,21 @@
+{
+  "experiment_name": "dynamic_hazard_20260913_165235",
+  "model_version": "1.0.0",
+  "timestamp": "2026-09-13T16:52:38.180122",
+  "config": {
+    "sequence_length": 14,
+    "lstm_units": [
+      64,
+      32
+    ],
+    "batch_size": 16,
+    "epochs": 50
+  },
+  "data_stats": {
+    "n_landslide_events": 75,
+    "n_daily_records": 28126,
+    "date_range": "2014-01-01 00:00:00 to 2024-12-31 00:00:00"
+  },
+  "n_features": 47,
+  "split_dates": {
+    "train_start": 

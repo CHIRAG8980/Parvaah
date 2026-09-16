@@ -1,0 +1,12 @@
+{
+  "constant_mean": {
+    "mae": 1042.8813,
+    "rmse": 1043.3082,
+    "mape": 28.85
+  },
+  "constant_median": {
+    "mae": 759.3043,
+    "rmse": 759.8907,
+    "mape": 21.0
+  }
+}

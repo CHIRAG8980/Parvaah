@@ -8,6 +8,11 @@ set -e
 # ==============================================================================
 
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+
+if [ "$1" = "--setup" ] || [ "$1" = "-s" ] || [ "$1" = "setup" ]; then
+  exec "$ROOT_DIR/scripts/setup.sh"
+fi
+
 LOG_DIR="$ROOT_DIR/logs"
 mkdir -p "$LOG_DIR"
 
