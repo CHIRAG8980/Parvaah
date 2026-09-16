@@ -93,14 +93,9 @@ apps/ml-engine/data/**
 *.pdf
 GeoTIFF/
 **/datasets/
-**/outputs/maps/
-**/outputs/predictions/
-**/outputs/plots/
-**/outputs/explanations/
-**/outputs/metrics/
-**/outputs/reports/
+**/outputs/
 
-# Exceptions: keep schemas, core ground-truth inventories, output JSONs and directory placeholders
+# Exceptions: keep schemas, core ground-truth inventories, and directory placeholders
 !apps/mobile/lib/**
 !apps/ml-engine/data/
 !apps/ml-engine/data/schemas/
@@ -111,9 +106,6 @@ GeoTIFF/
 !apps/ml-engine/data/raw/ground_truth/meghalaya_1330_landslides.csv
 !apps/ml-engine/data/raw/ground_truth/isro_nrsc_landslide_atlas/
 !apps/ml-engine/data/raw/ground_truth/isro_nrsc_landslide_atlas/meghalaya_landslides_clean.csv
-!apps/ml-engine/data/processed/
-!apps/ml-engine/data/processed/outputs/
-!apps/ml-engine/data/processed/outputs/*.json
 !**/data/schemas/
 !**/data/schemas/**
 !**/.gitkeep
