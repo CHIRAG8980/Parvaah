@@ -93,7 +93,7 @@ export const HeaderSection: React.FC = () => {
 
   const title = isScopedToDistrict && assignedDistrict
     ? `${assignedDistrict} District Command Room`
-    : 'AI-Based Early Warning & Landslide Risk Monitoring System (NER)';
+    : 'Parvaah — AI Early Warning & Landslide Risk Monitoring System (NER)';
 
   const subtitle = isScopedToDistrict && assignedDistrict
     ? `Authorized District Disaster Management Jurisdiction • Monitored by ${user?.full_name || 'Officer'}`

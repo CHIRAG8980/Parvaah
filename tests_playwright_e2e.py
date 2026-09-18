@@ -36,7 +36,7 @@ def run_tests():
         print("  ✓ Unauthenticated user correctly redirected to /login")
 
         print("\n[TEST 2] Verifying Login Page Elements & Tab Switching...")
-        expect(page.locator("text=NER Landslide Watch")).to_be_visible()
+        expect(page.locator("text=Parvaah")).to_be_visible()
         expect(page.locator("text=Authorized Disaster Management Officer access only.")).to_be_visible()
 
         # Check Tab switching to Registration ("Register for access")

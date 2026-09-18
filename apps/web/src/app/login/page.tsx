@@ -48,7 +48,7 @@ export default function LoginPage() {
             <div className="relative w-8 h-8 sm:w-9 sm:h-9 flex-shrink-0 rounded-xl overflow-hidden shadow-md border border-white/30 bg-black/25 backdrop-blur-xs">
               <Image
                 src="/images/logo.png"
-                alt="NER Landslide Watch"
+                alt="Parvaah Logo"
                 width={36}
                 height={36}
                 className="w-full h-full object-cover"
@@ -58,7 +58,7 @@ export default function LoginPage() {
 
             <div className="flex flex-col text-left">
               <span className="text-[19px] sm:text-[21px] font-bold text-white tracking-tight leading-tight">
-                NER Landslide Watch
+                Parvaah
               </span>
               <span className="text-[11.5px] sm:text-[12.5px] font-medium text-slate-200 tracking-tight leading-none mt-0.5">
                 AI Early Warning &amp; Risk Monitoring
