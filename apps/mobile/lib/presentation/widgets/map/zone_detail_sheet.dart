@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../data/models/zone_risk_model.dart';
 import '../../../core/utils/date_formatter.dart';
+import '../../providers/risk_provider.dart';
 
-class ZoneDetailSheet extends StatelessWidget {
+class ZoneDetailSheet extends StatefulWidget {
   final ZoneRiskModel zone;
 
   const ZoneDetailSheet({super.key, required this.zone});
@@ -25,7 +27,32 @@ class ZoneDetailSheet extends StatelessWidget {
   }
 
   @override
+  State<ZoneDetailSheet> createState() => _ZoneDetailSheetState();
+}
+
+class _ZoneDetailSheetState extends State<ZoneDetailSheet> {
+  late ZoneRiskModel _zone;
+
+  @override
+  void initState() {
+    super.initState();
+    _zone = widget.zone;
+    _loadLivePrediction();
+  }
+
+  Future<void> _loadLivePrediction() async {
+    if (_zone.zoneId.isEmpty || _zone.modelOutputs.staticSusceptibility.status == 'AVAILABLE') {
+      return;
+    }
+    final fullModel = await context.read<RiskProvider>().getZoneDetail(_zone.zoneId);
+    if (mounted && fullModel != null) {
+      setState(() => _zone = fullModel);
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
+    final zone = _zone;
     // OUT_OF_COVERAGE — never display as LOW risk
     if (zone.isOutOfCoverage) {
       return _OutOfCoverageSheet(zone: zone);

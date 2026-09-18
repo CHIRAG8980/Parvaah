@@ -2,6 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../providers/alert_provider.dart';
+import '../../providers/risk_provider.dart';
+import '../../providers/road_provider.dart';
+import '../../providers/safety_provider.dart';
 import '../home/home_screen.dart';
 import '../map/live_gis_map_screen.dart';
 import '../alerts/alerts_screen.dart';
@@ -17,6 +20,18 @@ class MainNavigationShell extends StatefulWidget {
 
 class _MainNavigationShellState extends State<MainNavigationShell> {
   int _currentIndex = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      context.read<RiskProvider>().loadRisks();
+      context.read<AlertProvider>().loadAlerts();
+      context.read<RoadProvider>().loadRoads();
+      context.read<SafetyProvider>().loadArticles();
+    });
+  }
 
   void _onTabTapped(int index) {
     setState(() => _currentIndex = index);
@@ -73,55 +88,64 @@ class _MainNavigationShellState extends State<MainNavigationShell> {
   Widget _buildNavItem(int index, IconData icon, String label, {int badgeCount = 0}) {
     final isSelected = _currentIndex == index;
 
-    return GestureDetector(
-      onTap: () => _onTabTapped(index),
-      behavior: HitTestBehavior.opaque,
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 200),
-        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-        decoration: BoxDecoration(
-          color: isSelected ? AppColors.lightBlueBg : Colors.transparent,
-          borderRadius: BorderRadius.circular(20),
-        ),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Stack(
-              clipBehavior: Clip.none,
-              children: [
-                Icon(
-                  icon,
-                  size: 22,
-                  color: isSelected ? AppColors.blue : AppColors.textMuted,
-                ),
-                if (badgeCount > 0)
-                  Positioned(
-                    right: -4,
-                    top: -4,
-                    child: Container(
-                      width: 8,
-                      height: 8,
-                      decoration: const BoxDecoration(
-                        color: Color(0xFFEF4444),
-                        shape: BoxShape.circle,
+    return Semantics(
+      label: label,
+      button: true,
+      container: true,
+      selected: isSelected,
+      child: Tooltip(
+        message: label,
+        child: GestureDetector(
+          onTap: () => _onTabTapped(index),
+          behavior: HitTestBehavior.opaque,
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 200),
+          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+          decoration: BoxDecoration(
+            color: isSelected ? AppColors.lightBlueBg : Colors.transparent,
+            borderRadius: BorderRadius.circular(20),
+          ),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Stack(
+                clipBehavior: Clip.none,
+                children: [
+                  Icon(
+                    icon,
+                    size: 22,
+                    color: isSelected ? AppColors.blue : AppColors.textMuted,
+                  ),
+                  if (badgeCount > 0)
+                    Positioned(
+                      right: -4,
+                      top: -4,
+                      child: Container(
+                        width: 8,
+                        height: 8,
+                        decoration: const BoxDecoration(
+                          color: Color(0xFFEF4444),
+                          shape: BoxShape.circle,
+                        ),
                       ),
                     ),
-                  ),
-              ],
-            ),
-            if (isSelected) ...[
-              const SizedBox(width: 6),
-              Text(
-                label,
-                style: const TextStyle(
-                  fontSize: 12.5,
-                  fontWeight: FontWeight.w700,
-                  color: AppColors.blue,
-                ),
+                ],
               ),
+              if (isSelected) ...[
+                const SizedBox(width: 6),
+                Text(
+                  label,
+                  style: const TextStyle(
+                    fontSize: 12.5,
+                    fontWeight: FontWeight.w700,
+                    color: AppColors.blue,
+                  ),
+                ),
+              ],
             ],
-          ],
+          ),
         ),
+      ),
       ),
     );
   }

@@ -32,6 +32,7 @@ class ZoneSummaryResponse(BaseModel):
     risk_level: RiskLevel
     confidence: ConfidenceLevel
     time_to_failure_window: str | None = None
+    factors: ExplainabilityFactors | None = None
     created_at: datetime
 
 

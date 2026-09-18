@@ -30,23 +30,50 @@ class RiskFactors {
   });
 
   factory RiskFactors.fromJson(Map<String, dynamic> json) {
-    final rawTop = json['top_factors'];
+    final source = json['factors'] is Map
+        ? Map<String, dynamic>.from(json['factors'] as Map)
+        : (json['explainability'] is Map
+            ? Map<String, dynamic>.from(json['explainability'] as Map)
+            : json);
+
+    final rawTop = source['top_factors'] ?? json['top_factors'] ?? json['contributing_factors'];
     final topList =
         rawTop is List ? rawTop.map((e) => e.toString()).toList() : <String>[];
 
+    final dynamic rain24 = source['rainfall24h_mm'] ??
+        source['rainfall_24h_mm'] ??
+        source['rainfall_mm'] ??
+        json['rainfall24h_mm'] ??
+        json['rainfall_24h_mm'] ??
+        json['rainfall_mm'];
+
+    final dynamic rain72 = source['rainfall72h_cumulative_mm'] ??
+        source['rainfall_72h_mm'] ??
+        source['rainfall_cumulative_mm'] ??
+        json['rainfall72h_cumulative_mm'] ??
+        json['rainfall_72h_mm'] ??
+        json['rainfall_cumulative_mm'];
+
+    final dynamic soil = source['soil_moisture_pct'] ??
+        source['soil_moisture'] ??
+        json['soil_moisture_pct'] ??
+        json['soil_moisture'];
+
+    final dynamic slope = source['slope_degrees'] ??
+        source['avg_slope_deg'] ??
+        source['slope'] ??
+        json['slope_degrees'] ??
+        json['avg_slope_deg'] ??
+        json['slope'];
+
     return RiskFactors(
-      rainfall24hMm:
-          (json['rainfall24h_mm'] ?? json['rainfall_24h_mm'] as num?)?.toDouble(),
-      rainfall72hCumulativeMm:
-          (json['rainfall72h_cumulative_mm'] ?? json['rainfall_72h_mm'] as num?)
-              ?.toDouble(),
-      soilMoisturePct:
-          (json['soil_moisture_pct'] ?? json['soil_moisture'] as num?)?.toDouble(),
-      slopeDegrees:
-          (json['slope_degrees'] ?? json['avg_slope_deg'] as num?)?.toDouble(),
-      // Backend returns deformation_mm (already scaled to mm), or los_deformation_m * 1000
-      insarDeformationMm: _parseInsarDeformation(json),
-      ndviIndex: (json['ndvi_index'] as num?)?.toDouble(),
+      rainfall24hMm: (rain24 is num) ? rain24.toDouble() : null,
+      rainfall72hCumulativeMm: (rain72 is num) ? rain72.toDouble() : null,
+      soilMoisturePct: (soil is num) ? soil.toDouble() : null,
+      slopeDegrees: (slope is num) ? slope.toDouble() : null,
+      insarDeformationMm: _parseInsarDeformation(source),
+      ndviIndex: (source['ndvi_index'] as num?)?.toDouble() ??
+          (json['ndvi_index'] as num?)?.toDouble(),
       topFactors: topList,
     );
   }
@@ -482,11 +509,11 @@ class ZoneRiskModel {
         ? rawFactors.map((e) => e.toString()).toList()
         : <String>[];
 
-    // ------- Legacy factors object -------
-    final factorsJson = json['factors'];
+    // ------- Factors object (from list factors or detail explainability) -------
+    final factorsJson = json['factors'] ?? json['explainability'];
     final factors = factorsJson is Map
         ? RiskFactors.fromJson(Map<String, dynamic>.from(factorsJson))
-        : const RiskFactors();
+        : RiskFactors.fromJson(json);
 
     return ZoneRiskModel(
       zoneId: json['zone_id'] as String? ?? '',

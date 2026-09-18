@@ -99,9 +99,9 @@ class HomeScreen extends StatelessWidget {
         ),
         child: RefreshIndicator(
           onRefresh: () async {
-            await riskProvider.loadRisks();
-            await alertProvider.loadAlerts();
-            await roadProvider.loadRoads();
+            await riskProvider.loadRisks(forceRefresh: true);
+            await alertProvider.loadAlerts(forceRefresh: true);
+            await roadProvider.loadRoads(forceRefresh: true);
             await safetyProvider.loadArticles();
             notifProvider.syncFromAlerts(alertProvider.allAlerts);
           },

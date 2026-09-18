@@ -109,6 +109,7 @@ class UnifiedRiskPredictionResponse(BaseModel):
     risk_score_id: str
     feature_importances: dict[str, float] = Field(default_factory=dict)
     explainability: ExplainabilityFactors
+    factors: Optional[ExplainabilityFactors] = None
 
 
 class MultiModalPredictRequest(BaseModel):

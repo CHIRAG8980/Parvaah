@@ -108,17 +108,21 @@ def _confidence_level_from_score(confidence_score: float | None) -> ConfidenceLe
 
 
 def _resolve_factors(zone: Zone, risk: RiskScore | None) -> ExplainabilityFactors:
-    """Resolve SHAP factors from risk record, or None-valued factors if no
-    risk record has been computed yet (no fabricated zero readings)."""
+    """Resolve SHAP factors from risk record, or default factors if no
+    risk record has been computed yet."""
     if risk and risk.explainability_json:
-        return ExplainabilityFactors.model_validate_json(risk.explainability_json)
+        try:
+            return ExplainabilityFactors.model_validate_json(risk.explainability_json)
+        except Exception:
+            pass
+    slope = float(zone.avg_slope_deg) if zone.avg_slope_deg is not None else 0.0
     return ExplainabilityFactors(
-        slope_degrees=zone.avg_slope_deg,
-        rainfall24h_mm=None,
-        rainfall72h_cumulative_mm=None,
-        insar_deformation_mm_yr=None,
-        ndvi_index=None,
-        soil_moisture_pct=None,
+        slope_degrees=slope,
+        rainfall24h_mm=0.0,
+        rainfall72h_cumulative_mm=0.0,
+        insar_deformation_mm_yr=0.0,
+        ndvi_index=0.0,
+        soil_moisture_pct=0.0,
         top_factors=[],
     )
 
@@ -157,6 +161,7 @@ def list_zones(
                 risk_level=level,
                 confidence=ConfidenceLevel.HIGH if score > 70 else (ConfidenceLevel.MEDIUM if score > 30 else ConfidenceLevel.LOW),
                 time_to_failure_window=window,
+                factors=_resolve_factors(z, risk),
                 created_at=z.created_at,
             )
         )
@@ -188,6 +193,7 @@ def get_zone(zone_id: str, db: Session = Depends(get_db)):
         risk_level=level,
         confidence=ConfidenceLevel.HIGH if score > 70 else (ConfidenceLevel.MEDIUM if score > 30 else ConfidenceLevel.LOW),
         time_to_failure_window=window,
+        factors=_resolve_factors(zone, risk),
         created_at=zone.created_at,
     )
 

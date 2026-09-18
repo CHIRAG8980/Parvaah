@@ -31,8 +31,8 @@ class _LiveGisMapScreenState extends State<LiveGisMapScreen>
 
   final List<Map<String, String>> _tileOptions = [
     {
-      'name': 'Street (Voyager)',
-      'url': 'https://basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}@2x.png',
+      'name': 'Street (OpenStreetMap)',
+      'url': 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
     },
     {
       'name': 'Satellite (Esri)',
@@ -159,7 +159,7 @@ class _LiveGisMapScreenState extends State<LiveGisMapScreen>
                 // Base Tile Layer (Real vector street or satellite)
                 TileLayer(
                   urlTemplate: _tileOptions[_selectedTileLayer]['url']!,
-                  userAgentPackageName: 'com.parvaah.safety.mobile',
+                  userAgentPackageName: 'com.landslide.mobile',
                 ),
 
                 // Arterial Highways Polylines (dynamically loaded from RoadProvider)

@@ -147,6 +147,7 @@ def predict_zone_risk(zone_id: str, db: Session = Depends(get_db)):
         risk_score_id=risk_id,
         feature_importances=ml_service.get_feature_importances(),
         explainability=factors,
+        factors=factors,
     )
 
 
@@ -254,6 +255,7 @@ def predict_multimodal_risk(request: MultiModalPredictRequest, db: Session = Dep
         risk_score_id=risk_id,
         feature_importances=ml_service.get_feature_importances(),
         explainability=factors,
+        factors=factors,
     )
 
 

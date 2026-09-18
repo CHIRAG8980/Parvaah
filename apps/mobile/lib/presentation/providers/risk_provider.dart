@@ -44,4 +44,12 @@ class RiskProvider extends ChangeNotifier {
   }
 
   bool get isDataStale => _repository.isDataStale();
+
+  Future<ZoneRiskModel?> getZoneDetail(String zoneId) async {
+    try {
+      return await _repository.getZoneById(zoneId);
+    } catch (_) {
+      return null;
+    }
+  }
 }

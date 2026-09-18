@@ -105,7 +105,7 @@ class _QuickActionCard extends StatelessWidget {
         highlightColor: iconColor.withAlpha(12),
         child: Container(
           height: 102,
-          padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 10),
+          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 10),
           decoration: BoxDecoration(
             gradient: LinearGradient(
               begin: Alignment.topLeft,
@@ -195,17 +195,20 @@ class _QuickActionCard extends StatelessWidget {
                 ],
               ),
 
-              // Bottom Area: Label occupying full width
-              Text(
-                label,
-                maxLines: 2,
-                overflow: TextOverflow.ellipsis,
-                style: const TextStyle(
-                  fontSize: 11.5,
-                  fontWeight: FontWeight.w700,
-                  color: Color(0xFF0F243E),
-                  height: 1.15,
-                  letterSpacing: -0.2,
+              // Bottom Area: Label occupying full width with auto-fit
+              FittedBox(
+                fit: BoxFit.scaleDown,
+                alignment: Alignment.centerLeft,
+                child: Text(
+                  label,
+                  maxLines: 1,
+                  style: const TextStyle(
+                    fontSize: 11.5,
+                    fontWeight: FontWeight.w700,
+                    color: Color(0xFF0F243E),
+                    height: 1.15,
+                    letterSpacing: -0.2,
+                  ),
                 ),
               ),
             ],
