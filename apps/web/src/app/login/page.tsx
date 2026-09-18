@@ -45,12 +45,12 @@ export default function LoginPage() {
         <header className="flex items-start justify-between flex-shrink-0 w-full">
           <div className="flex items-center gap-3 select-none">
             <div className="relative w-8 h-8 sm:w-9 sm:h-9 flex-shrink-0 rounded-xl overflow-hidden shadow-md border border-white/30 bg-black/20 backdrop-blur-xs">
-              <Image src="/images/logo.png" alt="NER Landslide Watch" width={36} height={36} className="w-full h-full object-cover" priority />
+              <Image src="/images/logo.png" alt="Parvaah Logo" width={36} height={36} className="w-full h-full object-cover" priority />
             </div>
 
             <div className="flex flex-col">
               <span className="text-[19px] sm:text-[21px] font-bold text-white tracking-tight leading-tight drop-shadow-md">
-                NER Landslide Watch
+                Parvaah
               </span>
               <span className="text-[11.5px] sm:text-[12.5px] font-medium text-slate-200 tracking-tight leading-none mt-0.5">
                 AI Early Warning & Risk Monitoring
