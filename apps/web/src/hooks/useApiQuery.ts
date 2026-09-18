@@ -48,6 +48,9 @@ export function useApiQuery<T>(
       }
       return result;
     } catch (err: unknown) {
+      if (controller.signal.aborted || (err instanceof Error && err.name === 'AbortError')) {
+        return null;
+      }
       if (isMountedRef.current) {
         const normalized =
           err instanceof ApiError

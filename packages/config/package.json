@@ -11,7 +11,8 @@
   "scripts": {
     "build": "tsc",
     "type-check": "tsc --noEmit",
-    "lint": "echo \"No linter configured for @landslide/config\""
+    "lint": "echo \"No linter configured for @landslide/config\"",
+    "clean": "node -e \"fs.rmSync('dist', { recursive: true, force: true })\""
   },
   "devDependencies": {
     "@types/node": "^20.14.0",

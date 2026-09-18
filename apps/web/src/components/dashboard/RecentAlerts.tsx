@@ -80,7 +80,14 @@ export const RecentAlerts: React.FC = () => {
               badgeStyle = 'bg-[#3B82F6] text-white';
             }
 
-            const minutesLeft = Math.max(0, Math.floor(alert.seconds_until_escalation / 60));
+            const seconds = typeof alert.seconds_remaining === 'number'
+              ? alert.seconds_remaining
+              : typeof alert.seconds_until_escalation === 'number'
+              ? alert.seconds_until_escalation
+              : 0;
+            const minutesLeft = Math.max(0, Math.floor(seconds / 60));
+            const isPending = alert.status === 'pending_review';
+            const timerLabel = isPending ? `${minutesLeft}m left` : alert.status.replace('_', ' ');
 
             return (
               <div
@@ -107,7 +114,7 @@ export const RecentAlerts: React.FC = () => {
                 <div className="flex items-center gap-2.5 flex-shrink-0">
                   <span className="text-[11px] font-medium text-[#758CA8] flex items-center gap-1 whitespace-nowrap">
                     <Clock className="w-3 h-3 text-[#DC2626]" />
-                    <span>{minutesLeft}m left</span>
+                    <span className="capitalize">{timerLabel}</span>
                   </span>
                   <span
                     className={`px-2 py-0.5 rounded-full text-[10px] font-bold tracking-tight uppercase shadow-2xs transition-transform duration-150 group-hover:scale-[1.03] ${badgeStyle}`}

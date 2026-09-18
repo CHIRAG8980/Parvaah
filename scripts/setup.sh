@@ -102,24 +102,17 @@ log_success "Python dependencies installed."
 
 # 3. Node.js & Monorepo Packages
 log_info "Step 3/5: Setting up Node.js & monorepo workspace dependencies..."
-if command -v pnpm >/dev/null 2>&1; then
-  pnpm install
-elif command -v npm >/dev/null 2>&1; then
-  log_warn "pnpm not found. Using npm..."
+if command -v npm >/dev/null 2>&1; then
   npm install
 else
-  log_error "Node.js package manager (pnpm/npm) not found in PATH."
+  log_error "npm not found in PATH."
   exit 1
 fi
 log_success "Node.js dependencies installed."
 
 # 4. Build Shared Monorepo Packages
 log_info "Step 4/5: Building shared TypeScript packages..."
-if command -v pnpm >/dev/null 2>&1; then
-  pnpm -r --filter "./packages/**" run build 2>/dev/null || pnpm -r --filter "./packages/**" run type-check
-elif command -v npm >/dev/null 2>&1; then
-  npm run build --workspaces --if-present
-fi
+npm run build --workspaces --if-present
 log_success "Monorepo packages built successfully."
 
 # 5. Database Initialization & Ingestion
@@ -142,11 +135,11 @@ echo -e "${CLR_BOLD}${CLR_GREEN}================================================
 echo -e "${CLR_BOLD}${CLR_GREEN}  🎉 Parvaah setup completed successfully!${CLR_RESET}"
 echo -e "${CLR_BOLD}${CLR_GREEN}================================================================${CLR_RESET}"
 echo -e "To start the development servers:"
-echo -e "  ${CLR_CYAN}./cli.sh --dev${CLR_RESET}   (or ${CLR_CYAN}pnpm dev${CLR_RESET} / ${CLR_CYAN}./scripts/dev.sh${CLR_RESET})"
+echo -e "  ${CLR_CYAN}./cli.sh --dev${CLR_RESET}   (or ${CLR_CYAN}npm run dev${CLR_RESET} / ${CLR_CYAN}./scripts/dev.sh${CLR_RESET})"
 echo -e "To run all test suites:"
 echo -e "  ${CLR_CYAN}./cli.sh --test${CLR_RESET}  (or ${CLR_CYAN}pytest apps/backend/tests${CLR_RESET})"
 echo -e "To launch backend alone:"
-echo -e "  ${CLR_CYAN}pnpm dev:backend${CLR_RESET}"
+echo -e "  ${CLR_CYAN}npm run dev:backend${CLR_RESET}"
 echo -e "To launch web alone:"
-echo -e "  ${CLR_CYAN}pnpm dev:web${CLR_RESET}"
+echo -e "  ${CLR_CYAN}npm run dev:web${CLR_RESET}"
 echo -e "${CLR_BOLD}${CLR_GREEN}================================================================${CLR_RESET}"

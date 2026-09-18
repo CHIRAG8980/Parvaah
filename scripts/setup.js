@@ -79,25 +79,14 @@ console.log('\x1b[1m\x1b[32m[SUCCESS]\x1b[0m Python dependencies installed.');
 
 // 3. Node.js & Monorepo Packages
 console.log('\x1b[1m\x1b[36m[SETUP]\x1b[0m Step 3/5: Setting up Node.js workspace dependencies...');
-const pnpmCmd = isWindows ? 'pnpm.cmd' : 'pnpm';
 const npmCmd = isWindows ? 'npm.cmd' : 'npm';
 
-let pkgManager = npmCmd;
-const checkPnpm = spawnSync(pnpmCmd, ['--version'], { shell: false });
-if (checkPnpm.status === 0) {
-  pkgManager = pnpmCmd;
-}
-
-run(pkgManager, ['install'], { shell: false });
+run(npmCmd, ['install'], { shell: false });
 console.log('\x1b[1m\x1b[32m[SUCCESS]\x1b[0m Node.js dependencies installed.');
 
 // 4. Build Shared Monorepo Packages
 console.log('\x1b[1m\x1b[36m[SETUP]\x1b[0m Step 4/5: Building shared TypeScript packages...');
-if (pkgManager === pnpmCmd) {
-  run(pnpmCmd, ['-r', '--filter', './packages/**', 'run', 'build'], { shell: false });
-} else {
-  run(npmCmd, ['run', 'build', '--workspaces', '--if-present'], { shell: false });
-}
+run(npmCmd, ['run', 'build', '--workspaces', '--if-present'], { shell: false });
 console.log('\x1b[1m\x1b[32m[SUCCESS]\x1b[0m Monorepo packages built successfully.');
 
 // 5. Database Initialization & Ingestion
@@ -116,7 +105,7 @@ console.log('\n\x1b[1m\x1b[32m==================================================
 console.log('\x1b[1m\x1b[32m  🎉 Parvaah setup completed successfully!\x1b[0m');
 console.log('\x1b[1m\x1b[32m================================================================\x1b[0m');
 console.log('To start development servers:');
-console.log(`  ${isWindows ? 'cli.bat --dev' : './cli.sh --dev'}   (or pnpm dev)`);
+console.log(`  ${isWindows ? 'cli.bat --dev' : './cli.sh --dev'}   (or npm run dev)`);
 console.log('To run tests:');
 console.log(`  ${isWindows ? 'cli.bat --test' : './cli.sh --test'}  (or pytest apps/backend/tests)`);
 console.log('\x1b[1m\x1b[32m================================================================\x1b[0m');

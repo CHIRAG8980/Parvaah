@@ -52,7 +52,13 @@ export const ZoneSectorCard: React.FC<ZoneSectorCardProps> = ({ zone }) => {
           </div>
           <div className="bg-[#F8FAFC] p-2 rounded-lg">
             <span className="text-[10.5px] text-[#64748B] block">Pre-Event Profile</span>
-            <span className="font-bold text-[#DC2626]">{zone.historical_condition_window || zone.time_to_failure_window || 'Baseline Regime'}</span>
+            <span className={`font-bold ${
+              (zone.historical_condition_window || zone.time_to_failure_window)
+                ? (zone.risk_level === 'HIGH' || zone.risk_level === 'CRITICAL' ? 'text-[#DC2626]' : 'text-[#D97706]')
+                : 'text-[#10B981]'
+            }`}>
+              {zone.historical_condition_window || zone.time_to_failure_window || 'Baseline Regime'}
+            </span>
           </div>
         </div>
       </div>

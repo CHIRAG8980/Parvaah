@@ -7,12 +7,13 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "type-check": "tsc --noEmit"
+    "type-check": "tsc --noEmit",
+    "clean": "node -e \"['.next', 'out', 'dist', 'tsconfig.tsbuildinfo'].forEach(p => fs.rmSync(p, { recursive: true, force: true }))\""
   },
   "dependencies": {
-    "@landslide/config": "workspace:*",
-    "@landslide/types": "workspace:*",
-    "@landslide/ui": "workspace:*",
+    "@landslide/config": "*",
+    "@landslide/types": "*",
+    "@landslide/ui": "*",
     "@types/leaflet": "^1.9.22",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",

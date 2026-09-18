@@ -20,7 +20,29 @@ export const AlertItemCard: React.FC<AlertItemCardProps> = ({
   isRejecting,
 }) => {
   const isResolved = alert.status === 'resolved' || alert.status === 'approved';
-  const minutesLeft = Math.max(0, Math.floor(alert.seconds_until_escalation / 60));
+  const isPending = alert.status === 'pending_review';
+  const seconds = typeof alert.seconds_remaining === 'number'
+    ? alert.seconds_remaining
+    : typeof alert.seconds_until_escalation === 'number'
+    ? alert.seconds_until_escalation
+    : 0;
+  const minutesLeft = Math.max(0, Math.floor(seconds / 60));
+
+  const statusBadgeColor = isResolved
+    ? 'bg-[#ECFDF5] text-[#10B981]'
+    : alert.status === 'auto_escalated'
+    ? 'bg-[#FFF7ED] text-[#EA580C]'
+    : 'bg-[#FEF2F2] text-[#DC2626]';
+
+  const statusText = isPending
+    ? `PENDING REVIEW (${minutesLeft}m left)`
+    : alert.status.replace('_', ' ').toUpperCase();
+
+  const escalationText = alert.escalated_to
+    ? `Escalated to: ${alert.escalated_to}`
+    : alert.escalation_level
+    ? `Escalation: ${alert.escalation_level}`
+    : 'Escalation: Level 1 (SDRF / State DMA)';
 
   let icon = <AlertTriangle className="w-5 h-5 text-[#EF4444]" />;
   let severityBadge = 'bg-[#FEF2F2] text-[#DC2626] border-[#FECACA]';
@@ -51,8 +73,8 @@ export const AlertItemCard: React.FC<AlertItemCardProps> = ({
             <span className={`text-[11px] font-bold uppercase px-2.5 py-0.5 rounded-full border ${severityBadge}`}>
               {alert.severity}
             </span>
-            <span className="text-[11px] font-semibold px-2.5 py-0.5 rounded-full bg-[#FEF2F2] text-[#DC2626]">
-              ● {alert.status.replace('_', ' ').toUpperCase()} ({minutesLeft}m left)
+            <span className={`text-[11px] font-semibold px-2.5 py-0.5 rounded-full ${statusBadgeColor}`}>
+              ● {statusText}
             </span>
           </div>
 
@@ -67,7 +89,7 @@ export const AlertItemCard: React.FC<AlertItemCardProps> = ({
             </div>
             <div className="flex items-center gap-1">
               <Clock className="w-3.5 h-3.5 text-[#758CA8]" />
-              <span>Escalation: {alert.escalation_level}</span>
+              <span>{escalationText}</span>
             </div>
           </div>
 
@@ -76,16 +98,18 @@ export const AlertItemCard: React.FC<AlertItemCardProps> = ({
               <strong className="text-[#0F1F3D]">Official Draft Alert: </strong>
               <span className="text-[#334155]">{alert.draft_message}</span>
             </div>
-            {alert.factors?.top_factors?.length > 0 && (
+            {Boolean(alert.factors?.top_factors?.length) && (
               <div>
                 <strong className="text-[#0F1F3D]">Top Geotechnical Triggers: </strong>
-                <span className="text-[#1769D2] font-medium">{alert.factors.top_factors.join(' • ')}</span>
+                <span className="text-[#1769D2] font-medium">{alert.factors?.top_factors?.join(' • ')}</span>
               </div>
             )}
-            {alert.suggested_actions?.length > 0 && (
+            {(Boolean(alert.suggested_actions?.length) || Boolean(alert.suggested_action)) && (
               <div>
                 <strong className="text-[#0F1F3D]">SDRF Suggested Action: </strong>
-                <span className="text-[#059669] font-medium">{alert.suggested_actions.join('; ')}</span>
+                <span className="text-[#059669] font-medium">
+                  {alert.suggested_actions?.join('; ') || alert.suggested_action}
+                </span>
               </div>
             )}
           </div>

@@ -141,9 +141,14 @@ Parvaah/
 │   ├── types/                   # Shared TypeScript domain contracts
 │   └── ui/                      # Shared design tokens & UI components
 │
-├── docs/                        # Architecture specs, PRDs, schemas, and research
+├── docs/                        # Central Documentation Directory
+│   ├── README.md                # Master Documentation Table of Contents
+│   ├── architecture/            # Architecture Overview, Tech Stack, Schema, Real-Time Pipeline
+│   ├── specifications/          # Official PRD, Web, Mobile, and AI Feature Specifications
+│   ├── data_and_models/         # Datasets Reference, Inventories, and Model Summaries
+│   └── compliance/              # Sovereign Indian Source Audits & Validation Reports
 ├── infrastructure/              # Docker, Kubernetes, and Terraform deployment assets
-└── package.json                 # Monorepo root workspace configuration (pnpm)
+└── package.json                 # Monorepo root workspace configuration (npm)
 ```
 
 ---
@@ -156,7 +161,7 @@ Parvaah/
 |---|---|---|
 | **Python** | `3.11.x` | Backend API & ML inference |
 | **Node.js** | `v20.x` or `v22+` | Web Command Center |
-| **pnpm** | `v9+` or `v12+` | Workspace dependency management |
+| **npm** | `v10+` or `v11+` | Workspace dependency management |
 | **Flutter** | `3.x` (Dart 3.x) | Field mobile client |
 | **PostgreSQL** | `15+` with `PostGIS` | Spatial database (or SQLite fallback) |
 
@@ -204,14 +209,14 @@ uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
 
 ```bash
 # 1. Install workspace dependencies
-pnpm install
+npm install
 
 # 2. Run the Next.js development server (running on port 3000)
-pnpm --filter @landslide/web dev
+npm run dev:web
 
 # 3. Or build and launch the production build
-pnpm --filter @landslide/web build
-pnpm --filter @landslide/web start
+npm run build:web
+npm run start --workspace=@landslide/web
 ```
 
 * **Command Center Portal**: [http://localhost:3000](http://localhost:3000)

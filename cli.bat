@@ -42,7 +42,7 @@ echo Starting development servers...
 if exist "%ROOT_DIR%scripts\dev.bat" (
     call "%ROOT_DIR%scripts\dev.bat"
 ) else (
-    call pnpm dev
+    call npm run dev
 )
 exit /b %errorlevel%
 
@@ -55,7 +55,7 @@ if exist "%ROOT_DIR%.venv\Scripts\pytest.exe" (
 exit /b %errorlevel%
 
 :build
-call pnpm run build
+call npm run build
 exit /b %errorlevel%
 
 :help

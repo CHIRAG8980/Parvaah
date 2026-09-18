@@ -17,7 +17,7 @@ Parvaah operates as a multi-tier geotechnical hazard intelligence system consist
 2. **FastAPI Backend Core (`apps/backend`)**:
    - Lifespan automated database schema creation (`PostgreSQL` / `SQLite` fallback).
    - Ingestion loaders (`real_data_loader.py`, `real_zones_loader.py`, `real_telemetry_loader.py`).
-   - Domain services: `WeatherService` (live Open-Meteo API integration), `MLService` (joblib model loading + physics-calibrated fallback), `AlertService` (review queue, auto-escalation countdown, multilingual templates), `RoadService` (network chokepoints and safe routing), and `AuditService` (immutable event ledger).
+   - Domain services: `WeatherService` (official IMD precipitation & AWS telemetry), `MLService` (joblib model loading + physics-calibrated fallback), `AlertService` (review queue, auto-escalation countdown, multilingual templates), `RoadService` (network chokepoints and safe routing), and `AuditService` (immutable event ledger).
    - Role-Based Access Control (RBAC) supporting District Disaster Management Officers (DMO), State Officers (SDMA), and System Administrators.
 3. **Next.js Web Command Center (`apps/web`)**:
    - Interactive Leaflet GIS map with dynamic spatial bounding envelopes, continuous Gaussian-weighted landslide heatmaps, and highway corridor overlays.
@@ -35,8 +35,8 @@ Parvaah operates as a multi-tier geotechnical hazard intelligence system consist
   - GSI / ISRO Landslide Ground-Truth GeoJSON (951 events)
   - CartoDEM 30m Elevation & Slopes
   - Bhuvan LULC & Geomorphology
-  - OpenStreetMap Corridors
-  - Open-Meteo Live API
+  - MoRTH / PWD Road Corridors
+  - IMD AWS Surface Stations
              │
              ▼
 [Backend Startup Ingestion (apps/backend/app/ingest)]
@@ -57,7 +57,7 @@ Parvaah operates as a multi-tier geotechnical hazard intelligence system consist
              │
              ▼
 [REST APIs (app/api/v1/*)]
-  - /weather/forecast (Open-Meteo live hourly/daily trend + fallback)
+  - /weather/forecast (official IMD 14-day rainfall timeline vs. risk)
   - /zones, /zones/heatmap (Continuous Gaussian-weighted intensity points)
   - /analytics/kpis (District-scoped or regional summary metrics)
   - /alerts/queue, /alerts/{id}/approve (Review queue & lifecycle)

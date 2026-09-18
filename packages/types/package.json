@@ -10,10 +10,11 @@
   "scripts": {
     "build": "tsc",
     "type-check": "tsc --noEmit",
-    "lint": "echo \"No linter configured for @landslide/types\""
+    "lint": "echo \"No linter configured for @landslide/types\"",
+    "clean": "node -e \"fs.rmSync('dist', { recursive: true, force: true })\""
   },
   "devDependencies": {
-    "@landslide/config": "workspace:*",
+    "@landslide/config": "*",
     "typescript": "^5.4.5"
   }
 }

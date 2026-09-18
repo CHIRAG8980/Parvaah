@@ -33,7 +33,15 @@ export const OfficerCard: React.FC<OfficerCardProps> = ({ officer, onDispatchCal
               <h3 className="font-bold text-[#0F1F3D] text-[14.5px] leading-tight">
                 {officer.name}
               </h3>
-              <span className="text-xs text-[#1769D2] font-semibold">
+              <span
+                className={`inline-block text-[11px] font-semibold px-1.5 py-0.5 rounded mt-1 ${
+                  officer.role.toLowerCase() === 'admin'
+                    ? 'bg-[#FAF5FF] text-[#7E22CE] border border-[#E9D5FF]'
+                    : officer.role.toLowerCase().includes('district')
+                    ? 'bg-[#EFF6FF] text-[#1769D2] border border-[#BFDBFE]'
+                    : 'bg-[#F1F5F9] text-[#475569] border border-[#CBD5E1]'
+                }`}
+              >
                 {officer.role}
               </span>
             </div>
@@ -55,9 +63,17 @@ export const OfficerCard: React.FC<OfficerCardProps> = ({ officer, onDispatchCal
             <strong className="text-[#0F1F3D]">Jurisdiction: </strong>
             <span>{officer.jurisdiction}</span>
           </div>
-          <div>
+          <div className="flex items-center gap-1.5">
             <strong className="text-[#0F1F3D]">Clearance: </strong>
-            <span className="font-mono text-[#1769D2]">{officer.clearanceLevel}</span>
+            <span
+              className={`px-2 py-0.5 rounded text-[11px] font-semibold ${
+                officer.clearanceLevel.includes('Executive') || officer.clearanceLevel.includes('Level 4')
+                  ? 'bg-[#FAF5FF] text-[#7E22CE] border border-[#E9D5FF]'
+                  : 'bg-[#EFF6FF] text-[#1769D2] border border-[#BFDBFE]'
+              }`}
+            >
+              {officer.clearanceLevel}
+            </span>
           </div>
           <div className="flex items-center gap-1.5 pt-1 text-[#0F1F3D]">
             <Mail className="w-3.5 h-3.5 text-[#758CA8]" />
@@ -71,11 +87,13 @@ export const OfficerCard: React.FC<OfficerCardProps> = ({ officer, onDispatchCal
       </div>
 
       <div className="mt-4 pt-3 border-t border-[#F1F5F9] flex items-center justify-between text-xs">
-        <span className="font-mono text-[11px] text-[#758CA8]">{officer.id}</span>
+        <span className="font-mono text-[11px] text-[#536B8F] bg-[#F8FAFC] px-2 py-0.5 rounded border border-[#E2E8F0]">
+          {officer.id}
+        </span>
         <button
           type="button"
           onClick={() => onDispatchCall(officer)}
-          className="text-[#1769D2] font-semibold hover:underline motion-btn inline-flex items-center gap-1 group/btn cursor-pointer"
+          className="text-[#1769D2] font-semibold hover:text-[#1257B2] hover:underline motion-btn inline-flex items-center gap-1 group/btn cursor-pointer"
         >
           <span>Secure Dispatch Call</span>
           <span className="transition-transform duration-180 group-hover/btn:translate-x-0.5">→</span>

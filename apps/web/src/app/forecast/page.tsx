@@ -97,9 +97,9 @@ export default function ForecastPage() {
 
                   return (
                     <tr key={z.zone_id} className="hover:bg-[#F8FAFC] motion-row">
-                      <td className="py-3 px-3 font-bold">
-                        <div>{z.name}</div>
-                        <span className="font-mono text-[10.5px] text-[#758CA8]">{z.district}</span>
+                      <td className="py-3 px-3">
+                        <div className="font-bold text-[13px] text-[#0F1F3D] leading-tight">{z.name}</div>
+                        <div className="text-[11px] text-[#536B8F] mt-1 font-normal">{z.district}</div>
                       </td>
                       <td className="py-3 px-3 text-[#536B8F]">{z.state} ({Math.round(z.avg_elevation_m)}m)</td>
                       <td className="py-3 px-3 font-bold text-[#1769D2]">{z.avg_slope_deg}°</td>

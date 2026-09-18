@@ -54,24 +54,17 @@ Write-Host "[SUCCESS] Python dependencies installed." -ForegroundColor Green
 
 # 3. Node.js & Monorepo Packages
 Write-Host "[SETUP] Step 3/5: Setting up Node.js & monorepo workspace dependencies..." -ForegroundColor Cyan
-if (Get-Command pnpm -ErrorAction SilentlyContinue) {
-    pnpm install
-} elseif (Get-Command npm -ErrorAction SilentlyContinue) {
-    Write-Host "[WARN] pnpm not found. Using npm..." -ForegroundColor Yellow
+if (Get-Command npm -ErrorAction SilentlyContinue) {
     npm install
 } else {
-    Write-Host "[ERROR] Node.js package manager (pnpm/npm) not found in PATH." -ForegroundColor Red
+    Write-Host "[ERROR] Node.js package manager (npm) not found in PATH." -ForegroundColor Red
     exit 1
 }
 Write-Host "[SUCCESS] Node.js dependencies installed." -ForegroundColor Green
 
 # 4. Build Shared Monorepo Packages
 Write-Host "[SETUP] Step 4/5: Building shared TypeScript packages..." -ForegroundColor Cyan
-if (Get-Command pnpm -ErrorAction SilentlyContinue) {
-    pnpm -r --filter "./packages/**" run build
-} else {
-    npm run build --workspaces --if-present
-}
+npm run build --workspaces --if-present
 Write-Host "[SUCCESS] Monorepo packages built successfully." -ForegroundColor Green
 
 # 5. Database Initialization & Ingestion
@@ -87,7 +80,7 @@ Write-Host "================================================================" -F
 Write-Host "  Parvaah setup completed successfully!" -ForegroundColor Green
 Write-Host "================================================================" -ForegroundColor Green
 Write-Host "To start the development servers:"
-Write-Host "  .\cli.ps1 --dev   (or pnpm dev)"
+Write-Host "  .\cli.ps1 --dev   (or npm run dev)"
 Write-Host "To run all test suites:"
 Write-Host "  .\cli.ps1 --test  (or pytest apps/backend/tests)"
 Write-Host "================================================================" -ForegroundColor Green

@@ -9,7 +9,7 @@ interface RoadClearanceOverviewProps {
 }
 
 export const RoadClearanceOverview: React.FC<RoadClearanceOverviewProps> = ({ roads }) => {
-  const nonOperational = roads.filter((r) => r.status !== 'operational');
+  const nonOperational = roads.filter((r) => r.status === 'blocked' || r.status === 'at_risk');
 
   return (
     <div className="bg-white rounded-xl border border-[#DCE6F2] p-5 shadow-xs flex flex-col justify-between motion-card">

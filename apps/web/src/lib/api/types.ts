@@ -1,6 +1,6 @@
 export type RiskLevel = 'CRITICAL' | 'HIGH' | 'MEDIUM' | 'LOW' | 'OUT_OF_COVERAGE';
 export type ConfidenceLevel = 'HIGH' | 'MEDIUM' | 'LOW' | 'OUT_OF_COVERAGE' | 'out_of_coverage';
-export type RoadStatus = 'operational' | 'at_risk' | 'blocked';
+export type RoadStatus = 'open' | 'operational' | 'at_risk' | 'blocked';
 export type AlertSeverity = 'Critical' | 'High' | 'Medium' | 'Low' | 'Info';
 export type AlertStatus = 'pending_review' | 'approved' | 'rejected' | 'auto_escalated' | 'resolved';
 
@@ -71,13 +71,22 @@ export interface AlertQueueItem {
   severity: AlertSeverity;
   status: AlertStatus;
   draft_message: string;
-  risk_score_numeric: number;
-  seconds_until_escalation: number;
-  escalation_level: string;
+  risk_score?: number;
+  risk_score_numeric?: number;
+  seconds_remaining?: number;
+  seconds_until_escalation?: number;
+  escalation_deadline?: string;
+  escalated_to?: string | null;
+  escalation_level?: string;
+  time_to_failure_window?: string;
+  trigger_reason?: string;
+  suggested_action?: string;
+  affected_infrastructure?: string;
+  channels?: string[];
   created_at: string;
-  factors: ExplainabilityFactors;
-  suggested_actions: string[];
-  dissemination_channels: string[];
+  factors?: ExplainabilityFactors;
+  suggested_actions?: string[];
+  dissemination_channels?: string[];
 }
 
 export interface AlertApproveRequest {

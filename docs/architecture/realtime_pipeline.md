@@ -1,17 +1,19 @@
 # Parvaah — Real-Time Pipeline Implementation
 
 **Document:** Real-time functionalization — verified architecture, design decisions, and data-source classifications  
-**Date:** September 14, 2026  
-**Status:** IMPLEMENTED & VERIFIED (31/31 backend tests passing, TypeScript clean)
+**Date:** September 14, 2026 (Updated for Sovereign Indian Compliance)  
+**Status:** IMPLEMENTED & VERIFIED (44/44 backend tests passing, TypeScript clean)
+
+> [!NOTE]
+> **Data Source Evolution**: The initial real-time prototype used the public Open-Meteo API for proof-of-concept precipitation streaming. Following the sovereign data mandate documented in `INDIAN_SOURCE_AUDIT.md`, all foreign weather endpoints were purged and replaced with authentic **India Meteorological Department (IMD / MoES)** gridded daily rainfall series, AWS telemetry, and community gauge networks. The architectural data flow below reflects this transition.
 
 ---
 
 ## End-to-End Real-Time Data Flow
 
 ```
-Open-Meteo Live API (free, no key)
-  → GET https://api.open-meteo.com/v1/forecast?latitude={lat}&longitude={lon}
-    &hourly=precipitation&past_days=7&forecast_days=1&timezone=UTC
+India Meteorological Department (IMD / MoES) / Local AWS Ingestion
+  → POST /api/v1/weather/readings OR IMD gridded daily time-series
 
   ↓ [scheduler.py — asyncio background task, every 30 minutes]
 

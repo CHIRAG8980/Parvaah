@@ -13,7 +13,7 @@ const isWindows = process.platform === 'win32';
 const args = process.argv.slice(2);
 const action = args[0] || '--help';
 
-const pnpmCmd = isWindows ? 'pnpm.cmd' : 'pnpm';
+const npmCmd = isWindows ? 'npm.cmd' : 'npm';
 
 function run(command, cmdArgs, options = {}) {
   const result = spawnSync(command, cmdArgs, {
@@ -37,7 +37,7 @@ switch (action) {
   case '--dev':
   case '-d':
   case 'dev': {
-    run(pnpmCmd, ['dev'], { shell: false });
+    run(npmCmd, ['run', 'dev'], { shell: false });
     break;
   }
   case '--test':
@@ -53,7 +53,7 @@ switch (action) {
   case '--build':
   case '-b':
   case 'build': {
-    run(pnpmCmd, ['run', 'build'], { shell: false });
+    run(npmCmd, ['run', 'build'], { shell: false });
     break;
   }
   case '--help':
@@ -64,7 +64,7 @@ switch (action) {
     console.log('\x1b[1m\x1b[32m  Parvaah Unified CLI (Cross-Platform)\x1b[0m');
     console.log('\x1b[1m\x1b[32m================================================================\x1b[0m\n');
     console.log('Usage:');
-    console.log('  pnpm cli [command|flag]');
+    console.log('  npm run cli [command|flag]');
     console.log('  node scripts/cli.js [command|flag]');
     console.log('  cli.bat [command|flag]        (Windows CMD)');
     console.log('  .\\cli.ps1 [command|flag]      (Windows PowerShell)');

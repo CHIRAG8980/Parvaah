@@ -14,22 +14,9 @@ class ApiClient {
 
   private buildUrl(endpoint: string, params?: RequestOptions['params']): string {
     const cleanEndpoint = endpoint.startsWith('/') ? endpoint : `/${endpoint}`;
-    
-    // In browser, relative URL works with Next.js rewrites
-    if (typeof window !== 'undefined') {
-      const url = new URL(`${API_CONFIG.baseUrl}${cleanEndpoint}`, window.location.origin);
-      if (params) {
-        Object.entries(params).forEach(([key, value]) => {
-          if (value !== undefined && value !== null) {
-            url.searchParams.append(key, String(value));
-          }
-        });
-      }
-      return url.toString();
-    }
-
-    // Server-side direct request
-    const url = new URL(`${API_CONFIG.baseUrl}${cleanEndpoint}`);
+    const url = typeof window !== 'undefined'
+      ? new URL(`${API_CONFIG.baseUrl}${cleanEndpoint}`, window.location.origin)
+      : new URL(`${API_CONFIG.baseUrl}${cleanEndpoint}`);
     if (params) {
       Object.entries(params).forEach(([key, value]) => {
         if (value !== undefined && value !== null) {
@@ -90,6 +77,15 @@ class ApiClient {
     const url = this.buildUrl(endpoint, params);
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
+
+    const callerSignal = customConfig.signal;
+    if (callerSignal) {
+      if (callerSignal.aborted) {
+        controller.abort();
+      } else {
+        callerSignal.addEventListener('abort', () => controller.abort(), { once: true });
+      }
+    }
 
     const headers: Record<string, string> = {
       Accept: 'application/json',
@@ -153,6 +149,12 @@ class ApiClient {
       return (await response.json()) as T;
     } catch (error: unknown) {
       clearTimeout(timeoutId);
+
+      if (callerSignal?.aborted) {
+        const abortErr = new Error('The operation was aborted');
+        abortErr.name = 'AbortError';
+        throw abortErr;
+      }
 
       if (error instanceof ApiError) {
         throw error;

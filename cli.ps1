@@ -28,7 +28,7 @@ switch ($Action) {
         if (Test-Path "$RootDir\scripts\dev.ps1") {
             & "$RootDir\scripts\dev.ps1"
         } else {
-            pnpm dev
+            npm run dev
         }
         break
     }
@@ -42,7 +42,7 @@ switch ($Action) {
         break
     }
     { $_ -in @("--build", "-b", "build", "-Build") } {
-        pnpm run build
+        npm run build
         break
     }
     default {

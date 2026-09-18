@@ -25,11 +25,7 @@ case "$ACTION" in
     fi
     ;;
   --build|-b|build)
-    if command -v pnpm >/dev/null 2>&1; then
-      exec pnpm run build
-    else
-      exec npm run build
-    fi
+    exec npm run build
     ;;
   --help|-h|help|"")
     echo "Parvaah Unified CLI"

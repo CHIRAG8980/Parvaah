@@ -113,7 +113,14 @@ export const DistrictRiskChart: React.FC = () => {
               <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#E2E8F0" />
               <XAxis
                 dataKey="district"
-                tick={{ fontSize: 10.5, fill: '#536B8F' }}
+                tick={{ fontSize: 10, fill: '#536B8F' }}
+                tickFormatter={(val: string) =>
+                  val
+                    .replace('South West', 'SW')
+                    .replace('West', 'W.')
+                    .replace('East', 'E.')
+                    .replace(' Hills', '')
+                }
                 interval={0}
                 axisLine={{ stroke: '#CBD5E1' }}
                 tickLine={false}

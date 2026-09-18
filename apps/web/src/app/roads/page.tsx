@@ -24,7 +24,7 @@ export default function RoadsPage() {
   });
 
   const operationalPct = roads.length > 0
-    ? ((roads.filter((r) => r.status === 'operational').length / roads.length) * 100).toFixed(0)
+    ? ((roads.filter((r) => r.status === 'operational' || r.status === 'open').length / roads.length) * 100).toFixed(0)
     : '0';
 
   return (

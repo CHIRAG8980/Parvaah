@@ -9,10 +9,39 @@ interface OfficerStatsProps {
 }
 
 export const OfficerStats: React.FC<OfficerStatsProps> = ({ officers }) => {
-  const stateAuthorities = officers.filter((o) => o.clearanceLevel.includes('Level 4') || o.clearanceLevel.includes('Executive')).length;
-  const districtMagistrates = officers.filter((o) => o.role.toLowerCase().includes('district magistrate')).length;
-  const sdrfTeams = officers.filter((o) => o.role.toLowerCase().includes('sdrf') || o.role.toLowerCase().includes('disaster')).length;
-  const geoLeads = officers.filter((o) => o.role.toLowerCase().includes('geo') || o.role.toLowerCase().includes('lead')).length;
+  const stateAuthorities = officers.filter(
+    (o) =>
+      o.clearanceLevel.includes('Level 4') ||
+      o.clearanceLevel.includes('Executive') ||
+      o.role.toLowerCase() === 'admin' ||
+      o.role.toLowerCase().includes('state')
+  ).length;
+
+  const districtMagistrates = officers.filter(
+    (o) =>
+      o.role.toLowerCase().includes('district') ||
+      o.role.toLowerCase().includes('dmo') ||
+      o.role.toLowerCase().includes('magistrate')
+  ).length;
+
+  const sdrfTeams = officers.filter(
+    (o) =>
+      !o.role.toLowerCase().includes('district') &&
+      !o.role.toLowerCase().includes('admin') &&
+      (o.role.toLowerCase().includes('dispatch') ||
+        o.role.toLowerCase().includes('field') ||
+        o.role.toLowerCase().includes('sdrf') ||
+        o.role.toLowerCase() === 'officer' ||
+        o.role.toLowerCase().includes('qrt'))
+  ).length;
+
+  const geoLeads = officers.filter(
+    (o) =>
+      o.role.toLowerCase().includes('geo') ||
+      o.role.toLowerCase().includes('lead') ||
+      o.role.toLowerCase().includes('analyst') ||
+      o.role.toLowerCase().includes('scientist')
+  ).length;
 
   const stats = [
     { label: 'State Authorities', count: stateAuthorities, sub: 'Executive Tier', icon: Shield, iconColor: 'text-[#1769D2]', subColor: 'text-[#1769D2]' },

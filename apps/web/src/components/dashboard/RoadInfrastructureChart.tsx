@@ -15,7 +15,7 @@ export const RoadInfrastructureChart: React.FC = () => {
   }, []);
 
   const totalRoads = roads.length;
-  const operationalCount = roads.filter((r) => r.status === 'operational').length;
+  const operationalCount = roads.filter((r) => r.status === 'operational' || r.status === 'open').length;
   const atRiskCount = roads.filter((r) => r.status === 'at_risk').length;
   const blockedCount = roads.filter((r) => r.status === 'blocked').length;
 

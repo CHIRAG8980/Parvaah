@@ -104,7 +104,13 @@ def run_tests():
         expect(page.locator("text=Risk Distribution by District")).to_be_visible()
         expect(page.locator("text=Recent Rainfall (mm)")).to_be_visible()
         expect(page.locator("text=Road & Infrastructure Status")).to_be_visible()
-        print("  ✓ District Risk, Precipitation, and Road charts visible")
+        # Verify bug fix: no NaNm left, road operational is 100%, AI ensemble loaded
+        assert not page.locator("text=NaNm left").is_visible(), "Found 'NaNm left' timer bug on Dashboard"
+        expect(page.locator("text=Operational").first).to_be_visible()
+        expect(page.locator("text=100%").first).to_be_visible()
+        expect(page.locator("h3:has-text('AI/ML Sovereign Ensemble')")).to_be_visible()
+        expect(page.locator("text=4 Models Active")).to_be_visible()
+        print("  ✓ District Risk, Precipitation, Road charts (100% operational), and AI Ensemble verified")
 
         # -------------------------------------------------------------
         # 4. GIS Risk Map Page (/risk-map)
@@ -128,6 +134,8 @@ def run_tests():
         page.click("a[href='/alerts']")
         page.wait_for_url("**/alerts", timeout=10000)
         expect(page.locator("h1:has-text('Disaster Alerts & Control Room Review Queue')")).to_be_visible()
+        assert not page.locator("text=NaNm left").is_visible(), "Found 'NaNm left' timer bug on Alerts page"
+        print("  ✓ Alert timer counters verified (no 'NaNm left' anomalies)")
 
         # Test searching alerts
         search_input = page.locator("input[placeholder*='Search alert by district']").first
@@ -142,13 +150,14 @@ def run_tests():
         page.click("a[href='/roads']")
         page.wait_for_url("**/roads", timeout=10000)
         expect(page.locator("h1:has-text('Road & Strategic Transport Corridor Status')")).to_be_visible()
-        expect(page.locator("text=Arterial Corridors Operational")).to_be_visible()
+        expect(page.locator("text=100% Arterial Corridors Operational")).to_be_visible()
+        print("  ✓ Road clearance corridor status verified at 100% operational")
 
         # Search road
         road_search = page.locator("input[placeholder*='Search highway name']").first
-        road_search.fill("NH-06")
+        road_search.fill("NH-6")
         page.wait_for_timeout(500)
-        print("  ✓ Filtered road corridors by 'NH-06'")
+        print("  ✓ Filtered road corridors by 'NH-6'")
 
         # -------------------------------------------------------------
         # 7. Weather & Meteorological Forecasting (/forecast)
@@ -159,7 +168,10 @@ def run_tests():
         expect(page.locator("h1:has-text('Meteorological Forecasting & Precipitation Radar')")).to_be_visible()
         expect(page.locator("text=IMD Doppler Weather Radar & Satellite Estimates")).to_be_visible()
         expect(page.locator("text=Automatic Weather Stations (AWS) Precipitation Telemetry")).to_be_visible()
-        print("  ✓ Weather Forecast & AWS Stations telemetry verified")
+        # Verify Mawsynram elevation is not negative
+        expect(page.locator("text=-33m")).not_to_be_visible()
+        expect(page.locator("text=-32.9m")).not_to_be_visible()
+        print("  ✓ Weather Forecast & AWS Stations telemetry verified (no negative elevation)")
 
         # -------------------------------------------------------------
         # 8. Telemetry & Data Sources Network Health (/data-sources)

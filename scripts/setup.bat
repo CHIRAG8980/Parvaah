@@ -58,29 +58,18 @@ echo [SUCCESS] Python dependencies installed.
 
 :: 3. Node.js & Monorepo Packages
 echo [SETUP] Step 3/5: Setting up Node.js & monorepo workspace dependencies...
-where pnpm >nul 2>nul
+where npm >nul 2>nul
 if %errorlevel% equ 0 (
-    call pnpm install
+    call npm install
 ) else (
-    where npm >nul 2>nul
-    if %errorlevel% equ 0 (
-        echo [WARN] pnpm not found. Using npm...
-        call npm install
-    ) else (
-        echo [ERROR] Node.js package manager (pnpm/npm) not found in PATH.
-        exit /b 1
-    )
+    echo [ERROR] Node.js package manager (npm) not found in PATH.
+    exit /b 1
 )
 echo [SUCCESS] Node.js dependencies installed.
 
 :: 4. Build Shared Monorepo Packages
 echo [SETUP] Step 4/5: Building shared TypeScript packages...
-where pnpm >nul 2>nul
-if %errorlevel% equ 0 (
-    call pnpm -r --filter "./packages/**" run build
-) else (
-    call npm run build --workspaces --if-present
-)
+call npm run build --workspaces --if-present
 echo [SUCCESS] Monorepo packages built successfully.
 
 :: 5. Database Initialization & Ingestion
@@ -96,7 +85,7 @@ echo ================================================================
 echo   Parvaah setup completed successfully!
 echo ================================================================
 echo To start the development servers:
-echo   cli.bat --dev   (or pnpm dev)
+echo   cli.bat --dev   (or npm run dev)
 echo To run all test suites:
 echo   cli.bat --test  (or pytest apps\backend\tests)
 echo ================================================================

@@ -15,18 +15,35 @@ export default function UsersPage() {
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   const officerList: OfficerItem[] = useMemo(() => {
-    return apiOfficers.map((u) => ({
-      id: u.user_id,
-      name: u.full_name,
-      email: `${u.username}@disaster.gov.in`,
-      phone: u.contact_number || '+91 94360 00000',
-      role: u.role.replace(/_/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase()),
-      jurisdiction: u.district ? `${u.district} District` : 'North East Regional Command',
-      clearanceLevel: Number(u.escalation_level) >= 2 ? 'Level 4 (Executive)' : 'Level 3 (Command)',
-      status: 'On Duty' as const,
-      avatarInitials: u.full_name.split(' ').map((n) => n[0]).join('').slice(0, 2).toUpperCase(),
-    }));
+    return apiOfficers.map((u) => {
+      const isExecutive =
+        u.role.toLowerCase() === 'admin' ||
+        u.role.toLowerCase().includes('state') ||
+        Number(u.escalation_level) >= 2;
+
+      let displayRole = u.role.replace(/_/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase());
+      if (displayRole.toLowerCase() === 'officer') {
+        displayRole = 'Field Dispatch Officer';
+      }
+
+      return {
+        id: u.user_id,
+        name: u.full_name,
+        email: `${u.username}@disaster.gov.in`,
+        phone: u.contact_number || '+91 94360 00000',
+        role: displayRole,
+        jurisdiction: u.district ? `${u.district} District` : 'North East Regional Command',
+        clearanceLevel: isExecutive ? 'Level 4 (Executive)' : 'Level 3 (Command)',
+        status: 'On Duty' as const,
+        avatarInitials: u.full_name.split(' ').map((n) => n[0]).join('').slice(0, 2).toUpperCase(),
+      };
+    });
   }, [apiOfficers]);
+
+  const availableRoles = useMemo(() => {
+    const roles = Array.from(new Set(officerList.map((o) => o.role))).sort();
+    return ['All', ...roles];
+  }, [officerList]);
 
   const filteredOfficers = useMemo(() => {
     const query = searchQuery.toLowerCase().trim();
@@ -86,11 +103,12 @@ export default function UsersPage() {
               onChange={(e) => setSelectedRole(e.target.value)}
               className="bg-[#F8FAFC] border border-[#DCE6F2] rounded-lg px-3 py-2 text-[#0F1F3D] focus:outline-none font-medium motion-input cursor-pointer"
             >
-              <option value="All">All Official Roles</option>
-              <option value="Disaster Management Officer">Disaster Management Officer</option>
-              <option value="District Magistrate">District Magistrate</option>
-              <option value="SDRF Commander">SDRF Commander</option>
-              <option value="Geotechnical Lead">Geotechnical Lead</option>
+              <option value="All">All Official Roles ({officerList.length})</option>
+              {availableRoles.filter((r) => r !== 'All').map((r) => (
+                <option key={r} value={r}>
+                  {r}
+                </option>
+              ))}
             </select>
           </div>
         </div>
